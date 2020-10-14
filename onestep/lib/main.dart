@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'cloth/clothWidget.dart';
+import 'community/communityWidget.dart';
+import 'home/homeWidget.dart';
+import 'myinfo/myinfoWidget.dart';
+import 'notification/notificationWidget.dart';
+
 void main() {
   runApp(
     MyApp(),
@@ -31,13 +37,13 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  // final List<Widget> _bottomWidgetList = [
-  //   HomeWidget(),
-  //   ClothWidget(),
-  //   CommunityWidget(),
-  //   NotificationWidget(),
-  //   MyinfoWidget(),
-  // ];
+  final List<Widget> _bottomWidgetList = [
+    HomeWidget(),
+    ClothWidget(),
+    CommunityWidget(),
+    NotificationWidget(),
+    MyinfoWidget(),
+  ];
 
   Widget getBottomBar() {
     return BottomNavigationBar(
@@ -84,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // body: _bottomWidgetList[_bottombarindex],
+      body: _bottomWidgetList[_bottombarindex],
       bottomNavigationBar: getBottomBar(),
     );
   }

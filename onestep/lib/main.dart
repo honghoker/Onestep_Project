@@ -1,5 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'BoardLib/Boardmain.dart';
 import 'cloth/clothWidget.dart';
 import 'community/communityWidget.dart';
 import 'home/homeWidget.dart';
@@ -52,6 +53,14 @@ class _MyHomePageState extends State<MyHomePage> {
       onTap: (int index) {
         setState(() {
           this._bottombarindex = index;
+          print('$index');
+          if (index == 2) {
+            Navigator.push(
+                context,
+                CupertinoPageRoute(
+                    fullscreenDialog: false,
+                    builder: (context) => BoardState()));
+          }
         });
       },
       type: BottomNavigationBarType.fixed,

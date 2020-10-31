@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:onestep/appmain/myhomepage.dart';
-import 'package:onestep/notification/login/logout.dart';
 import 'package:onestep/notification/login/ProgressWidget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
@@ -28,7 +27,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-
     isSignedIn();
   }
 
@@ -49,6 +47,8 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ));
     }
+    Fluttertoast.showToast(msg: 'uid 상단' + currentUser.uid);
+    print('uid 상단' + currentUser.uid);
     this.setState(() {
       isLoading = false;
     });
@@ -106,30 +106,24 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<Null> controlSignIn() async {
-    print('##0 로그인버튼 누르면 빌드에서 controlSignIn 작동, 구글 로그인 버튼 누름');
-
     preferences = await SharedPreferences.getInstance();
     this.setState(() {
       isLoading = true;
-      print('##1 셋스테이트');
     });
 
     GoogleSignInAccount googleUser = await googleSignIn.signIn();
     GoogleSignInAuthentication googleSignInAuthentication =
         await googleUser.authentication;
-    print('##2 구글 유저');
+
     final AuthCredential credential = GoogleAuthProvider.getCredential(
         idToken: googleSignInAuthentication.idToken,
         accessToken: googleSignInAuthentication.accessToken);
-    print('##2.5 파이어베이스 유저정보 요청   ' + credential.toString());
 
     final User firebaseUser =
         (await firebaseAuth.signInWithCredential(credential)).user;
-    print('##3 파이어베이스 유저정보 요청완료   ' + firebaseUser.toString());
 
     //Signin Sucess
     if (firebaseUser != null) {
-      print('##4 파이어베이스 유저정보 널 아님');
       final QuerySnapshot resultQuery = await Firestore.instance
           .collection("users")
           .where("id", isEqualTo: firebaseUser.uid)
@@ -164,7 +158,6 @@ class _LoginScreenState extends State<LoginScreen> {
       this.setState(() {
         isLoading = false;
       });
-      print('##로그인 완료 메인화면 네비게이터');
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -172,7 +165,8 @@ class _LoginScreenState extends State<LoginScreen> {
               currentUserId: firebaseUser.uid,
             ),
           ));
-      print('##로그인 완료 메인화면 네비게이터 완료');
+      Fluttertoast.showToast(msg: 'uid 하단' + currentUser.uid);
+      print('uid 하단' + currentUser.uid);
     }
     //Signin Not Success - signin Failed
     else {

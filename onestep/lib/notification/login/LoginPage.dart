@@ -44,8 +44,10 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) =>
-                  HomeScreen(currentUserId: preferences.getString("id"))));
+            builder: (context) => MyHomePage(
+              currentUserId: currentUser.uid,
+            ),
+          ));
     }
     this.setState(() {
       isLoading = false;

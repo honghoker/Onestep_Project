@@ -122,22 +122,10 @@ class _LoginScreenState extends State<LoginScreen> {
         idToken: googleSignInAuthentication.idToken,
         accessToken: googleSignInAuthentication.accessToken);
     print('##2.5 파이어베이스 유저정보 요청   ' + credential.toString());
-    //Fluttertoast.showToast(msg: "파베 유저 요청");
-
-    // final UserCredential firebaseUser2 = (await firebaseAuth
-    //     .signInWithEmailAndPassword(email: 'null', password: 'null'));
-    // print('##3 걍 만들어봄 ㅅ씨발 파이어베이스 유저정보 요청완료   ' + firebaseUser2.toString());
 
     final User firebaseUser =
         (await firebaseAuth.signInWithCredential(credential)).user;
     print('##3 파이어베이스 유저정보 요청완료   ' + firebaseUser.toString());
-
-    // FirebaseUser firebaseUser = (await firebaseAuth.signInWithCredential(
-    //         GoogleAuthProvider.getCredential(
-    //             idToken: googleSignInAuthentication.idToken,
-    //             accessToken: googleSignInAuthentication.accessToken)))
-    //     .user;
-    //print('##3 파이어베이스 유저정보 요청완료   ' + firebaseUser.displayName);
 
     //Signin Sucess
     if (firebaseUser != null) {
@@ -189,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
     //Signin Not Success - signin Failed
     else {
       print('##10 로그인 실패');
-      Fluttertoast.showToast(msg: '다시 시도 로그인 실패');
+      Fluttertoast.showToast(msg: '로그인 실패');
       this.setState(() {
         isLoading = false;
       });

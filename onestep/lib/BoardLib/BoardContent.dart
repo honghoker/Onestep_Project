@@ -29,14 +29,15 @@ class Board extends State<BoardStateful> with TickerProviderStateMixin {
   Animation _favoriteAnimation;
   //index is not null and must have to get index
   TabController _controller;
+  ScrollController _scrollController;
   Board({@required this.index, this.boardName}) : assert(index != null);
-
   @override
   void initState() {
     super.initState();
     _settingFavoriteAnimation();
     _controller = TabController(length: 2, vsync: this, initialIndex: 0);
     _onFavoriteClicked = false;
+    _scrollController = ScrollController(keepScrollOffset: true);
   }
 
   void _settingFavoriteAnimation() {
@@ -55,17 +56,15 @@ class Board extends State<BoardStateful> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('$index'),
-      ),
-      body: Stack(children: <Widget>[
+        body: SafeArea(
+      child: Stack(children: <Widget>[
         _boardContent(context),
         TipDialogContainer(
           duration: const Duration(milliseconds: 500),
           maskAlpha: 0,
         )
       ]),
-    );
+    ));
   }
 
   Widget _boardContent(BuildContext context) {
@@ -160,7 +159,7 @@ class Board extends State<BoardStateful> with TickerProviderStateMixin {
           Flexible(
             child: Container(
                 child: SingleChildScrollView(
-                    controller: ScrollController(keepScrollOffset: false),
+                    controller: _scrollController,
                     // controller: controller,
                     // scrollDirection: Axis.vertical,
                     child: Container(
@@ -198,20 +197,6 @@ class Board extends State<BoardStateful> with TickerProviderStateMixin {
   Widget _setScrapAndFavoriteButton() {
     // AnimationController _favoriteAnimationController =
     //     AnimationController(vsync: this, duration: Duration(milliseconds: 300));
-    var _clickableFavorite = Expanded(
-      child: AnimatedBuilder(
-        animation: _favoriteAnimationController,
-        builder: (context, child) {
-          return Center(
-              child: Container(
-                  child: Center(
-                      child: Icon(
-            Icons.favorite_border,
-            size: _favoriteAnimation.value,
-          ))));
-        },
-      ),
-    );
     return Container(
         padding: EdgeInsets.only(left: 7.0),
         child: Row(

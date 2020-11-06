@@ -40,9 +40,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final List<Widget> _bottomWidgetList = [
     HomeWidget(),
-    ClothWidget(),
-    CommunityWidget(),
-    NotificationWidget(),
+    Blue(),
+    BoardState(),
+    Red(),
     MyinfoWidget(),
   ];
 
@@ -53,14 +53,6 @@ class _MyHomePageState extends State<MyHomePage> {
       onTap: (int index) {
         setState(() {
           this._bottombarindex = index;
-          print('$index');
-          if (index == 2) {
-            Navigator.push(
-                context,
-                CupertinoPageRoute(
-                    fullscreenDialog: false,
-                    builder: (context) => BoardState()));
-          }
         });
       },
       type: BottomNavigationBarType.fixed,

@@ -1,20 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'BoardList.dart';
-import 'ListView_Pcs.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:swipedetector/swipedetector.dart';
-import 'BoardContent.dart';
-import 'BoardPersonal.dart';
-import 'BoardFloatingButton.dart';
-import 'package:fab_circular_menu/fab_circular_menu.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:line_icons/line_icons.dart';
-import 'package:badges/badges.dart';
-import 'FirstPageView.dart';
-import 'SecondPageView.dart';
+import 'WasFirstPageView.dart';
+import 'package:onestep/BoardLib/ListView_Pcs.dart';
 
 const String page1 = 'Page 1';
 const String page2 = 'Page 2';
@@ -35,55 +23,223 @@ class tempTitleData {
 
 class BoardState extends StatefulWidget {
   @override
-  _BoardState createState() => _BoardState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _BoardState extends State<BoardState> {
+class _MyHomePageState extends State<BoardState> {
+  bool isScrollingDown = false;
+  double bottomBarHeight = 75;
+  ScrollController _scrollController;
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController()..addListener(() => setState(() {}));
+  }
+
+  bool get _hideFAB {
+    return _scrollController.hasClients &&
+        _scrollController.offset > (100 - kToolbarHeight);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Widget containterContent() {
+    return Container(
+      height: 50.0,
+      color: Colors.cyanAccent,
+      margin: EdgeInsets.all(8.0),
+      width: MediaQuery.of(context).size.width - 100,
+      child: Center(
+          child: Text(
+        'Item 1',
+        style: TextStyle(
+          fontSize: 14.0,
+        ),
+      )),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        home: DefaultTabController(
-            length: 3,
-            child: Scaffold(
-              appBar: AppBar(
-                backgroundColor: Colors.white,
-                elevation: 0,
-                bottom: TabBar(
-                    unselectedLabelColor: Colors.redAccent,
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    indicator: BoxDecoration(
-                        gradient: LinearGradient(
-                            colors: [Colors.redAccent, Colors.orangeAccent]),
-                        borderRadius: BorderRadius.circular(50),
-                        color: Colors.redAccent),
-                    tabs: [
-                      Tab(
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Text("APPS"),
-                        ),
-                      ),
-                      Tab(
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Text("MOVIES"),
-                        ),
-                      ),
-                      Tab(
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Text("GAMES"),
-                        ),
-                      ),
-                    ]),
-              ),
-              body: TabBarView(children: [
-                Icon(Icons.apps),
-                Icon(Icons.movie),
-                Icon(Icons.games),
-              ]),
-            )));
+    return DefaultTabController(
+        length: 3,
+        child: Builder(builder: (BuildContext context) {
+          return Scaffold(
+            body: NestedScrollView(
+              controller: _scrollController,
+              headerSliverBuilder:
+                  (BuildContext context, bool innerBoxIsScrolled) =>
+                      _boardPageTabBarDesign(context, innerBoxIsScrolled),
+              body: _boardPageTabBarView(),
+            ),
+            floatingActionButton: _hideFAB
+                ? Container()
+                : FloatingActionButton(
+                    onPressed: () {
+                      print(
+                          'Current Index : ${DefaultTabController.of(context).index}');
+                    },
+                    child: DefaultTabController.of(context).index != 0
+                        ? Icon(Icons.add)
+                        : Icon(Icons.access_alarm)),
+          );
+        }));
   }
+
+  _boardPageTabBarDesign(BuildContext context, bool innerBoxIsScrolled) {
+    return <Widget>[
+      new SliverAppBar(
+        backgroundColor: Colors.white,
+        title: new Text("widget.title"),
+        pinned: true,
+        floating: true,
+        forceElevated: innerBoxIsScrolled,
+        bottom: TabBar(
+            labelColor: Colors.red,
+            unselectedLabelColor: Colors.black,
+            indicatorSize: TabBarIndicatorSize.label,
+            indicator: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10)),
+                color: Colors.white),
+            tabs: [
+              _tabBarTextDesign(text: "최신순"),
+              _tabBarTextDesign(text: "추천순"),
+              _tabBarTextDesign(text: "오늘의"),
+            ]),
+      ),
+    ];
+  }
+
+  _boardPageTabBarView() {
+    return TabBarView(
+      children: <Widget>[
+        FirstPageView(),
+        TempPageView(),
+        Icon(Icons.games),
+      ],
+    );
+  }
+
+  _tabBarTextDesign({@required String text, var textStyle}) {
+    return Tab(
+      child: Align(
+          alignment: Alignment.center,
+          child: Text(text,
+              style: textStyle ??
+                  TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+    );
+  }
+// class _BoardState extends State<BoardState>
+//     with SingleTickerProviderStateMixin {
+//   TabController _tabController;
+//   ScrollController _scrollViewController;
+//   @override
+//   void initState() {
+//     super.initState();
+//     _scrollViewController = new ScrollController();
+//     _tabController = new TabController(vsync: this, length: 3);
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return new StoreConnector<ReduxState, MainPageViewModel>(
+//       converter: (store) {
+//         return new MainPageViewModel([...]);
+//       },
+//       builder: (context, viewModel) {
+//         return new Scaffold(
+//             appBar: new AppBar(
+//               title: new Text("widget.title"),
+//               bottom: new TabBar(
+//                 tabs: <Tab>[
+//                   new Tab(
+//                     text: "STATISTICS",
+//                     icon: new Icon(Icons.show_chart),
+//                   ),
+//                   new Tab(
+//                     text: "HISTORY",
+//                     icon: new Icon(Icons.history),
+//                   ),
+//                 ],
+//                 controller: _tabController,
+//               ),
+//             ),
+//             body: new TabBarView(
+//               children: <Widget>[
+//                 new Red(),
+//                 new Blue(),
+//               ],
+//               controller: _tabController,
+//             ),
+//         );
+//       },
+//     );
+//   }
+
+// Widget build(BuildContext context) {
+//   return MaterialApp(
+//       home: DefaultTabController(
+//           length: 3,
+//           child: Scaffold(
+//             body: new NestedScrollView(
+//               headerSliverBuilder:
+//                   (BuildContext context, bool innerBosIsScrolled) {
+//                 return <Widget>[
+//                   new SliverAppBar(
+
+//                              )
+//                 ];
+//               },
+//               body: null,
+//               controller: _scrollController,
+//             ),
+//             appBar: AppBar(
+//               backgroundColor: Colors.white,
+//               elevation: 0,
+//               bottom: TabBar(
+//                   unselectedLabelColor: Colors.redAccent,
+//                   indicatorSize: TabBarIndicatorSize.tab,
+//                   indicator: BoxDecoration(
+//                       gradient: LinearGradient(
+//                           colors: [Colors.redAccent, Colors.orangeAccent]),
+//                       borderRadius: BorderRadius.circular(50),
+//                       color: Colors.redAccent),
+//                   tabs: [
+//                     Tab(
+//                       child: Align(
+//                         alignment: Alignment.center,
+//                         child: Text("APPS"),
+//                       ),
+//                     ),
+//                     Tab(
+//                       child: Align(
+//                         alignment: Alignment.center,
+//                         child: Text("MOVIES"),
+//                       ),
+//                     ),
+//                     Tab(
+//                       child: Align(
+//                         alignment: Alignment.center,
+//                         child: Text("GAMES"),
+//                       ),
+//                     ),
+//                   ]),
+//             ),
+//             body: TabBarView(children: <Widget>[
+//               FirstPageView(),
+//               Icon(Icons.movie),
+//               Icon(Icons.games),
+//             ]),
+//           )
+//           )
+//           )            ;
+// }
 }
 
 class Red extends StatefulWidget {

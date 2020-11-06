@@ -1,24 +1,25 @@
-import 'Boardmain.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'BoardList.dart';
+import 'ListView_Pcs.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:swipedetector/swipedetector.dart';
 import 'BoardContent.dart';
+import 'BoardPersonal.dart';
+import 'BoardFloatingButton.dart';
+import 'package:fab_circular_menu/fab_circular_menu.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:line_icons/line_icons.dart';
+import 'package:badges/badges.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
-final List<tempTitleData> tempData = [
-  tempTitleData('이게', '멋진 서브타이틀', 5000, 5, '2019.2.4'),
-  tempTitleData('바로', '영롱 하지 않은가', 10, 100, '2019.7.4'),
-  tempTitleData('멋진', '아름답지 않은가', 90, 1500, '2019.9.4'),
-  tempTitleData('리스트', '깔끔하지 않은가', 50, 20, '2019.10.4'),
-  tempTitleData('라는', '촤밍하지 않는가', 99, 2000, '2019.4.4'),
-  tempTitleData('것이다', '페이보릿카운트가 555555이다', 30, 55555555, '2019.2.4'),
-  tempTitleData('이게', '멋진 서브타이틀', 5000, 5, '2019.2.4'),
-  tempTitleData('바로', '영롱 하지 않은가', 10, 100, '2019.7.4'),
-  tempTitleData('멋진', '아름답지 않은가', 90, 1500, '2019.9.4'),
-  tempTitleData('리스트', '깔끔하지 않은가', 50, 20, '2019.10.4'),
-  tempTitleData('라는', '촤밍하지 않는가', 99, 2000, '2019.4.4'),
-  tempTitleData('것이다', '페이보릿카운트가 555555이다', 30, 55555555, '2019.2.4'),
-];
+class TempPageView extends StatefulWidget {
+  _Temp createState() => _Temp();
+}
 
-class FirstPageView extends StatelessWidget {
+class _Temp extends State<TempPageView> {
   // BuildContext context;
   // GeneralBoard(BuildContext context);
   // GeneralBoard({@required this.context}) : assert(context != null);

@@ -28,16 +28,16 @@ class Board extends State<BoardStateful> with TickerProviderStateMixin {
   AnimationController _favoriteAnimationController;
   Animation _favoriteAnimation;
   //index is not null and must have to get index
-  TabController _controller;
+  TabController _tabcontroller;
   ScrollController _scrollController;
   Board({@required this.index, this.boardName}) : assert(index != null);
   @override
   void initState() {
     super.initState();
     _settingFavoriteAnimation();
-    _controller = TabController(length: 2, vsync: this, initialIndex: 0);
+    _tabcontroller = TabController(length: 2, vsync: this, initialIndex: 0);
     _onFavoriteClicked = false;
-    _scrollController = ScrollController(keepScrollOffset: true);
+    _scrollController = ScrollController();
   }
 
   void _settingFavoriteAnimation() {
@@ -60,7 +60,7 @@ class Board extends State<BoardStateful> with TickerProviderStateMixin {
       child: Stack(children: <Widget>[
         _boardContent(context),
         TipDialogContainer(
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 300),
           maskAlpha: 0,
         )
       ]),
@@ -68,23 +68,22 @@ class Board extends State<BoardStateful> with TickerProviderStateMixin {
   }
 
   Widget _boardContent(BuildContext context) {
-    final RefreshController _refreshController = new RefreshController();
-    return SmartRefresher(
-        enablePullDown: true,
-        header: WaterDropHeader(),
-        controller: _refreshController,
-        onRefresh: () async =>
-            _onDropDownRefresh(refreshController: _refreshController),
-        child: Container(
-          // alignment: AlignmentA,
-          child: Column(children: <Widget>[
-            //Title Container
-            _setTitle(),
-            //Date Container
-            _setDateNVisitor(),
-            _setBoardContent(buildcontext: context),
-          ]),
-        ));
+    return Container(
+      //Dynamic height Size
+      height: MediaQuery.of(context).size.height,
+      // alignment: AlignmentA,
+      child: SingleChildScrollView(
+          controller: _scrollController,
+          child: Container(
+              height: MediaQuery.of(context).size.height,
+              child: Column(children: <Widget>[
+                //Title Container
+                _setTitle(),
+                //Date Container
+                _setDateNVisitor(),
+                _setBoardContent(buildcontext: context),
+              ]))),
+    );
   }
 
   Widget _setTitle({BuildContext context}) {
@@ -159,39 +158,44 @@ class Board extends State<BoardStateful> with TickerProviderStateMixin {
           Flexible(
             child: Container(
                 child: SingleChildScrollView(
-                    controller: _scrollController,
+
                     // controller: controller,
                     // scrollDirection: Axis.vertical,
                     child: Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          GestureDetector(
-                            onDoubleTap: () async => _setPopUpFavoriteIcon(),
-                            // _showFavoriteAlertDialog(context);
-                            // _favoriteConfirmAnimation(context);
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  GestureDetector(
+                    onDoubleTap: () async => _setPopUpFavoriteIcon(),
+                    // _showFavoriteAlertDialog(context);
+                    // _favoriteConfirmAnimation(context);
 
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  border: Border(
-                                      bottom: BorderSide(
-                                          color: Colors.grey, width: 5.0))),
-                              child: Text(
-                                  'abcdefghijklmnopqrstuvwxyzabcdabcdefghijabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz efghijklmnopqrstuvwxyzab  cdefghijklmn opqrstuvwxyzabcdefghijklm   opqrstuvwxyzabcd    fghijklmnopqrstuvwxyzabcd   efghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz'),
-                            ),
-                          ),
-                          _setScrapAndFavoriteButton(),
-                          Container(
-                              child: CommentList(buildcontext)
-                                  .tempCommentContainer())
-                          // .commentContainer())
-                        ],
-                      ),
-                    ))),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          border: Border(
+                              bottom:
+                                  BorderSide(color: Colors.grey, width: 5.0))),
+                      child: Text(
+                          'abcdefghijklmnopqrstuvwxyzabcdabcdefghijabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz efghijklmnopqrstuvwxyzab  cdefghijklmn opqrstuvwxyzabcdefghijklm   opqrstuvwxyzabcd    fghijklmnopqrstuvwxyzabcd   efghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz'),
+                    ),
+                  ),
+                  _setScrapAndFavoriteButton(),
+                  Container(
+                      child: CommentList(buildcontext).tempCommentContainer())
+                  // .commentContainer())
+                ],
+              ),
+            ))),
           ),
         ],
       ),
     );
+  }
+
+  Future<bool> _scrollPosition(bool isLiked) async {
+    _scrollController.attach(_scrollController.position);
+
+    return !isLiked;
   }
 
   Widget _setScrapAndFavoriteButton() {
@@ -204,6 +208,7 @@ class Board extends State<BoardStateful> with TickerProviderStateMixin {
           children: <Widget>[
             //Set Favorite Button
             LikeButton(
+              // onTap: _scrollPosition,
               size: 30,
               circleColor: CircleColor(start: Colors.grey, end: Colors.red),
               bubblesColor: BubblesColor(

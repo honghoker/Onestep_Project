@@ -37,8 +37,11 @@ class _MyHomePageState extends State<BoardState> {
   }
 
   bool get _hideFAB {
+    // return _scrollController.hasClients &&
+    //     _scrollController.offset > (100 - kToolbarHeight);
     return _scrollController.hasClients &&
-        _scrollController.offset > (100 - kToolbarHeight);
+        (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent);
   }
 
   @override
@@ -83,11 +86,19 @@ class _MyHomePageState extends State<BoardState> {
                       print(
                           'Current Index : ${DefaultTabController.of(context).index}');
                     },
-                    child: DefaultTabController.of(context).index != 0
+                    child: _changeFAB(DefaultTabController.of(context).index)
                         ? Icon(Icons.add)
-                        : Icon(Icons.access_alarm)),
+                        : Icon(Icons.access_alarm),
+                    // child: DefaultTabController.of(context).index != 0
+                    //     ? Icon(Icons.add)
+                    //     : Icon(Icons.access_alarm)
+                  ),
           );
         }));
+  }
+
+  bool _changeFAB(index) {
+    return index != 0 ? true : false;
   }
 
   _boardPageTabBarDesign(BuildContext context, bool innerBoxIsScrolled) {

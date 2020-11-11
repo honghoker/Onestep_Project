@@ -39,9 +39,10 @@ class _MyHomePageState extends State<BoardState> {
   bool get _hideFAB {
     // return _scrollController.hasClients &&
     //     _scrollController.offset > (100 - kToolbarHeight);
-    return _scrollController.hasClients &&
-        (_scrollController.position.pixels ==
-            _scrollController.position.maxScrollExtent);
+    print('${_scrollController.hasClients}');
+    return !(_scrollController.hasClients &&
+        _scrollController.position.userScrollDirection ==
+            ScrollDirection.forward);
   }
 
   @override
@@ -84,7 +85,7 @@ class _MyHomePageState extends State<BoardState> {
                 : FloatingActionButton(
                     onPressed: () {
                       print(
-                          'Current Index : ${DefaultTabController.of(context).index}');
+                          'Current Index : ${_scrollController.position}, ${_scrollController.hasClients}');
                     },
                     child: _changeFAB(DefaultTabController.of(context).index)
                         ? Icon(Icons.add)

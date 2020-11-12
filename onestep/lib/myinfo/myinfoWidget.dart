@@ -16,6 +16,7 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
         .collection("chattingroom")
         .doc("F7lLjyw5ffRuLgCgme0W")
         .collection("message")
+        .orderBy("timestamp", descending: false)
         .snapshots();
 
     productRef.forEach((field) {

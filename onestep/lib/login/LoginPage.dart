@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:onestep/appmain/myhomepage.dart';
-import 'package:onestep/notification/login/ProgressWidget.dart';
 import 'package:onestep/notification/test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
+
+import 'ProgressWidget.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key key}) : super(key: key);
@@ -123,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
     GoogleSignInAuthentication googleSignInAuthentication =
         await googleUser.authentication;
 
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
+    final AuthCredential credential = GoogleAuthProvider.credential(
         idToken: googleSignInAuthentication.idToken,
         accessToken: googleSignInAuthentication.accessToken);
 
@@ -133,17 +134,17 @@ class _LoginScreenState extends State<LoginScreen> {
     //Signin Sucess
     if (firebaseUser != null) {
       print('파이어베이스는 널이 아니야' + firebaseUser.uid);
-      final QuerySnapshot resultQuery = await Firestore.instance
+      final QuerySnapshot resultQuery = await FirebaseFirestore.instance
           .collection("users")
           .where("id", isEqualTo: firebaseUser.uid)
-          .getDocuments();
-      final List<DocumentSnapshot> documentSnapshots = resultQuery.documents;
+          .get();
+      final List<DocumentSnapshot> documentSnapshots = resultQuery.docs;
 
       if (documentSnapshots.length == 0) {
-        Firestore.instance
+        FirebaseFirestore.instance
             .collection("users")
-            .document(firebaseUser.uid)
-            .setData({
+            .doc(firebaseUser.uid)
+            .set({
           "nickname": firebaseUser.displayName,
           "photoUrl": firebaseUser.photoURL,
           "id": firebaseUser.uid,

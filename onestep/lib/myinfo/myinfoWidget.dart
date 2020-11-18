@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 class MyinfoWidget extends StatefulWidget {
@@ -10,28 +8,8 @@ class MyinfoWidget extends StatefulWidget {
 }
 
 class _MyinfoWidgetState extends State<MyinfoWidget> {
-  Widget test() {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    Stream<QuerySnapshot> productRef = db
-        .collection("chattingroom")
-        .doc("F7lLjyw5ffRuLgCgme0W")
-        .collection("message")
-        .orderBy("timestamp", descending: false)
-        .snapshots();
-
-    productRef.forEach((field) {
-      field.docs.asMap().forEach((index, data) {
-        print(field.docs[index].data());
-      });
-    });
-
-    return Container();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: test(),
-    );
+    return Container();
   }
 }

@@ -5,7 +5,6 @@ import 'package:flutter/rendering.dart';
 import 'BoardList.dart';
 import 'ListView_Pcs.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-
 import 'package:swipedetector/swipedetector.dart';
 import 'BoardContent.dart';
 import 'BoardPersonal.dart';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onestep/BoardLib/Boardmain.dart';
 import 'package:onestep/cloth/clothWidget.dart';
 import 'package:onestep/community/communityWidget.dart';
 import 'package:onestep/home/homeWidget.dart';
@@ -31,7 +32,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _bottomWidgetList = [
     HomeWidget(),
     ClothWidget(),
-    CommunityWidget(),
+    BoardState(),
     NotificationWidget23(),
     MyinfoWidget(),
   ];

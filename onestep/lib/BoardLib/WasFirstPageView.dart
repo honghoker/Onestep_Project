@@ -8,7 +8,6 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:swipedetector/swipedetector.dart';
 import 'BoardContent.dart';
 import 'BoardPersonal.dart';
-import 'BoardFloatingButton.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';

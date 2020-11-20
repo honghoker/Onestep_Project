@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-// import 'WasFirstPageView.dart';
+import 'WasFirstPageView.dart';
 import 'package:onestep/BoardLib/ListView_Pcs.dart';
 
 const String page1 = 'Page 1';
@@ -132,8 +132,7 @@ class _MyHomePageState extends State<BoardState> {
     return TabBarView(
       children: <Widget>[
         FirstPageView(),
-        FirstPageView(),
-        // TempPageView(),
+        TempPageView(),
         Icon(Icons.games),
       ],
     );

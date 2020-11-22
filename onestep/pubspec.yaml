@@ -41,11 +41,15 @@ dependencies:
   google_sign_in: ^4.5.5
   http: ^0.12.2
   ##### HEP #####
-  transparent_image: ^1.0.0
-  provider: ^4.3.2+2
+  moor: ^3.4.0
+  moor_flutter: ^3.1.0         # moor database
+  transparent_image: ^1.0.0    # transparent_image
+  provider: ^4.3.2+2           # Provider
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  moor_generator: ^3.4.0
+  build_runner:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

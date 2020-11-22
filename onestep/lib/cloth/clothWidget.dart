@@ -2,7 +2,8 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:onestep/cloth/product.dart';
+import 'package:onestep/favorite/favoriteWidget.dart';
+import 'package:onestep/moor/moor_database.dart';
 
 import 'clothitem.dart';
 
@@ -15,12 +16,10 @@ class ClothWidget extends StatefulWidget {
 
 class _ClothWidgetState extends State<ClothWidget> {
   int _headerindex;
-  List<String> _categoryItems;
+  List<String> _categoryItems = new List();
   Stream stream;
-
   @override
   void initState() {
-    super.initState();
     _headerindex = 0;
 
     _categoryItems = [
@@ -41,6 +40,8 @@ class _ClothWidgetState extends State<ClothWidget> {
         .collection('products')
         .orderBy("uploadtime", descending: true)
         .snapshots();
+
+    super.initState();
   }
 
   Widget renderHeader() {
@@ -159,6 +160,7 @@ class _ClothWidgetState extends State<ClothWidget> {
     final double _itemHeight = (_size.height - kToolbarHeight - 24) / 1.9;
     final double _itemWidth = _size.width / 2;
 
+    //print("@@@@@@ ${category.length}");
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
@@ -189,12 +191,12 @@ class _ClothWidgetState extends State<ClothWidget> {
             ),
             onPressed: () => {
               print("찜"),
-              //   Navigator.push(
-              //     context,
-              //     MaterialPageRoute(builder: (context) => FavoriteWidget()),
-              //   ).then((value) {
-              //     setState(() => {});
-              //   }),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => FavoriteWidget()),
+              ).then((value) {
+                //setState(() => {});
+              }),
             },
           ),
         ],

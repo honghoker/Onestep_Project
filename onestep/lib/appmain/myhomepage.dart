@@ -3,22 +3,17 @@ import 'package:onestep/cloth/clothWidget.dart';
 import 'package:onestep/community/communityWidget.dart';
 import 'package:onestep/home/homeWidget.dart';
 import 'package:onestep/myinfo/myinfoWidget.dart';
-import 'package:onestep/notification/test.dart';
+import 'package:onestep/notification/notificationMain.dart';
 
 class MyHomePage extends StatefulWidget {
-  final String currentUserId;
-
-  MyHomePage({Key key, @required this.currentUserId}) : super(key: key);
+  MyHomePage({Key key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() =>
-      _MyHomePageState(currentUserId: currentUserId);
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final String currentUserId;
-
-  _MyHomePageState({Key key, @required this.currentUserId});
+  _MyHomePageState({Key key});
 
   int _bottombarindex;
 
@@ -32,7 +27,7 @@ class _MyHomePageState extends State<MyHomePage> {
     HomeWidget(),
     ClothWidget(),
     CommunityWidget(),
-    NotificationWidget23(),
+    NotificationMain(),
     MyinfoWidget(),
   ];
 
@@ -44,11 +39,6 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           this._bottombarindex = index;
           print(this._bottombarindex);
-          print('##겟 바텀바');
-
-          if (index == 3) {
-            print('message');
-          }
         });
       },
       type: BottomNavigationBarType.fixed,
@@ -89,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          currentUserId,
+          '임시',
           textScaleFactor: 0.9,
         ),
       ),

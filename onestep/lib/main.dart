@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-import 'notification/login/LoginPage.dart';
+import 'login/LoginPage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,8 +18,6 @@ class MyApp extends StatelessWidget {
       title: '앱메인',
       debugShowCheckedModeBanner: false,
       home: LoginScreen(),
-      //home: MyHomePage(),
-      //home: GoogleSignInDemo2(),
     );
   }
 }

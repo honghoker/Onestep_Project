@@ -33,7 +33,7 @@ class _NotificationWidgetState extends State<NotificationWidget> {
         return ListView(
           padding: EdgeInsets.only(top: 0.0),
           children: documents
-              .map((eachDocument) => DocumentView(eachDocument, '김명수'))
+              .map((eachDocument) => DocumentView(eachDocument))
               .toList(),
         );
       },

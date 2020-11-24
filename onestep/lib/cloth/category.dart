@@ -1,21 +1,22 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Category {
-  final name;
+  List<String> _dropdownCategoryItems = new List();
 
-  Category({this.name});
-
-  factory Category.fromMap(Map map) {
-    return Category(
-      name: map['name'] ?? '',
-    );
+  Category() {
+    _dropdownCategoryItems = [
+      "전체",
+      "티셔츠",
+      "블라우스",
+      "셔츠/남방",
+      "맨투맨",
+      "미니원피스",
+      "롱원피스",
+      "점프수트",
+      "바지",
+      "미니스커트",
+      "롱스커트",
+    ];
   }
-
-  factory Category.fromFireStore(DocumentSnapshot doc) {
-    Map map = doc.data();
-
-    return Category(
-      name: map['name'] ?? '',
-    );
+  List<String> getCategoryItems() {
+    return _dropdownCategoryItems;
   }
 }

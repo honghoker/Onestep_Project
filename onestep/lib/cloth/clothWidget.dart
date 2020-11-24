@@ -4,7 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/favorite/favoriteWidget.dart';
 import 'package:onestep/moor/moor_database.dart';
+import 'package:provider/provider.dart';
 
+import 'category.dart';
 import 'clothitem.dart';
 
 class ClothWidget extends StatefulWidget {
@@ -16,25 +18,10 @@ class ClothWidget extends StatefulWidget {
 
 class _ClothWidgetState extends State<ClothWidget> {
   int _headerindex;
-  List<String> _categoryItems = new List();
   Stream stream;
   @override
   void initState() {
     _headerindex = 0;
-
-    _categoryItems = [
-      "전체",
-      "티셔츠",
-      "블라우스",
-      "셔츠/남방",
-      "맨투맨",
-      "미니원피스",
-      "롱원피스",
-      "점프수트",
-      "바지",
-      "미니스커트",
-      "롱스커트",
-    ];
 
     stream = FirebaseFirestore.instance
         .collection('products')
@@ -56,7 +43,7 @@ class _ClothWidgetState extends State<ClothWidget> {
             physics: ClampingScrollPhysics(),
             // shrinkWrap: true,
             scrollDirection: Axis.horizontal,
-            itemCount: _categoryItems.length,
+            itemCount: Provider.of<Category>(context).getCategoryItems().length,
             itemBuilder: (BuildContext context, int index) {
               return Card(
                 color: _headerindex == index ? Colors.black : Colors.white,
@@ -74,7 +61,8 @@ class _ClothWidgetState extends State<ClothWidget> {
                     child: Align(
                       alignment: Alignment.center,
                       child: Text(
-                        _categoryItems[index],
+                        Provider.of<Category>(context)
+                            .getCategoryItems()[index],
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 12,
@@ -96,7 +84,8 @@ class _ClothWidgetState extends State<ClothWidget> {
                           : FirebaseFirestore.instance
                               .collection('products')
                               .where("category",
-                                  isEqualTo: _categoryItems[_headerindex])
+                                  isEqualTo: Provider.of<Category>(context)
+                                      .getCategoryItems()[_headerindex])
                               .orderBy("uploadtime", descending: true)
                               .snapshots();
                     });

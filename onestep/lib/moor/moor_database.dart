@@ -11,7 +11,6 @@ class Products extends Table {
   IntColumn get views => integer()();
   DateTimeColumn get uploadtime => dateTime()();
   TextColumn get images => text()();
-  BoolColumn get isliked => boolean().withDefault(Constant(false))();
 
   @override
   Set<Column> get primaryKey => {firestoreid};
@@ -32,7 +31,7 @@ class ProductsDao extends DatabaseAccessor<AppDatabase>
 class AppDatabase extends _$AppDatabase {
   AppDatabase()
       : super(FlutterQueryExecutor.inDatabaseFolder(
-            path: 'dq.sqlite', logStatements: true));
+            path: 'db.sqlite', logStatements: true));
 
   @override
   int get schemaVersion => 1;

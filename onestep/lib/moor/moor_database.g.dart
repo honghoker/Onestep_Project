@@ -16,7 +16,6 @@ class Product extends DataClass implements Insertable<Product> {
   final int views;
   final DateTime uploadtime;
   final String images;
-  final bool isliked;
   Product(
       {@required this.title,
       @required this.firestoreid,
@@ -25,15 +24,13 @@ class Product extends DataClass implements Insertable<Product> {
       @required this.explain,
       @required this.views,
       @required this.uploadtime,
-      @required this.images,
-      this.isliked});
+      @required this.images});
   factory Product.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
     final intType = db.typeSystem.forDartType<int>();
     final dateTimeType = db.typeSystem.forDartType<DateTime>();
-    final boolType = db.typeSystem.forDartType<bool>();
     return Product(
       title:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}title']),
@@ -50,8 +47,6 @@ class Product extends DataClass implements Insertable<Product> {
           .mapFromDatabaseResponse(data['${effectivePrefix}uploadtime']),
       images:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}images']),
-      isliked:
-          boolType.mapFromDatabaseResponse(data['${effectivePrefix}isliked']),
     );
   }
   @override
@@ -81,9 +76,6 @@ class Product extends DataClass implements Insertable<Product> {
     if (!nullToAbsent || images != null) {
       map['images'] = Variable<String>(images);
     }
-    if (!nullToAbsent || isliked != null) {
-      map['isliked'] = Variable<bool>(isliked);
-    }
     return map;
   }
 
@@ -109,9 +101,6 @@ class Product extends DataClass implements Insertable<Product> {
           : Value(uploadtime),
       images:
           images == null && nullToAbsent ? const Value.absent() : Value(images),
-      isliked: isliked == null && nullToAbsent
-          ? const Value.absent()
-          : Value(isliked),
     );
   }
 
@@ -127,7 +116,6 @@ class Product extends DataClass implements Insertable<Product> {
       views: serializer.fromJson<int>(json['views']),
       uploadtime: serializer.fromJson<DateTime>(json['uploadtime']),
       images: serializer.fromJson<String>(json['images']),
-      isliked: serializer.fromJson<bool>(json['isliked']),
     );
   }
   @override
@@ -142,7 +130,6 @@ class Product extends DataClass implements Insertable<Product> {
       'views': serializer.toJson<int>(views),
       'uploadtime': serializer.toJson<DateTime>(uploadtime),
       'images': serializer.toJson<String>(images),
-      'isliked': serializer.toJson<bool>(isliked),
     };
   }
 
@@ -154,8 +141,7 @@ class Product extends DataClass implements Insertable<Product> {
           String explain,
           int views,
           DateTime uploadtime,
-          String images,
-          bool isliked}) =>
+          String images}) =>
       Product(
         title: title ?? this.title,
         firestoreid: firestoreid ?? this.firestoreid,
@@ -165,7 +151,6 @@ class Product extends DataClass implements Insertable<Product> {
         views: views ?? this.views,
         uploadtime: uploadtime ?? this.uploadtime,
         images: images ?? this.images,
-        isliked: isliked ?? this.isliked,
       );
   @override
   String toString() {
@@ -177,8 +162,7 @@ class Product extends DataClass implements Insertable<Product> {
           ..write('explain: $explain, ')
           ..write('views: $views, ')
           ..write('uploadtime: $uploadtime, ')
-          ..write('images: $images, ')
-          ..write('isliked: $isliked')
+          ..write('images: $images')
           ..write(')'))
         .toString();
   }
@@ -194,10 +178,8 @@ class Product extends DataClass implements Insertable<Product> {
                   price.hashCode,
                   $mrjc(
                       explain.hashCode,
-                      $mrjc(
-                          views.hashCode,
-                          $mrjc(uploadtime.hashCode,
-                              $mrjc(images.hashCode, isliked.hashCode)))))))));
+                      $mrjc(views.hashCode,
+                          $mrjc(uploadtime.hashCode, images.hashCode))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -209,8 +191,7 @@ class Product extends DataClass implements Insertable<Product> {
           other.explain == this.explain &&
           other.views == this.views &&
           other.uploadtime == this.uploadtime &&
-          other.images == this.images &&
-          other.isliked == this.isliked);
+          other.images == this.images);
 }
 
 class ProductsCompanion extends UpdateCompanion<Product> {
@@ -222,7 +203,6 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<int> views;
   final Value<DateTime> uploadtime;
   final Value<String> images;
-  final Value<bool> isliked;
   const ProductsCompanion({
     this.title = const Value.absent(),
     this.firestoreid = const Value.absent(),
@@ -232,7 +212,6 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.views = const Value.absent(),
     this.uploadtime = const Value.absent(),
     this.images = const Value.absent(),
-    this.isliked = const Value.absent(),
   });
   ProductsCompanion.insert({
     @required String title,
@@ -243,7 +222,6 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     @required int views,
     @required DateTime uploadtime,
     @required String images,
-    this.isliked = const Value.absent(),
   })  : title = Value(title),
         firestoreid = Value(firestoreid),
         category = Value(category),
@@ -261,7 +239,6 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     Expression<int> views,
     Expression<DateTime> uploadtime,
     Expression<String> images,
-    Expression<bool> isliked,
   }) {
     return RawValuesInsertable({
       if (title != null) 'title': title,
@@ -272,7 +249,6 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       if (views != null) 'views': views,
       if (uploadtime != null) 'uploadtime': uploadtime,
       if (images != null) 'images': images,
-      if (isliked != null) 'isliked': isliked,
     });
   }
 
@@ -284,8 +260,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       Value<String> explain,
       Value<int> views,
       Value<DateTime> uploadtime,
-      Value<String> images,
-      Value<bool> isliked}) {
+      Value<String> images}) {
     return ProductsCompanion(
       title: title ?? this.title,
       firestoreid: firestoreid ?? this.firestoreid,
@@ -295,7 +270,6 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       views: views ?? this.views,
       uploadtime: uploadtime ?? this.uploadtime,
       images: images ?? this.images,
-      isliked: isliked ?? this.isliked,
     );
   }
 
@@ -326,9 +300,6 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     if (images.present) {
       map['images'] = Variable<String>(images.value);
     }
-    if (isliked.present) {
-      map['isliked'] = Variable<bool>(isliked.value);
-    }
     return map;
   }
 
@@ -342,8 +313,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
           ..write('explain: $explain, ')
           ..write('views: $views, ')
           ..write('uploadtime: $uploadtime, ')
-          ..write('images: $images, ')
-          ..write('isliked: $isliked')
+          ..write('images: $images')
           ..write(')'))
         .toString();
   }
@@ -452,27 +422,9 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     );
   }
 
-  final VerificationMeta _islikedMeta = const VerificationMeta('isliked');
-  GeneratedBoolColumn _isliked;
   @override
-  GeneratedBoolColumn get isliked => _isliked ??= _constructIsliked();
-  GeneratedBoolColumn _constructIsliked() {
-    return GeneratedBoolColumn('isliked', $tableName, false,
-        defaultValue: Constant(false));
-  }
-
-  @override
-  List<GeneratedColumn> get $columns => [
-        title,
-        firestoreid,
-        category,
-        price,
-        explain,
-        views,
-        uploadtime,
-        images,
-        isliked
-      ];
+  List<GeneratedColumn> get $columns =>
+      [title, firestoreid, category, price, explain, views, uploadtime, images];
   @override
   $ProductsTable get asDslTable => this;
   @override
@@ -535,10 +487,6 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
           images.isAcceptableOrUnknown(data['images'], _imagesMeta));
     } else if (isInserting) {
       context.missing(_imagesMeta);
-    }
-    if (data.containsKey('isliked')) {
-      context.handle(_islikedMeta,
-          isliked.isAcceptableOrUnknown(data['isliked'], _islikedMeta));
     }
     return context;
   }

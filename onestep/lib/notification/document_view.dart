@@ -9,9 +9,9 @@ class DocumentView extends StatelessWidget {
   int count = 0;
   int ass = 4;
 
-  bool lightbool(DocumentSnapshot documentData) {
+  Future<bool> lightbool(DocumentSnapshot documentData) async {
     String chatingroomid = documentData.id; //현재 채팅방 id 값 (모두 가져온다.)
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection("user_chatlist") //유저 챗 리스트의
         .doc("EeSxjIzFDGWuxmEItV7JheMDZ6C2") //해당 유저 uid 값의 필드를 확인한다.
         .get()

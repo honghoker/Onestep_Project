@@ -1,3 +1,8 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'Boardmain.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -42,27 +47,80 @@ final List<tempTitleData> tempData = [
   tempTitleData('것이다', '페이보릿카운트가 555555이다', 30, 55555555, '2019.2.4'),
 ];
 
-class FirstPageView extends StatelessWidget {
+class FirstPageView extends StatefulWidget {
+  @override
+  _FirstPageState createState() => _FirstPageState();
+}
+
+class _FirstPageState extends State<FirstPageView> {
   // BuildContext context;
   // GeneralBoard(BuildContext context);
   // GeneralBoard({@required this.context}) : assert(context != null);
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-        child: ListView.builder(
+  void initState() {
+    super.initState();
+  }
 
-            //PageStorageKey is Keepping ListView scroll position when switching pageview
-            key: PageStorageKey<String>("value"),
-            //Bottom Padding
-            padding:
-                const EdgeInsets.only(bottom: kFloatingActionButtonMargin + 60),
-            itemCount: tempData.length,
-            itemBuilder: (context, index) => _buildListCard(context, index)));
+  @override
+  void dispose() {
+    super.dispose();
+  }
+//   }
+//    Widget _buildList() {
+//     return StreamBuilder(
+//       stream:
+//           _firestore.collection('chattingroom').where('send_user').snapshots(),
+//       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+//         if (!snapshot.hasData) {
+//           return Text('Loading from chat_main..2.');
+//         }
+// // ignore: deprecated_member_use
+//         List<DocumentSnapshot> documents = snapshot.data.documents;
+//         return ListView(
+//           padding: EdgeInsets.only(top: 0.0),
+//           children: documents
+//               .map((eachDocument) => DocumentView(eachDocument, '김명수'))
+//               .toList(),
+//         );
+//       },
+//     );
+//   }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('Board')
+            .doc('Board_Free')
+            .collection('Board_Free_BoardId')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Text("Error");
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          } else {
+            final boardIdList = snapshot.data.documents;
+            return Container(
+                child: ListView.builder(
+                    //PageStorageKey is Keepping ListView scroll position when switching pageview
+                    key: PageStorageKey<String>("value"),
+                    //Bottom Padding
+                    padding: const EdgeInsets.only(
+                        bottom: kFloatingActionButtonMargin + 60),
+                    itemCount: snapshot.data.documents.length,
+                    itemBuilder: (context, index) =>
+                        _buildListCard(context, index, boardIdList[index])));
+          }
+        });
   }
 }
 
-Widget _buildListCard(BuildContext context, int index) {
+Widget _buildListCard(BuildContext context, int index, DocumentSnapshot temp) {
+  print(temp
+      .id); //SOMETING//SOMETING//SOMETING//SOMETING//SOMETING//SOMETING//SOMETING//SOMETING
   return Card(
       child: Padding(
           padding: const EdgeInsets.all(1.0),
@@ -89,7 +147,7 @@ Widget _buildListCard(BuildContext context, int index) {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     //Title Container
-                    titleContainerMethod(index),
+                    titleContainerMethod(title: ''),
                     _commentCountMethod(index)
                   ],
                 )),
@@ -147,12 +205,12 @@ Widget _buildListCard(BuildContext context, int index) {
           )));
 }
 
-Widget titleContainerMethod(int index) {
+Widget titleContainerMethod({@required String title}) {
   return Container(
       margin: const EdgeInsets.only(left: 5),
       width: 300,
       child: Text(
-        tempData[index].title,
+        title,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
             color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold),

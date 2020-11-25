@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:onestep/BoardLib/SecondPageView.dart';
 import 'WasFirstPageView.dart';
 import 'package:onestep/BoardLib/ListView_Pcs.dart';
 
@@ -48,6 +49,7 @@ class _MyHomePageState extends State<BoardState> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _scrollController.removeListener(() {});
     super.dispose();
   }
 
@@ -73,13 +75,16 @@ class _MyHomePageState extends State<BoardState> {
         length: 3,
         child: Builder(builder: (BuildContext context) {
           return Scaffold(
-            body: NestedScrollView(
-              controller: _scrollController,
-              headerSliverBuilder:
-                  (BuildContext context, bool innerBoxIsScrolled) =>
-                      _boardPageTabBarDesign(context, innerBoxIsScrolled),
-              body: _boardPageTabBarView(),
-            ),
+            body:
+                //This is Error
+                // NestedScrollView(
+                //   controller: _scrollController,
+                //   headerSliverBuilder:
+                //       (BuildContext context, bool innerBoxIsScrolled) =>
+                //           _boardPageTabBarDesign(context, innerBoxIsScrolled),
+                //   body:
+                _boardPageTabBarView(),
+            // ),
             floatingActionButton: _hideFAB
                 ? Container()
                 : FloatingActionButton(
@@ -133,7 +138,7 @@ class _MyHomePageState extends State<BoardState> {
       children: <Widget>[
         FirstPageView(),
         TempPageView(),
-        Icon(Icons.games),
+        Practice(),
       ],
     );
   }

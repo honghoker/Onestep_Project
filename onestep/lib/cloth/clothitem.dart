@@ -2,8 +2,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:moor_flutter/moor_flutter.dart' as mf;
-import 'package:onestep/cloth/productTest.dart';
+import 'package:onestep/cloth/clothDetailViewWidget.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -23,14 +22,14 @@ class _ClothItemState extends State<ClothItem> {
   }
 
   Widget setFavorite() {
-    ProductTest appState = Provider.of<ProductTest>(context);
-    return StreamBuilder<List<mf.QueryRow>>(
-      stream: appState.productsDao
-          .customSelect(
-              "SELECT * FROM Products WHERE firestoreid LIKE '${widget.product.firestoreid}'")
-          .watch(),
-      builder:
-          (BuildContext context, AsyncSnapshot<List<mf.QueryRow>> snapshot) {
+    ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
+    // p
+    //     .customSelect(
+    //         "select * from product where firestoreid like ${widget.product.firestoreid}")
+    //     .watchSingle();
+    return StreamBuilder<List<Product>>(
+      stream: p.watchProducts(),
+      builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
         if (snapshot.hasError) {
           print(snapshot.error);
           return new Text('Error: ${snapshot.error}');
@@ -50,13 +49,13 @@ class _ClothItemState extends State<ClothItem> {
                     GestureDetector(
                       onTap: () {
                         setState(() {
-                          snapshot.data.isEmpty
-                              ? appState.insertProduct(this.widget.product)
-                              : appState.deleteProduct(this.widget.product);
+                          snapshot.data.contains(this.widget.product) == false
+                              ? p.insertProduct(this.widget.product)
+                              : p.deleteProduct(this.widget.product);
                         });
                       },
                       child: Icon(
-                        snapshot.data.isEmpty
+                        snapshot.data.contains(this.widget.product) == false
                             ? Icons.favorite_border
                             : Icons.favorite,
                         color: Colors.pink,
@@ -70,58 +69,6 @@ class _ClothItemState extends State<ClothItem> {
       },
     );
   }
-
-  // Widget setFavorite() {
-  //   ProductsDao productsDao = Provider.of<AppDatabase>(context).productsDao;
-
-  //   return StreamBuilder<List<mf.QueryRow>>(
-  //     stream: productsDao
-  //         .customSelect(
-  //             "SELECT * FROM Products WHERE firestoreid LIKE '${widget.product.firestoreid}'")
-  //         .watch(),
-  //     builder:
-  //         (BuildContext context, AsyncSnapshot<List<mf.QueryRow>> snapshot) {
-  //       if (snapshot.hasError) {
-  //         print(snapshot.error);
-  //         return new Text('Error: ${snapshot.error}');
-  //       }
-  //       switch (snapshot.connectionState) {
-  //         case ConnectionState.waiting:
-  //           return Text("");
-  //         default:
-  //           return Positioned(
-  //             right: 0,
-  //             bottom: 0,
-  //             child: Padding(
-  //               padding: EdgeInsets.all(5),
-  //               child: Row(
-  //                 mainAxisAlignment: MainAxisAlignment.end,
-  //                 children: <Widget>[
-  //                   GestureDetector(
-  //                     onTap: () async {
-  //                       snapshot.data.isEmpty
-  //                           ? await productsDao
-  //                               .insertProduct(this.widget.product)
-  //                           : await productsDao
-  //                               .deleteProduct(this.widget.product);
-
-  //                       setState(() {});
-  //                     },
-  //                     child: Icon(
-  //                       snapshot.data.isEmpty
-  //                           ? Icons.favorite_border
-  //                           : Icons.favorite,
-  //                       color: Colors.pink,
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           );
-  //       }
-  //     },
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -140,13 +87,12 @@ class _ClothItemState extends State<ClothItem> {
           );
         } catch (e) {}
         print("상세보기");
-        // Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //       builder: (context) => ClothDetailView(product: widget.product),
-        //     )).then((value) {
-        //   setState(() => {});
-        // });
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  ClothDetailViewWidget(product: widget.product),
+            ));
       },
       child: Container(
         child: Column(

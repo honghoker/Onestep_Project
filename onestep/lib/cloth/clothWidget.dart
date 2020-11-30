@@ -19,6 +19,7 @@ class ClothWidget extends StatefulWidget {
 class _ClothWidgetState extends State<ClothWidget> {
   int _headerindex;
   Stream stream;
+
   @override
   void initState() {
     _headerindex = 0;
@@ -28,6 +29,7 @@ class _ClothWidgetState extends State<ClothWidget> {
         .orderBy("uploadtime", descending: true)
         .snapshots();
 
+    // FirebaseFirestore.instance.collection('products').doc("").get();
     super.initState();
   }
 
@@ -43,7 +45,9 @@ class _ClothWidgetState extends State<ClothWidget> {
             physics: ClampingScrollPhysics(),
             // shrinkWrap: true,
             scrollDirection: Axis.horizontal,
-            itemCount: Provider.of<Category>(context).getCategoryItems().length,
+            itemCount: Provider.of<Category>(context, listen: false)
+                .getCategoryItems()
+                .length,
             itemBuilder: (BuildContext context, int index) {
               return Card(
                 color: _headerindex == index ? Colors.black : Colors.white,
@@ -61,7 +65,7 @@ class _ClothWidgetState extends State<ClothWidget> {
                     child: Align(
                       alignment: Alignment.center,
                       child: Text(
-                        Provider.of<Category>(context)
+                        Provider.of<Category>(context, listen: false)
                             .getCategoryItems()[index],
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -84,7 +88,8 @@ class _ClothWidgetState extends State<ClothWidget> {
                           : FirebaseFirestore.instance
                               .collection('products')
                               .where("category",
-                                  isEqualTo: Provider.of<Category>(context)
+                                  isEqualTo: Provider.of<Category>(context,
+                                          listen: false)
                                       .getCategoryItems()[_headerindex])
                               .orderBy("uploadtime", descending: true)
                               .snapshots();

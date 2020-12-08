@@ -48,8 +48,10 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
   }
 
   Widget renderBody(double itemWidth, double itemHeight) {
+    ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
+
     return StreamBuilder<List<Product>>(
-      stream: Provider.of<AppDatabase>(context).productsDao.watchProducts(),
+      stream: p.watchProducts(),
       builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
         if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
         switch (snapshot.connectionState) {
@@ -99,8 +101,10 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
               color: Colors.black,
             ),
             onPressed: () => {
-              print("delete all product"),
-              //Provider.of<ProductsDao>(context).deleteAllProduct(),
+              //print("delete all product"),
+              Provider.of<AppDatabase>(context, listen: false)
+                  .productsDao
+                  .deleteAllProduct(),
             },
           ),
         ],

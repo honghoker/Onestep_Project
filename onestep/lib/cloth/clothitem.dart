@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/clothDetailViewWidget.dart';
@@ -23,10 +22,7 @@ class _ClothItemState extends State<ClothItem> {
 
   Widget setFavorite() {
     ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
-    // p
-    //     .customSelect(
-    //         "select * from product where firestoreid like ${widget.product.firestoreid}")
-    //     .watchSingle();
+
     return StreamBuilder<List<Product>>(
       stream: p.watchProducts(),
       builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
@@ -48,11 +44,9 @@ class _ClothItemState extends State<ClothItem> {
                   children: <Widget>[
                     GestureDetector(
                       onTap: () {
-                        setState(() {
-                          snapshot.data.contains(this.widget.product) == false
-                              ? p.insertProduct(this.widget.product)
-                              : p.deleteProduct(this.widget.product);
-                        });
+                        snapshot.data.contains(this.widget.product) == false
+                            ? p.insertProduct(this.widget.product)
+                            : p.deleteProduct(this.widget.product);
                       },
                       child: Icon(
                         snapshot.data.contains(this.widget.product) == false
@@ -76,6 +70,7 @@ class _ClothItemState extends State<ClothItem> {
 
     return GestureDetector(
       onTap: () {
+        print("상세보기");
         try {
           FirebaseFirestore.instance
               .collection("products")
@@ -86,7 +81,6 @@ class _ClothItemState extends State<ClothItem> {
             },
           );
         } catch (e) {}
-        print("상세보기");
         Navigator.push(
             context,
             MaterialPageRoute(

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:onestep/moor/moor_database.dart';
@@ -7,11 +8,18 @@ class ClothDetailViewWidget extends StatefulWidget {
   final Product product;
 
   const ClothDetailViewWidget({Key key, this.product}) : super(key: key);
+
   @override
   _ClothDetailViewWidgetState createState() => _ClothDetailViewWidgetState();
 }
 
 class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
+  @override
+  void initState() {
+    super.initState();
+    
+  }
+
   String getDiffTime() {
     final _now = DateTime.now();
     String _differenceTime;
@@ -59,11 +67,11 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
           default:
             return GestureDetector(
               onTap: () {
-                setState(() {
-                  snapshot.data.contains(this.widget.product) == false
-                      ? p.insertProduct(this.widget.product)
-                      : p.deleteProduct(this.widget.product);
-                });
+                //setState(() {
+                snapshot.data.contains(this.widget.product) == false
+                    ? p.insertProduct(this.widget.product)
+                    : p.deleteProduct(this.widget.product);
+                // });
               },
               child: Icon(
                 snapshot.data.contains(this.widget.product) == false
@@ -90,7 +98,7 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
         ),
         backgroundColor: Colors.white,
         actions: <Widget>[
-          // setFavorite(),
+          setFavorite(),
           new IconButton(
             icon: new Icon(Icons.share),
             onPressed: () => {},

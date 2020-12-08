@@ -29,7 +29,6 @@ class _ClothWidgetState extends State<ClothWidget> {
         .orderBy("uploadtime", descending: true)
         .snapshots();
 
-    // FirebaseFirestore.instance.collection('products').doc("").get();
     super.initState();
   }
 
@@ -128,6 +127,9 @@ class _ClothWidgetState extends State<ClothWidget> {
               itemBuilder: (context, index) {
                 Timestamp time = snapshot.data.docs[index].data()['uploadtime'];
 
+                Provider.of<AppDatabase>(context, listen: false)
+                    .productsDao
+                    .updatep(snapshot.data.docs[index]);
                 return ClothItem(
                   product: Product(
                     firestoreid: snapshot.data.docs[index].id,

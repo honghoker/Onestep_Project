@@ -18,16 +18,16 @@ class ClothWidget extends StatefulWidget {
 
 class _ClothWidgetState extends State<ClothWidget> {
   int _headerindex;
-  Stream stream;
+  Future<QuerySnapshot> _productfuture;
 
   @override
   void initState() {
     _headerindex = 0;
 
-    stream = FirebaseFirestore.instance
+    _productfuture = FirebaseFirestore.instance
         .collection('products')
         .orderBy("uploadtime", descending: true)
-        .snapshots();
+        .get();
 
     super.initState();
   }
@@ -79,11 +79,11 @@ class _ClothWidgetState extends State<ClothWidget> {
                   onTap: () {
                     setState(() {
                       _headerindex = index;
-                      stream = _headerindex == 0
+                      _productfuture = _headerindex == 0
                           ? FirebaseFirestore.instance
                               .collection('products')
                               .orderBy("uploadtime", descending: true)
-                              .snapshots()
+                              .get()
                           : FirebaseFirestore.instance
                               .collection('products')
                               .where("category",
@@ -91,7 +91,7 @@ class _ClothWidgetState extends State<ClothWidget> {
                                           listen: false)
                                       .getCategoryItems()[_headerindex])
                               .orderBy("uploadtime", descending: true)
-                              .snapshots();
+                              .get();
                     });
                   },
                 ),
@@ -105,8 +105,8 @@ class _ClothWidgetState extends State<ClothWidget> {
   }
 
   Widget renderBody(double itemWidth, double itemHeight) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: stream,
+    return FutureBuilder<QuerySnapshot>(
+      future: _productfuture,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
         switch (snapshot.connectionState) {
@@ -126,10 +126,6 @@ class _ClothWidgetState extends State<ClothWidget> {
               ),
               itemBuilder: (context, index) {
                 Timestamp time = snapshot.data.docs[index].data()['uploadtime'];
-
-                Provider.of<AppDatabase>(context, listen: false)
-                    .productsDao
-                    .updatep(snapshot.data.docs[index]);
                 return ClothItem(
                   product: Product(
                     firestoreid: snapshot.data.docs[index].id,
@@ -138,9 +134,6 @@ class _ClothWidgetState extends State<ClothWidget> {
                     price: snapshot.data.docs[index].data()['price'],
                     images:
                         jsonEncode(snapshot.data.docs[index].data()['images']),
-                    explain: snapshot.data.docs[index].data()['explain'],
-                    views: snapshot.data.docs[index].data()['views'],
-                    uploadtime: time.toDate(),
                   ),
                 );
               },

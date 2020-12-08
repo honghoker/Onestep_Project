@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/category.dart';
@@ -10,22 +9,11 @@ import 'login/LoginPage.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  //DatabaseProvider db = DatabaseProvider();
-  AppDatabase moordb = AppDatabase();
-  // Provider.debugCheckInvalidValueType = null;
-
   runApp(
     MultiProvider(
       providers: [
-        // StreamProvider<FirebaseUser>.value(
-        //     value: FirebaseAuth.instance.authStateChanges()),
-        // Provider<ProductsDao>(create: (_) => AppDatabase().productsDao),
-        //Provider<AppDatabase>(create: (_) => AppDatabase()),
         Provider<Category>.value(value: new Category()),
-        // Provider<ProductsDao>(create: (_) => moordb.productsDao),
         Provider<AppDatabase>.value(value: AppDatabase()),
-        // Provider<AppDatabase>.value(value: moordb),
-        // StreamProvider<List<Category>>.value(value: db.getCategory())
       ],
       child: MyApp(),
     ),

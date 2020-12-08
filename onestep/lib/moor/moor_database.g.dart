@@ -21,9 +21,9 @@ class Product extends DataClass implements Insertable<Product> {
       @required this.firestoreid,
       @required this.category,
       @required this.price,
-      @required this.explain,
-      @required this.views,
-      @required this.uploadtime,
+      this.explain,
+      this.views,
+      this.uploadtime,
       @required this.images});
   factory Product.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
@@ -218,17 +218,14 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     @required String firestoreid,
     @required String category,
     @required String price,
-    @required String explain,
-    @required int views,
-    @required DateTime uploadtime,
+    this.explain = const Value.absent(),
+    this.views = const Value.absent(),
+    this.uploadtime = const Value.absent(),
     @required String images,
   })  : title = Value(title),
         firestoreid = Value(firestoreid),
         category = Value(category),
         price = Value(price),
-        explain = Value(explain),
-        views = Value(views),
-        uploadtime = Value(uploadtime),
         images = Value(images);
   static Insertable<Product> custom({
     Expression<String> title,
@@ -381,7 +378,7 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     return GeneratedTextColumn(
       'explain',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -393,7 +390,7 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     return GeneratedIntColumn(
       'views',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -406,7 +403,7 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     return GeneratedDateTimeColumn(
       'uploadtime',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -465,22 +462,16 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     if (data.containsKey('explain')) {
       context.handle(_explainMeta,
           explain.isAcceptableOrUnknown(data['explain'], _explainMeta));
-    } else if (isInserting) {
-      context.missing(_explainMeta);
     }
     if (data.containsKey('views')) {
       context.handle(
           _viewsMeta, views.isAcceptableOrUnknown(data['views'], _viewsMeta));
-    } else if (isInserting) {
-      context.missing(_viewsMeta);
     }
     if (data.containsKey('uploadtime')) {
       context.handle(
           _uploadtimeMeta,
           uploadtime.isAcceptableOrUnknown(
               data['uploadtime'], _uploadtimeMeta));
-    } else if (isInserting) {
-      context.missing(_uploadtimeMeta);
     }
     if (data.containsKey('images')) {
       context.handle(_imagesMeta,

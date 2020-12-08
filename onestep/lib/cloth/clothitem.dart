@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/clothDetailViewWidget.dart';
 import 'package:onestep/moor/moor_database.dart';
@@ -70,17 +69,6 @@ class _ClothItemState extends State<ClothItem> {
 
     return GestureDetector(
       onTap: () {
-        print("상세보기");
-        try {
-          FirebaseFirestore.instance
-              .collection("products")
-              .doc(widget.product.firestoreid)
-              .update(
-            {
-              'views': widget.product.views + 1,
-            },
-          );
-        } catch (e) {}
         Navigator.push(
             context,
             MaterialPageRoute(

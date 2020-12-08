@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:moor_flutter/moor_flutter.dart';
 
 part 'moor_database.g.dart';
@@ -8,9 +7,9 @@ class Products extends Table {
   TextColumn get firestoreid => text()();
   TextColumn get category => text()();
   TextColumn get price => text()();
-  TextColumn get explain => text()();
-  IntColumn get views => integer()();
-  DateTimeColumn get uploadtime => dateTime()();
+  TextColumn get explain => text().nullable()();
+  IntColumn get views => integer().nullable()();
+  DateTimeColumn get uploadtime => dateTime().nullable()();
   TextColumn get images => text()();
 
   @override
@@ -26,17 +25,6 @@ class ProductsDao extends DatabaseAccessor<AppDatabase>
   Stream<List<Product>> watchProducts() => select(products).watch();
   Future insertProduct(Product product) => into(products).insert(product);
   Future deleteProduct(Product product) => delete(products).delete(product);
-  void updateProduct(Product product) => update(products).replace(product);
-
-  Future<dynamic> updatep(QueryDocumentSnapshot ds) {
-    return (update(products)
-          ..where((t) => t.firestoreid.like("${ds.data()['firestoreid']}")))
-        .write(
-      Product(
-        views: ds.data()['views'],
-      ),
-    );
-  }
 
   deleteAllProduct() => delete(products).go();
 }

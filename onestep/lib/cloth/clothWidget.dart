@@ -179,13 +179,10 @@ class _ClothWidgetState extends State<ClothWidget> {
               color: Colors.pink,
             ),
             onPressed: () => {
-              print("찜"),
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => FavoriteWidget()),
-              ).then((value) {
-                //setState(() => {});
-              }),
+              ),
             },
           ),
         ],

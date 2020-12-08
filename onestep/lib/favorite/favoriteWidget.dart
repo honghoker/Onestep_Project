@@ -49,7 +49,7 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
 
   Widget renderBody(double itemWidth, double itemHeight) {
     ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
-
+    
     return StreamBuilder<List<Product>>(
       stream: p.watchProducts(),
       builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {

@@ -100,9 +100,7 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
                   'views': snapshot.data.data()['views'] + 1,
                 },
               );
-            } catch (e) {
-              print(e);
-            }
+            } catch (e) {}
             return SingleChildScrollView(
               child: Container(
                 child: Column(

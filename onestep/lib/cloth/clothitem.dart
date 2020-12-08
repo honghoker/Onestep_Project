@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:moor_flutter/moor_flutter.dart' as mf;
 import 'package:onestep/cloth/clothDetailViewWidget.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
@@ -22,9 +23,9 @@ class _ClothItemState extends State<ClothItem> {
   Widget setFavorite() {
     ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
 
-    return StreamBuilder<List<Product>>(
-      stream: p.watchProducts(),
-      builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
+    return StreamBuilder<mf.QueryRow>(
+      stream: p.customwatch(this.widget.product),
+      builder: (BuildContext context, AsyncSnapshot<mf.QueryRow> snapshot) {
         if (snapshot.hasError) {
           print(snapshot.error);
           return new Text('Error: ${snapshot.error}');
@@ -43,12 +44,12 @@ class _ClothItemState extends State<ClothItem> {
                   children: <Widget>[
                     GestureDetector(
                       onTap: () {
-                        snapshot.data.contains(this.widget.product) == false
+                        snapshot.data.data['count'] == 0
                             ? p.insertProduct(this.widget.product)
                             : p.deleteProduct(this.widget.product);
                       },
                       child: Icon(
-                        snapshot.data.contains(this.widget.product) == false
+                        snapshot.data.data['count'] == 0
                             ? Icons.favorite_border
                             : Icons.favorite,
                         color: Colors.pink,

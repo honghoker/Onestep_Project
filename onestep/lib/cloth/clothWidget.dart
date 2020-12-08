@@ -125,7 +125,6 @@ class _ClothWidgetState extends State<ClothWidget> {
                 crossAxisSpacing: 10,
               ),
               itemBuilder: (context, index) {
-                Timestamp time = snapshot.data.docs[index].data()['uploadtime'];
                 return ClothItem(
                   product: Product(
                     firestoreid: snapshot.data.docs[index].id,

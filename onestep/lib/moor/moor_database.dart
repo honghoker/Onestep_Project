@@ -25,10 +25,12 @@ class ProductsDao extends DatabaseAccessor<AppDatabase>
   Stream<List<Product>> watchProducts() => select(products).watch();
   Future insertProduct(Product product) => into(products).insert(product);
   Future deleteProduct(Product product) => delete(products).delete(product);
-  Stream<QueryRow> customwatch(Product product) => customSelect(
-        "SELECT count(*) as count FROM Products WHERE firestoreid LIKE '${product.firestoreid}'",
+  Stream<QueryRow> watchsingleProduct(String firestoreid) => customSelect(
+        "SELECT * FROM Products WHERE firestoreid LIKE '${firestoreid}'",
         readsFrom: {products},
       ).watchSingle();
+
+  Future updateProduct(Product product) => update(products).replace(product);
 
   deleteAllProduct() => delete(products).go();
 }

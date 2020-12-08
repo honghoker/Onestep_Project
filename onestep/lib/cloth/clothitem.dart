@@ -24,7 +24,7 @@ class _ClothItemState extends State<ClothItem> {
     ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
 
     return StreamBuilder<mf.QueryRow>(
-      stream: p.customwatch(this.widget.product),
+      stream: p.watchsingleProduct(this.widget.product.firestoreid),
       builder: (BuildContext context, AsyncSnapshot<mf.QueryRow> snapshot) {
         if (snapshot.hasError) {
           print(snapshot.error);
@@ -34,6 +34,12 @@ class _ClothItemState extends State<ClothItem> {
           case ConnectionState.waiting:
             return Text("");
           default:
+            if (snapshot.hasData) {
+              if (snapshot.data.data.toString() !=
+                  widget.product.toJson().toString()) {
+                p.updateProduct(widget.product);
+              }
+            }
             return Positioned(
               right: 0,
               bottom: 0,
@@ -44,12 +50,12 @@ class _ClothItemState extends State<ClothItem> {
                   children: <Widget>[
                     GestureDetector(
                       onTap: () {
-                        snapshot.data.data['count'] == 0
+                        !snapshot.hasData
                             ? p.insertProduct(this.widget.product)
                             : p.deleteProduct(this.widget.product);
                       },
                       child: Icon(
-                        snapshot.data.data['count'] == 0
+                        !snapshot.hasData
                             ? Icons.favorite_border
                             : Icons.favorite,
                         color: Colors.pink,

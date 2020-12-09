@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:onestep/BoardLib/CreateBoard.dart';
 import 'package:onestep/BoardLib/SecondPageView.dart';
 import 'WasFirstPageView.dart';
 import 'package:onestep/BoardLib/ListView_Pcs.dart';
+import 'package:path/path.dart' as p;
 
 const String page1 = 'Page 1';
 const String page2 = 'Page 2';
@@ -22,17 +24,18 @@ class tempTitleData {
       this.favoriteCount, this.date);
 }
 
-class BoardState extends StatefulWidget {
+class BoardMain extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<BoardState> {
+class _MyHomePageState extends State<BoardMain> {
   bool isScrollingDown = false;
   double bottomBarHeight = 75;
   ScrollController _scrollController;
   @override
   void initState() {
+    print(p.split(''));
     super.initState();
     _scrollController = ScrollController()..addListener(() => setState(() {}));
   }
@@ -76,21 +79,24 @@ class _MyHomePageState extends State<BoardState> {
         child: Builder(builder: (BuildContext context) {
           return Scaffold(
             body:
-                //This is Error
-                // NestedScrollView(
-                //   controller: _scrollController,
-                //   headerSliverBuilder:
-                //       (BuildContext context, bool innerBoxIsScrolled) =>
-                //           _boardPageTabBarDesign(context, innerBoxIsScrolled),
-                //   body:
-                _boardPageTabBarView(),
-            // ),
+                // This is Error
+                NestedScrollView(
+              controller: _scrollController,
+              headerSliverBuilder:
+                  (BuildContext context, bool innerBoxIsScrolled) =>
+                      _boardPageTabBarDesign(context, innerBoxIsScrolled),
+              body: _boardPageTabBarView(),
+            ),
             floatingActionButton: _hideFAB
                 ? Container()
                 : FloatingActionButton(
                     onPressed: () {
-                      print(
-                          'Current Index : ${_scrollController.position}, ${_scrollController.hasClients}');
+                      Navigator.of(context).pushNamed('/CreateBoard');
+                      // Navigator.push(
+                      //     context,
+                      //     CupertinoPageRoute(
+                      //         fullscreenDialog: false,
+                      //         builder: (context) => CreateBoard()));
                     },
                     child: _changeFAB(DefaultTabController.of(context).index)
                         ? Icon(Icons.add)

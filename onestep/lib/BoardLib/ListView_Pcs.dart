@@ -87,40 +87,53 @@ class _FirstPageState extends State<FirstPageView> {
 //     );
 //   }
 
+  // @override
+  // Widget build(BuildContext context) {
+  //   return StreamBuilder(
+  //       stream: FirebaseFirestore.instance
+  //           .collection('Board')
+  //           .doc('Board_Free')
+  //           .collection('Board_Free_BoardId')
+  //           .snapshots(),
+  //       builder: (context, snapshot) {
+  //         if (snapshot.hasError) {
+  //           return Text("Error");
+  //         }
+  //         if (snapshot.connectionState == ConnectionState.waiting) {
+  //           return CircularProgressIndicator();
+  //         } else {
+  //           final boardIdList = snapshot.data.documents;
+  //           return Container(
+  //               child: ListView.builder(
+  //                   //PageStorageKey is Keepping ListView scroll position when switching pageview
+  //                   key: PageStorageKey<String>("value"),
+  //                   //Bottom Padding
+  //                   padding: const EdgeInsets.only(
+  //                       bottom: kFloatingActionButtonMargin + 60),
+  //                   itemCount: snapshot.data.documents.length,
+  //                   itemBuilder: (context, index) =>
+  //                       _buildListCard(context, index, boardIdList[index])));
+  //         }
+  //       });
+  // }
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('Board')
-            .doc('Board_Free')
-            .collection('Board_Free_BoardId')
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Text("Error");
-          }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          } else {
-            final boardIdList = snapshot.data.documents;
-            return Container(
-                child: ListView.builder(
-                    //PageStorageKey is Keepping ListView scroll position when switching pageview
-                    key: PageStorageKey<String>("value"),
-                    //Bottom Padding
-                    padding: const EdgeInsets.only(
-                        bottom: kFloatingActionButtonMargin + 60),
-                    itemCount: snapshot.data.documents.length,
-                    itemBuilder: (context, index) =>
-                        _buildListCard(context, index, boardIdList[index])));
-          }
-        });
+    return Container(
+        child: ListView.builder(
+
+            //PageStorageKey is Keepping ListView scroll position when switching pageview
+            key: PageStorageKey<String>("value"),
+            //Bottom Padding
+            padding:
+                const EdgeInsets.only(bottom: kFloatingActionButtonMargin + 60),
+            itemCount: tempData.length,
+            itemBuilder: (context, index) => _buildListCard(context, index)));
   }
 }
 
-Widget _buildListCard(BuildContext context, int index, DocumentSnapshot temp) {
-  print(temp
-      .id); //SOMETING//SOMETING//SOMETING//SOMETING//SOMETING//SOMETING//SOMETING//SOMETING
+Widget _buildListCard(BuildContext context, int index) {
+  // print(temp
+  //     .id); //SOMETING//SOMETING//SOMETING//SOMETING//SOMETING//SOMETING//SOMETING//SOMETING
   return Card(
       child: Padding(
           padding: const EdgeInsets.all(1.0),
@@ -130,15 +143,19 @@ Widget _buildListCard(BuildContext context, int index, DocumentSnapshot temp) {
             splashColor: Colors.grey,
             //Click Event
             onTap: () {
-              Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                    fullscreenDialog: false,
-                    builder: (context) => BoardStateful(
-                      index: index,
-                      boardName: 'Current Test Board',
-                    ),
-                  ));
+              Navigator.of(context).pushNamed(
+                '/BoardContent?INDEX=$index&BOARD_NAME="current"',
+              );
+                  
+              // Navigator.push(
+              //     context,
+              //     CupertinoPageRoute(
+              //       fullscreenDialog: false,
+              //       builder: (context) => BoardContent(
+              //         index: index,
+              //         boardName: 'Current Test Board',
+              //       ),
+              //     ));
             },
             child: Column(
               children: <Widget>[

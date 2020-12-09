@@ -12,15 +12,16 @@ final String IOSTHEME = 'IOS';
 final String ANDROIDTHEME = 'Android';
 final Color POPUP_FAVORITE_BACKGROUND_COLOR = Colors.black.withOpacity(0.1);
 
-class BoardStateful extends StatefulWidget {
+class BoardContent extends StatefulWidget {
   final int index;
   final String boardName;
-  BoardStateful({this.index, this.boardName});
+  BoardContent({this.index, this.boardName});
+  
   @override
   Board createState() => new Board(index: index, boardName: boardName);
 }
 
-class Board extends State<BoardStateful> with TickerProviderStateMixin {
+class Board extends State<BoardContent> with TickerProviderStateMixin {
   final int index;
   final String boardName;
   var _onFavoriteClicked;

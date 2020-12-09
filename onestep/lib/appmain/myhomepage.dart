@@ -32,7 +32,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _bottomWidgetList = [
     HomeWidget(),
     ClothWidget(),
-    BoardState(),
+    BoardMain(),
     NotificationWidget23(),
     MyinfoWidget(),
   ];

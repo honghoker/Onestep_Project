@@ -48,15 +48,19 @@ Widget _buildListCard(BuildContext context, int index) {
             splashColor: Colors.grey,
             //Click Event
             onTap: () {
-              Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                    fullscreenDialog: false,
-                    builder: (context) => BoardStateful(
-                      index: index,
-                      boardName: 'Current Test Board',
-                    ),
-                  ));
+              Navigator.of(context).pushNamed('/BoardContent', arguments: {
+                "INDEX": index,
+                "BOARD_NAME": 'current test Board'
+              });
+              // Navigator.push(
+              //     context,
+              //     CupertinoPageRoute(
+              //       fullscreenDialog: false,
+              //       builder: (context) => BoardContent(
+              //         index: index,
+              //         boardName: 'Current Test Board',
+              //       ),
+              //     ));
             },
             child: Column(
               children: <Widget>[

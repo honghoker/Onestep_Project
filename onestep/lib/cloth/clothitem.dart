@@ -73,6 +73,7 @@ class _ClothItemState extends State<ClothItem> {
   @override
   Widget build(BuildContext context) {
     double coverSize = 110;
+    var img = jsonDecode(widget.product.images);
 
     return GestureDetector(
       onTap: () {
@@ -97,9 +98,10 @@ class _ClothItemState extends State<ClothItem> {
                       placeholder: MemoryImage(
                         kTransparentImage,
                       ), // 이미지 로드 시 빈 이미지 표시
-                      image: NetworkImage(widget.product.images.isEmpty == false
+
+                      image: NetworkImage(img == null
                           ? 'https://grlib.sen.go.kr/resources/common/img/noimg-apply.png'
-                          : jsonDecode(widget.product.images)[0]),
+                          : img[0]),
                       fit: BoxFit.cover,
                     ),
                     Positioned(

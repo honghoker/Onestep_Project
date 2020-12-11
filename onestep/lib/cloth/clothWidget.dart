@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:onestep/cloth/clothAddWidget.dart';
 import 'package:onestep/favorite/favoriteWidget.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
@@ -201,16 +202,18 @@ class _ClothWidgetState extends State<ClothWidget> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           print("물품 등록");
-          // final result = await Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => ClothAdd()),
-          // );
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ClothAddWidget()),
+          );
 
-          // if (result == "OK") {
-          //   Scaffold.of(context)
-          //     ..removeCurrentSnackBar()
-          //     ..showSnackBar(SnackBar(content: Text("물품 등록이 완료되었습니다.")));
-          // }
+          if (result == "OK") {
+            setState(() {
+              Scaffold.of(context)
+                ..removeCurrentSnackBar()
+                ..showSnackBar(SnackBar(content: Text("물품 등록이 완료되었습니다.")));
+            });
+          }
         },
         child: Icon(
           Icons.add,

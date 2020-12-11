@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
+import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
 
@@ -14,8 +18,11 @@ class ClothDetailViewWidget extends StatefulWidget {
 }
 
 class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
+  List _imageItem = new List();
+
   @override
   void initState() {
+    _imageItem.addAll(jsonDecode(widget.product.images));
     super.initState();
   }
 
@@ -110,35 +117,32 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
                     Container(
                       color: Color(0xFFDF0F4),
                       height: 430,
-                      // child: Swiper(
-                      //   onTap: (index) {
-                      //     Navigator.push(
-                      //         context,
-                      //         MaterialPageRoute(
-                      //           builder: (context) => ImageFullViewer(
-                      //             galleryItems: _imageItem,
-                      //             index: index,
-                      //           ),
-                      //         ));
-                      //   },
-                      //   // autoplay: true,
-                      //   // scale: 0.9,
-                      //   // viewportFraction: 0.8,
-                      //   pagination: SwiperPagination(
-                      //     alignment: Alignment.bottomCenter,
-                      //     builder: DotSwiperPaginationBuilder(
-                      //       activeColor: Colors.pink,
-                      //       color: Colors.grey,
-                      //     ),
-                      //   ),
-                      //   itemCount: _imageItem.length,
-                      //   itemBuilder: (BuildContext context, int index) {
-                      //     return Image.network(
-                      //       _imageItem[index],
-                      //       fit: BoxFit.cover,
-                      //     );
-                      //   },
-                      // ),
+                      child: Swiper(
+                        onTap: (index) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ImageFullViewerWidget(
+                                  galleryItems: _imageItem,
+                                  index: index,
+                                ),
+                              ));
+                        },
+                        pagination: SwiperPagination(
+                          alignment: Alignment.bottomCenter,
+                          builder: DotSwiperPaginationBuilder(
+                            activeColor: Colors.pink,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        itemCount: _imageItem.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Image.network(
+                            _imageItem[index],
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(5.0),

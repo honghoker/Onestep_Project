@@ -31,11 +31,10 @@ dependencies:
   firebase_core: ^0.5.0
   cloud_firestore: ^0.14.2
   firebase_storage: ^4.0.1
-  image_picker: ^0.6.7+7
+  # image_picker: ^0.6.7+7
   fluttertoast: ^7.1.1
   shared_preferences: ^0.5.12 #id pw save
   cached_network_image: ^2.3.2+1
-  photo_view: ^0.10.2
   intl: ^0.16.1
   firebase_auth: ^0.18.2
   google_sign_in: ^4.5.5
@@ -45,6 +44,13 @@ dependencies:
   moor_flutter: ^3.1.0         # moor database
   transparent_image: ^1.0.0    # transparent_image
   provider: ^4.3.2+2           # Provider
+  pattern_formatter: ^1.0.2    # 숫자, 날짜 format 라이브러리
+  multi_image_picker: ^4.7.14  # 이미지 피커
+  permission_handler: ^5.0.1+1 # 권한 요청
+  random_string: ^2.1.0        # fireStoreage image random name
+  flutter_swiper: ^1.1.6       # image slider
+  photo_view: ^0.10.3          # image fullViewer
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

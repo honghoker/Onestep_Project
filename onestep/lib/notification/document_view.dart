@@ -20,14 +20,17 @@ class DocumentView extends StatelessWidget {
         print("@!@bOne : true  : " +
             chatingroomid.toString() +
             qs.data()[chatingroomid].toString());
-      } else
+        return true;
+      } else {
         print("@!@bOne : false : " + chatingroomid.toString());
+        return false;
+      }
     });
 
-    if (documentData.id.toString() == "4NSDIwPokM8NbAZNidLi" ||
-        documentData.id.toString() == "NZAqTcxODv0tPfW2oexw") return false;
-    print("@!@bbb" + documentData.id.toString());
-    return true;
+    // if (documentData.id.toString() == "4NSDIwPokM8NbAZNidLi" ||
+    //     documentData.id.toString() == "NZAqTcxODv0tPfW2oexw") return false;
+    // print("@!@bbb" + documentData.id.toString());
+    // return true;
   }
 
   String lightstr(DocumentSnapshot documentData) {
@@ -49,7 +52,7 @@ class DocumentView extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(0.0),
         ),
-        child: (lightbool(documentData))
+        child: (lightbool(documentData)) != null
             ? ListTile(
                 //여기서 채팅 여부 bool 값 받아서 판별해서 방 생성한다.@@@
                 title: Row(

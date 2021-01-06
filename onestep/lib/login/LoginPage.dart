@@ -6,7 +6,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:onestep/appmain/myhomepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
-
 import 'ProgressWidget.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -43,15 +42,18 @@ class _LoginScreenState extends State<LoginScreen> {
     isLoggedIn = await googleSignIn.isSignedIn();
     if (isLoggedIn) {
       print('로그인 상태 반환2 ' + isLoggedIn.toString());
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            //builder: (context) => NotificationWidget23(),
-            builder: (context) => MyHomePage(
-              //currentUserId: 'test',
-              currentUserId: preferences.getString('id') ?? '아이디없음',
-            ),
-          ));
+      var arg = preferences.getString('id') ?? '아이디없음';
+      Navigator.of(context).pushNamed('/MainPage?UID=$arg');
+
+      // Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //       //builder: (context) => NotificationWidget23(),
+      //       builder: (context) => MyHomePage(
+      //         //currentUserId: 'test',
+      //         currentUserId: preferences.getString('id') ?? '아이디없음',
+      //       ),
+      //     ));
     } else {
       //Fluttertoast.showToast(msg: '안된답니다~' + currentUser.uid);
     }

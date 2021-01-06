@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:onestep/BoardLib/CreateBoard.dart';
-import 'package:onestep/BoardLib/SecondPageView.dart';
-import 'WasFirstPageView.dart';
-import 'package:onestep/BoardLib/ListView_Pcs.dart';
+import 'package:onestep/BoardLib/secondPageView.dart';
+import 'wasFirstPageView.dart';
+import 'package:onestep/BoardLib/boardListView.dart';
 import 'package:path/path.dart' as p;
 
 const String page1 = 'Page 1';
@@ -158,111 +157,6 @@ class _MyHomePageState extends State<BoardMain> {
                   TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
     );
   }
-// class _BoardState extends State<BoardState>
-//     with SingleTickerProviderStateMixin {
-//   TabController _tabController;
-//   ScrollController _scrollViewController;
-//   @override
-//   void initState() {
-//     super.initState();
-//     _scrollViewController = new ScrollController();
-//     _tabController = new TabController(vsync: this, length: 3);
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return new StoreConnector<ReduxState, MainPageViewModel>(
-//       converter: (store) {
-//         return new MainPageViewModel([...]);
-//       },
-//       builder: (context, viewModel) {
-//         return new Scaffold(
-//             appBar: new AppBar(
-//               title: new Text("widget.title"),
-//               bottom: new TabBar(
-//                 tabs: <Tab>[
-//                   new Tab(
-//                     text: "STATISTICS",
-//                     icon: new Icon(Icons.show_chart),
-//                   ),
-//                   new Tab(
-//                     text: "HISTORY",
-//                     icon: new Icon(Icons.history),
-//                   ),
-//                 ],
-//                 controller: _tabController,
-//               ),
-//             ),
-//             body: new TabBarView(
-//               children: <Widget>[
-//                 new Red(),
-//                 new Blue(),
-//               ],
-//               controller: _tabController,
-//             ),
-//         );
-//       },
-//     );
-//   }
-
-// Widget build(BuildContext context) {
-//   return MaterialApp(
-//       home: DefaultTabController(
-//           length: 3,
-//           child: Scaffold(
-//             body: new NestedScrollView(
-//               headerSliverBuilder:
-//                   (BuildContext context, bool innerBosIsScrolled) {
-//                 return <Widget>[
-//                   new SliverAppBar(
-
-//                              )
-//                 ];
-//               },
-//               body: null,
-//               controller: _scrollController,
-//             ),
-//             appBar: AppBar(
-//               backgroundColor: Colors.white,
-//               elevation: 0,
-//               bottom: TabBar(
-//                   unselectedLabelColor: Colors.redAccent,
-//                   indicatorSize: TabBarIndicatorSize.tab,
-//                   indicator: BoxDecoration(
-//                       gradient: LinearGradient(
-//                           colors: [Colors.redAccent, Colors.orangeAccent]),
-//                       borderRadius: BorderRadius.circular(50),
-//                       color: Colors.redAccent),
-//                   tabs: [
-//                     Tab(
-//                       child: Align(
-//                         alignment: Alignment.center,
-//                         child: Text("APPS"),
-//                       ),
-//                     ),
-//                     Tab(
-//                       child: Align(
-//                         alignment: Alignment.center,
-//                         child: Text("MOVIES"),
-//                       ),
-//                     ),
-//                     Tab(
-//                       child: Align(
-//                         alignment: Alignment.center,
-//                         child: Text("GAMES"),
-//                       ),
-//                     ),
-//                   ]),
-//             ),
-//             body: TabBarView(children: <Widget>[
-//               FirstPageView(),
-//               Icon(Icons.movie),
-//               Icon(Icons.games),
-//             ]),
-//           )
-//           )
-//           )            ;
-// }
 }
 
 class Red extends StatefulWidget {

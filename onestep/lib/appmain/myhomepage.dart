@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:onestep/BoardLib/Boardmain.dart';
+import 'package:onestep/BoardLib/boardmain.dart';
 import 'package:onestep/cloth/clothWidget.dart';
 import 'package:onestep/community/communityWidget.dart';
 import 'package:onestep/home/homeWidget.dart';

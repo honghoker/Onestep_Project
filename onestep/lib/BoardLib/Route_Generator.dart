@@ -2,9 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' as foundation;
-import 'package:onestep/BoardLib/CreateBoard.dart';
-import 'BoardContent.dart';
+import 'CreateAlterBoard/parentState.dart';
+import 'boardContent.dart';
 import 'package:path/path.dart' as p;
+import 'package:onestep/appmain/myhomepage.dart';
 
 class RouteGenerator {
   static bool _isIOS =
@@ -28,6 +29,10 @@ class RouteGenerator {
     Widget _pageWidget;
 
     switch (_pageName) {
+      case 'MainPage':
+        _pageWidget = MyHomePage(currentUserId: arguments['UID']);
+        break;
+
       case 'BoardContent':
         _pageWidget = BoardContent(
           index: int.parse(arguments['INDEX']),

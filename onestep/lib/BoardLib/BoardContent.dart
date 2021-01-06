@@ -4,7 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:like_button/like_button.dart';
 import 'package:meta/meta.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'CommentInBoardContent.dart';
+import 'commentInBoardContent.dart';
 import 'package:flutter/animation.dart';
 import 'package:tip_dialog/tip_dialog.dart';
 
@@ -16,7 +16,7 @@ class BoardContent extends StatefulWidget {
   final int index;
   final String boardName;
   BoardContent({this.index, this.boardName});
-  
+
   @override
   Board createState() => new Board(index: index, boardName: boardName);
 }

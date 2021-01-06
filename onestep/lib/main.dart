@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'BoardLib/Route_Generator.dart';
+import 'BoardLib/route_Generator.dart';
 import 'login/LoginPage.dart';
 
 Future<void> main() async {
@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       onGenerateRoute: RouteGenerator.generateRoute,
+      initialRoute: '/',
       title: '앱메인',
       debugShowCheckedModeBanner: false,
       home: LoginScreen(),

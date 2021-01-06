@@ -15,6 +15,9 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
       width: 350,
       height: 250,
       decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(9.0)),
+        border: Border.all(width: 1.0, color: Colors.black.withOpacity(0.2)),
+      ),
       child: Padding(
         padding: null,
         child: Column(
@@ -54,7 +57,7 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom:5.0),
+                  padding: const EdgeInsets.only(bottom: 5.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
@@ -96,7 +99,7 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
                 ),
               ],
             ),
-               Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
@@ -106,7 +109,7 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom:5.0),
+                  padding: const EdgeInsets.only(bottom: 5.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
@@ -147,7 +150,8 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
                   ),
                 ),
               ],
-            ),   Column(
+            ),
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
@@ -157,7 +161,7 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom:5.0),
+                  padding: const EdgeInsets.only(bottom: 5.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
@@ -198,7 +202,8 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
                   ),
                 ),
               ],
-            ),   Column(
+            ),
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
@@ -208,7 +213,7 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom:5.0),
+                  padding: const EdgeInsets.only(bottom: 5.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[

@@ -13,11 +13,10 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
     return Container(
       margin: new EdgeInsets.only(top: 10),
       width: 350,
-
       height: 250,
-
       decoration: BoxDecoration(
       child: Padding(
+        padding: null,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[

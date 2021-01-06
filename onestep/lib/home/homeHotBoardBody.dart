@@ -1,5 +1,6 @@
-import 'package:cloth_list/home/homeHotBoardPage.dart';
 import 'package:flutter/material.dart';
+
+import 'homeHotBoardPage.dart';
 
 class HomeHotBoardBody extends StatefulWidget {
   @override
@@ -12,13 +13,11 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
     return Container(
       margin: new EdgeInsets.only(top: 10),
       width: 350,
-      height: 236,
+
+      height: 250,
+
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(9.0)),
-        border: Border.all(width: 1.0, color: Colors.black.withOpacity(0.2)),
-      ),
       child: Padding(
-        padding: const EdgeInsets.all(17.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[

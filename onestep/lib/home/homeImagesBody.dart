@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:cloth_list/cloth/clothItem.dart';
-import 'package:cloth_list/data/moor_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:onestep/cloth/clothitem.dart';
+import 'package:onestep/cloth/product.dart';
 
 class HomeImagesBody extends StatefulWidget {
   double itemWidth, itemHeight;

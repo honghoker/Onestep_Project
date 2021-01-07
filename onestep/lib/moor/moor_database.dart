@@ -26,7 +26,7 @@ class ProductsDao extends DatabaseAccessor<AppDatabase>
   Future insertProduct(Product product) => into(products).insert(product);
   Future deleteProduct(Product product) => delete(products).delete(product);
   Stream<QueryRow> watchsingleProduct(String firestoreid) => customSelect(
-        "SELECT * FROM Products WHERE firestoreid LIKE '${firestoreid}'",
+        "SELECT * FROM Products WHERE firestoreid LIKE '$firestoreid'",
         readsFrom: {products},
       ).watchSingle();
 

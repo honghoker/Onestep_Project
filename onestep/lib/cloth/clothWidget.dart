@@ -3,15 +3,17 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/clothAddWidget.dart';
+import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:onestep/favorite/favoriteWidget.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
 
-import 'category.dart';
 import 'clothitem.dart';
+import 'models/category.dart';
 
 class ClothWidget extends StatefulWidget {
-  ClothWidget({Key key}) : super(key: key);
+  final ProuductProvider productProvider;
+  ClothWidget({Key key, this.productProvider}) : super(key: key);
 
   @override
   _ClothWidgetState createState() => _ClothWidgetState();
@@ -19,18 +21,37 @@ class ClothWidget extends StatefulWidget {
 
 class _ClothWidgetState extends State<ClothWidget> {
   int _headerindex;
-  Future<QuerySnapshot> _productfuture;
+  final ScrollController _scrollController = ScrollController();
+
+  Future _productfuture;
 
   @override
   void initState() {
-    _headerindex = 0;
-
-    _productfuture = FirebaseFirestore.instance
-        .collection('products')
-        .orderBy("uploadtime", descending: true)
-        .get();
-
+    _scrollController.addListener(scrollListener);
+    widget.productProvider.fetchNextProducts();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      widget.productProvider.fetchNextProducts();
+    }
+
+    // if (_scrollController.offset >=
+    //         _scrollController.position.maxScrollExtent / 2 &&
+    //     !_scrollController.position.outOfRange) {
+    //   if (widget.productProvider.hasNext) {
+    //     print("@@@@@@dtdtdtd");
+    //     widget.productProvider.fetchNextProducts();
+    //   }
+    // }
   }
 
   Widget renderHeader() {
@@ -106,41 +127,32 @@ class _ClothWidgetState extends State<ClothWidget> {
   }
 
   Widget renderBody(double itemWidth, double itemHeight) {
-    return FutureBuilder<QuerySnapshot>(
-      future: _productfuture,
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return new Text("");
-          default:
-            return GridView.builder(
-              shrinkWrap: true,
-              itemCount: snapshot.data.size,
-              physics: NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                childAspectRatio: (itemWidth / itemHeight),
-                crossAxisCount: 3,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
+    return GridView(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        childAspectRatio: (itemWidth / itemHeight),
+        crossAxisCount: 3,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+      ),
+      children: [
+        ...widget.productProvider.products
+            .map(
+              (product) => ClothItem(
+                product: product,
               ),
-              itemBuilder: (context, index) {
-                return ClothItem(
-                  product: Product(
-                    firestoreid: snapshot.data.docs[index].id,
-                    title: snapshot.data.docs[index].data()['title'],
-                    category: snapshot.data.docs[index].data()['category'],
-                    price: snapshot.data.docs[index].data()['price'],
-                    images:
-                        jsonEncode(snapshot.data.docs[index].data()['images']),
-                  ),
-                );
-              },
-            );
-        }
-      },
+            )
+            .toList(),
+      ],
     );
+  }
+
+  Future<void> _refreshPage() async {
+    // setState(() {
+    widget.productProvider.fetchProducts();
+    // });
   }
 
   @override
@@ -165,6 +177,7 @@ class _ClothWidgetState extends State<ClothWidget> {
               color: Colors.black,
             ),
             onPressed: () => {
+              // a(),
               // showDialog(
               //   context: context,
               //   builder: (BuildContext context) {
@@ -187,33 +200,38 @@ class _ClothWidgetState extends State<ClothWidget> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          color: Colors.white,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              this.renderHeader(),
-              this.renderBody(_itemWidth, _itemHeight),
-            ],
+      body: RefreshIndicator(
+        onRefresh: _refreshPage,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          child: Container(
+            color: Colors.white,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                this.renderHeader(),
+                this.renderBody(_itemWidth, _itemHeight),
+              ],
+            ),
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          print("물품 등록");
-          final result = await Navigator.push(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => ClothAddWidget()),
-          );
-
-          if (result == "OK") {
-            setState(() {
-              Scaffold.of(context)
-                ..removeCurrentSnackBar()
-                ..showSnackBar(SnackBar(content: Text("물품 등록이 완료되었습니다.")));
-            });
-          }
+          ).then((value) {
+            widget.productProvider.fetchProducts();
+            // Provider.of<ProuductProvider>(context).reset();
+            // setState(() {
+            //   _productfuture = FirebaseFirestore.instance
+            //       .collection('products')
+            //       .orderBy("uploadtime", descending: true)
+            //       .limit(_limit)
+            //       .get();
+            // });
+          });
         },
         child: Icon(
           Icons.add,

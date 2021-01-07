@@ -10,7 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:random_string/random_string.dart';
 
-import 'category.dart';
+import 'models/category.dart';
 
 class ClothAddWidget extends StatefulWidget {
   ClothAddWidget({Key key}) : super(key: key);
@@ -40,8 +40,8 @@ class _ClothAddWidgetState extends State<ClothAddWidget> {
     return BoxDecoration(
       border: Border.all(width: 3.0),
       borderRadius: BorderRadius.all(
-          Radius.circular(5.0) //         <--- border radius here
-          ),
+        Radius.circular(5.0),
+      ),
     );
   }
 
@@ -183,7 +183,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget> {
       //     type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
 
       // _pr.style(
-      //   message: '이미지 저장 중 입니다',
+      //   message: '저장 중 입니다',
       // );
 
       // await _pr.show();
@@ -201,12 +201,6 @@ class _ClothAddWidgetState extends State<ClothAddWidget> {
         _imgUriarr.add(downloadURL);
       }
 
-      // _pr.update(
-      //   message: '데이터 저장 중 입니다',
-      // );
-
-      // await _pr.hide();
-
       FirebaseFirestore.instance.collection('products').add({
         'price': _priceTextEditingController.text,
         'title': _titleTextEditingController.text,
@@ -217,7 +211,9 @@ class _ClothAddWidgetState extends State<ClothAddWidget> {
         'uploadtime': DateTime.now(),
       }).whenComplete(() {
         if (Navigator.canPop(context)) {
+          // await _pr.hide();
           Navigator.pop(context, "OK");
+          print("등록완료");
         } else {
           SystemNavigator.pop();
         }
@@ -242,7 +238,6 @@ class _ClothAddWidgetState extends State<ClothAddWidget> {
           new IconButton(
             icon: new Icon(Icons.check),
             onPressed: () => {
-              //print("uploadpost()"),
               uploadPost(),
             },
           ),

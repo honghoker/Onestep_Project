@@ -1,9 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:onestep/cloth/category.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
 
+import 'cloth/models/category.dart';
+import 'cloth/providers/productProvider.dart';
 import 'login/LoginPage.dart';
 
 void main() async {
@@ -14,6 +15,8 @@ void main() async {
       providers: [
         Provider<Category>.value(value: new Category()),
         Provider<AppDatabase>.value(value: AppDatabase()),
+        ChangeNotifierProvider<ProuductProvider>.value(
+            value: new ProuductProvider()),
       ],
       child: MyApp(),
     ),

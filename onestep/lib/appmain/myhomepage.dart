@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/clothWidget.dart';
+import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:onestep/community/communityWidget.dart';
 import 'package:onestep/home/homeWidget.dart';
 import 'package:onestep/myinfo/myinfoWidget.dart';
 import 'package:onestep/notification/test.dart';
+import 'package:provider/provider.dart';
 
 class MyHomePage extends StatefulWidget {
   final String currentUserId;
@@ -30,7 +32,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final List<Widget> _bottomWidgetList = [
     HomeWidget(),
-    ClothWidget(),
+    Consumer<ProuductProvider>(
+      builder: (context, productProvider, _) => ClothWidget(
+        productProvider: productProvider,
+      ),
+    ),
     CommunityWidget(),
     NotificationWidget23(),
     MyinfoWidget(),

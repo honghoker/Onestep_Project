@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 import 'appmain/Route_Generator.dart';
 
@@ -27,6 +26,9 @@ void main() async {
         Provider<AppDatabase>.value(value: AppDatabase()),
         ChangeNotifierProvider<ProuductProvider>.value(
             value: new ProuductProvider()),
+        Provider<User>.value(
+          value: _auth.currentUser,
+        ),
       ],
       child: MyApp(),
     ),
@@ -51,9 +53,7 @@ class _MyAppState extends State<MyApp> {
       initialRoute: '/',
       title: '앱메인',
       debugShowCheckedModeBanner: false,
-      home: _auth.currentUser != null
-          ? MyHomePage(currentUserId: _auth.currentUser.uid)
-          : LoginScreen(),
+      home: _auth.currentUser != null ? MyHomePage() : LoginScreen(),
     );
   }
 }

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:onestep/BoardLib/Boardmain.dart';
 import 'package:onestep/cloth/clothWidget.dart';
 import 'package:onestep/cloth/providers/productProvider.dart';
-import 'package:onestep/community/communityWidget.dart';
 import 'package:onestep/home/homeWidget.dart';
 import 'package:onestep/myinfo/myinfoWidget.dart';
 import 'package:onestep/notification/test.dart';
 import 'package:provider/provider.dart';
+import 'package:onestep/BoardLib/boardMain.dart';
 
 class MyHomePage extends StatefulWidget {
   final String currentUserId;
@@ -38,7 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
         productProvider: productProvider,
       ),
     ),
-    CommunityWidget(),
+    BoardMain(),
     NotificationWidget23(),
     MyinfoWidget(),
   ];
@@ -50,12 +49,6 @@ class _MyHomePageState extends State<MyHomePage> {
       onTap: (int index) {
         setState(() {
           this._bottombarindex = index;
-          print(this._bottombarindex);
-          print('##겟 바텀바');
-
-          if (index == 3) {
-            print('message');
-          }
         });
       },
       type: BottomNavigationBarType.fixed,
@@ -91,17 +84,37 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  final GlobalKey<ScaffoldState> _globalKey = GlobalKey();
+  static DateTime currentBackPressTime;
+
+  bool isEnd() {
+    DateTime now = DateTime.now();
+
+    if (currentBackPressTime == null ||
+        now.difference(currentBackPressTime) > Duration(seconds: 2)) {
+      currentBackPressTime = now;
+      _globalKey.currentState
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          duration: Duration(seconds: 2),
+          content: Text("한번더 누르면 종료"),
+        ));
+      return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          currentUserId,
-          textScaleFactor: 0.9,
+    return WillPopScope(
+        child: Scaffold(
+          key: _globalKey,
+          body: _bottomWidgetList[_bottombarindex],
+          bottomNavigationBar: getBottomBar(),
         ),
-      ),
-      body: _bottomWidgetList[_bottombarindex],
-      bottomNavigationBar: getBottomBar(),
-    );
+        onWillPop: () async {
+          bool result = isEnd();
+          return await Future.value(result);
+        });
   }
 }

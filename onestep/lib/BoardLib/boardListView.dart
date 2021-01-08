@@ -1,26 +1,101 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'boardList.dart';
-import 'boardListView.dart';
-import 'boardContent.dart';
-import 'boardPersonal.dart';
+import 'dart:async';
 
-class TempPageView extends StatefulWidget {
-  _Temp createState() => _Temp();
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/rendering.dart';
+
+import 'boardMain.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'boardContent.dart';
+
+final List<tempTitleData> tempData = [
+  tempTitleData('이게', '멋진 서브타이틀', 5000, 5, '2019.2.4'),
+  tempTitleData('바로', '영롱 하지 않은가', 10, 100, '2019.7.4'),
+  tempTitleData('멋진', '아름답지 않은가', 90, 1500, '2019.9.4'),
+  tempTitleData('리스트', '깔끔하지 않은가', 50, 20, '2019.10.4'),
+  tempTitleData('라는', '촤밍하지 않는가', 99, 2000, '2019.4.4'),
+  tempTitleData('것이다', '페이보릿카운트가 555555이다', 30, 55555555, '2019.2.4'),
+  tempTitleData('이게', '멋진 서브타이틀', 5000, 5, '2019.2.4'),
+  tempTitleData('바로', '영롱 하지 않은가', 10, 100, '2019.7.4'),
+  tempTitleData('멋진', '아름답지 않은가', 90, 1500, '2019.9.4'),
+  tempTitleData('리스트', '깔끔하지 않은가', 50, 20, '2019.10.4'),
+  tempTitleData('라는', '촤밍하지 않는가', 99, 2000, '2019.4.4'),
+  tempTitleData('것이다', '페이보릿카운트가 555555이다', 30, 55555555, '2019.2.4'),
+  tempTitleData('이게', '멋진 서브타이틀', 5000, 5, '2019.2.4'),
+  tempTitleData('바로', '영롱 하지 않은가', 10, 100, '2019.7.4'),
+  tempTitleData('멋진', '아름답지 않은가', 90, 1500, '2019.9.4'),
+  tempTitleData('리스트', '깔끔하지 않은가', 50, 20, '2019.10.4'),
+  tempTitleData('라는', '촤밍하지 않는가', 99, 2000, '2019.4.4'),
+  tempTitleData('것이다', '페이보릿카운트가 555555이다', 30, 55555555, '2019.2.4'),
+  tempTitleData('이게', '멋진 서브타이틀', 5000, 5, '2019.2.4'),
+  tempTitleData('바로', '영롱 하지 않은가', 10, 100, '2019.7.4'),
+  tempTitleData('멋진', '아름답지 않은가', 90, 1500, '2019.9.4'),
+  tempTitleData('리스트', '깔끔하지 않은가', 50, 20, '2019.10.4'),
+  tempTitleData('라는', '촤밍하지 않는가', 99, 2000, '2019.4.4'),
+  tempTitleData('것이다', '페이보릿카운트가 555555이다', 30, 55555555, '2019.2.4'),
+  tempTitleData('이게', '멋진 서브타이틀', 5000, 5, '2019.2.4'),
+  tempTitleData('바로', '영롱 하지 않은가', 10, 100, '2019.7.4'),
+  tempTitleData('멋진', '아름답지 않은가', 90, 1500, '2019.9.4'),
+  tempTitleData('리스트', '깔끔하지 않은가', 50, 20, '2019.10.4'),
+  tempTitleData('라는', '촤밍하지 않는가', 99, 2000, '2019.4.4'),
+  tempTitleData('것이다', '페이보릿카운트가 555555이다', 30, 55555555, '2019.2.4'),
+  tempTitleData('이게', '멋진 서브타이틀', 5000, 5, '2019.2.4'),
+  tempTitleData('바로', '영롱 하지 않은가', 10, 100, '2019.7.4'),
+  tempTitleData('멋진', '아름답지 않은가', 90, 1500, '2019.9.4'),
+  tempTitleData('리스트', '깔끔하지 않은가', 50, 20, '2019.10.4'),
+  tempTitleData('라는', '촤밍하지 않는가', 99, 2000, '2019.4.4'),
+  tempTitleData('것이다', '페이보릿카운트가 555555이다', 30, 55555555, '2019.2.4'),
+];
+
+class FirstPageView extends StatefulWidget {
+  Function callback;
+  FirstPageView({Key key, this.callback}) : super(key: key);
+  @override
+  _FirstPageState createState() => _FirstPageState();
 }
 
-class _Temp extends State<TempPageView> {
+class _FirstPageState extends State<FirstPageView> {
   // BuildContext context;
   // GeneralBoard(BuildContext context);
   // GeneralBoard({@required this.context}) : assert(context != null);
+  ScrollController _scrollController;
+  bool isScrollDirectionUp;
+  @override
+  void initState() {
+    isScrollDirectionUp = true;
+    _scrollController = new ScrollController();
+    _scrollController.addListener(() {
+      if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.forward) {
+        if (isScrollDirectionUp == true) {
+          isScrollDirectionUp = false;
+          widget.callback(isScrollDirectionUp);
+        }
+      } else {
+        if (_scrollController.position.userScrollDirection ==
+            ScrollDirection.reverse) {
+          if (isScrollDirectionUp == false) {
+            isScrollDirectionUp = true;
+            widget.callback(isScrollDirectionUp);
+          }
+        }
+      }
+    });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
         child: ListView.builder(
-
+            controller: _scrollController,
             //PageStorageKey is Keepping ListView scroll position when switching pageview
             key: PageStorageKey<String>("value"),
             //Bottom Padding
@@ -32,6 +107,8 @@ class _Temp extends State<TempPageView> {
 }
 
 Widget _buildListCard(BuildContext context, int index) {
+  // print(temp
+  //     .id); //SOMETING//SOMETING//SOMETING//SOMETING//SOMETING//SOMETING//SOMETING//SOMETING
   return Card(
       child: Padding(
           padding: const EdgeInsets.all(1.0),
@@ -41,10 +118,10 @@ Widget _buildListCard(BuildContext context, int index) {
             splashColor: Colors.grey,
             //Click Event
             onTap: () {
-              Navigator.of(context).pushNamed('/BoardContent', arguments: {
-                "INDEX": index,
-                "BOARD_NAME": 'current test Board'
-              });
+              Navigator.of(context).pushNamed(
+                '/BoardContent?INDEX=$index&BOARD_NAME="current"',
+              );
+
               // Navigator.push(
               //     context,
               //     CupertinoPageRoute(
@@ -62,7 +139,7 @@ Widget _buildListCard(BuildContext context, int index) {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     //Title Container
-                    titleContainerMethod(index),
+                    titleContainerMethod(title: ''),
                     _commentCountMethod(index)
                   ],
                 )),
@@ -120,12 +197,13 @@ Widget _buildListCard(BuildContext context, int index) {
           )));
 }
 
-Widget titleContainerMethod(int index) {
+@override
+Widget titleContainerMethod({@required String title}) {
   return Container(
       margin: const EdgeInsets.only(left: 5),
       width: 300,
       child: Text(
-        tempData[index].title,
+        title,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
             color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold),

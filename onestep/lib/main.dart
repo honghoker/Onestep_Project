@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'appmain/Route_Generator.dart';
 
@@ -36,8 +37,6 @@ class MyApp extends StatelessWidget {
       title: '앱메인',
       debugShowCheckedModeBanner: false,
       home: LoginScreen(),
-      //home: MyHomePage(),
-      //home: GoogleSignInDemo2(),
     );
   }
 }

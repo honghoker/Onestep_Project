@@ -7,6 +7,7 @@ import 'package:onestep/BoardLib/mySlideOverDialog/slide_popup_dialog.dart'
 import 'package:multi_image_picker/multi_image_picker.dart';
 
 enum BoardCategory { SMALLTALK, QUESTION }
+const int MAX_IMAGE_COUNT = 5;
 
 class CreateBoard extends StatefulWidget {
   CreateBoard({Key key}) : super(key: key);
@@ -194,11 +195,11 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T> {
     );
   }
 
-  _imageContainer() {
-    Container imageRendering = images.isNotEmpty
+  _imageContainer({Asset imageAsset}) {
+    Container imageRendering = imageAsset != null
         ? Container(
             child: AssetThumb(
-            asset: images[1],
+            asset: imageAsset,
             height: 200,
             width: 200,
           ))
@@ -233,7 +234,17 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T> {
   }
 
   thirdContainer() {
-    return Row(children: [_imageContainer()]);
+    List<Widget> _containerList = [];
+    for (int i = 0; i < MAX_IMAGE_COUNT; i++) {
+      if (images.isNotEmpty) {
+        if (i < images.length) {
+          _containerList.add(_imageContainer(imageAsset: images[i]));
+          continue;
+        }
+      }
+      _containerList.add(_imageContainer());
+    }
+    return Row(children: _containerList);
   }
 }
 

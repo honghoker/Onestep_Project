@@ -73,6 +73,7 @@ class _MyHomePageState extends State<BoardMain> {
             floatingActionButton: _hideFAB
                 ? Container()
                 : FloatingActionButton(
+                    backgroundColor: Colors.black,
                     onPressed: () {
                       Navigator.of(context).pushNamed('/CreateBoard');
                     },

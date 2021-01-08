@@ -257,8 +257,16 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
           setFavorite(),
           new IconButton(
             icon: new Icon(Icons.share),
-            onPressed: () => {},
+            onPressed: () => {
+              print("share"),
+            },
           ),
+          new IconButton(
+            icon: new Icon(Icons.chat),
+            onPressed: () => {
+              print("chat"),
+            },
+          )
         ],
       ),
       body: renderBody(),

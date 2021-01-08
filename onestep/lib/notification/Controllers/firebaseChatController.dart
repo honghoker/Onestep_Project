@@ -1,20 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirebaseChatController {
-  Future<void> saveChatingRoomToFirebaseStorage(
-      userUid, userName, timeStamp) async {
+  Future<void> createChatListToFirebaseStorage(
+      String userUid, String chatId) async {
     // userImageFile,
     try {
-      FirebaseFirestore.instance.collection("users").doc(userUid).set({
-        "id": userUid,
-        "nickname": userName,
-//        "photoUrl": userImageFile,
-        "authUniversity": "",
-        "userLevel": 1, // 0: BAN / 1: GUEST / 2:AUTHENTIFICATION USER
-        "userScore": 100, //장터 평가, 유저 신고 점수 , 100 이하일 경우 불량 유저
-        "userUniversity": "", //universityID
-        "userUniversityEmail": "", //학교인증 이메일
-        "userEmail": "", //User Email
+      FirebaseFirestore.instance
+          .collection("user_chatlist")
+          .doc(userUid)
+          .update({
+        //"id": userUid,
+        chatId: true,
+      });
+    } catch (e) {
+      print(e.message);
+    }
+  }
+
+  Future<void> createChatingRoomToFirebaseStorage(
+      String userUid, String friendId, String chatId) async {
+    // userImageFile,
+    try {
+      FirebaseFirestore.instance.collection("chattingroom").doc(chatId).update({
+        "board": "자유게시판",
+        "read_count": 0,
+        "receive_user": userUid,
+        "send_user": friendId,
+        "recent_chattime": "오늘",
+        "recent_text": "뭐바",
         "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
       });
     } catch (e) {

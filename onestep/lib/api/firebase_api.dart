@@ -1,11 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class FirebaseApi {
   static Future<String> getId() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     // google getuid
-    SharedPreferences pre = await SharedPreferences.getInstance();
-    return pre.getString('id');
+    GoogleSignInAccount googleUser = await googleSignIn.signIn();
+    GoogleSignInAuthentication googleSignInAuthentication =
+        await googleUser.authentication;
+
+    final AuthCredential credential = GoogleAuthProvider.credential(
+        idToken: googleSignInAuthentication.idToken,
+        accessToken: googleSignInAuthentication.accessToken);
+
+    final User firebaseUser =
+        (await firebaseAuth.signInWithCredential(credential)).user;
+    print("####uid ${firebaseUser.uid}");
+    return firebaseUser.uid;
   }
 
   static Future<QuerySnapshot> getProducts(

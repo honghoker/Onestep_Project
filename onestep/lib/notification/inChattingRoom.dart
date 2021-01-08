@@ -294,11 +294,9 @@ class _LastChatState extends State<ChatScreen> {
 
   Widget createItem(int index, DocumentSnapshot document) {
     //My messages - Right Side
-
     if (document["idFrom"] == myId) {
       senderId = myId;
       receiveId = friendId;
-      print("#프롬과 동일 : {$myId $friendId $senderId $receiveId}");
       //내가 보냈을 경우
       return Row(
         children: <Widget>[

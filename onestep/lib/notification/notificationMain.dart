@@ -68,13 +68,11 @@ class _NotificationMainState extends State<NotificationMain> {
                         default:
                           DocumentSnapshot chatDocumentsnapshot =
                               chatroomsnapshot.data;
-                          //     "aaaa = ${chatDocumentsnapshot}");
                           if (chatDocumentsnapshot.data() != null) {
                             return ListTile(
                               title: Row(
                                 children: <Widget>[
                                   Text(chatDocumentsnapshot['board']),
-                                  //Text("${snapshot.data.data()}"),
                                   Spacer(),
                                   SizedBox(width: 150, height: 10),
                                   GetTime(chatDocumentsnapshot),
@@ -122,12 +120,8 @@ class _NotificationMainState extends State<NotificationMain> {
                                               chattingRoomId:
                                                   chatDocumentsnapshot.id,
                                             )));
-                                print("###########UID : " +
-                                    snapshot.data.id +
-                                    "sendUser : " +
-                                    chatDocumentsnapshot["send_user"] +
-                                    " receUser : " +
-                                    chatDocumentsnapshot["receive_user"]);
+                                // print("###########UID : " +snapshot.data.id +"sendUser : " +
+                                //     chatDocumentsnapshot["send_user"] +" receUser : " +chatDocumentsnapshot["receive_user"]);
                               },
                             );
                           } else

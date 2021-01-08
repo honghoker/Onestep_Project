@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-import 'BoardLib/route_Generator.dart';
+import 'appmain/Route_Generator.dart';
 
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';

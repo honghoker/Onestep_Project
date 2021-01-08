@@ -51,9 +51,7 @@ class _MyAppState extends State<MyApp> {
       initialRoute: '/',
       title: '앱메인',
       debugShowCheckedModeBanner: false,
-      home: _auth.currentUser != null
-          ? MyHomePage(currentUserId: _auth.currentUser.uid)
-          : LoginScreen(),
+      home: _auth.currentUser != null ? MyHomePage() : LoginScreen(),
     );
   }
 }

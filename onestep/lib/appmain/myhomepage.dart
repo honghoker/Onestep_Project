@@ -84,11 +84,37 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  final GlobalKey<ScaffoldState> _globalKey = GlobalKey();
+  static DateTime currentBackPressTime;
+
+  bool isEnd() {
+    DateTime now = DateTime.now();
+
+    if (currentBackPressTime == null ||
+        now.difference(currentBackPressTime) > Duration(seconds: 2)) {
+      currentBackPressTime = now;
+      _globalKey.currentState
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          duration: Duration(seconds: 2),
+          content: Text("한번더 누르면 종료"),
+        ));
+      return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _bottomWidgetList[_bottombarindex],
-      bottomNavigationBar: getBottomBar(),
-    );
+    return WillPopScope(
+        child: Scaffold(
+          key: _globalKey,
+          body: _bottomWidgetList[_bottombarindex],
+          bottomNavigationBar: getBottomBar(),
+        ),
+        onWillPop: () async {
+          bool result = isEnd();
+          return await Future.value(result);
+        });
   }
 }

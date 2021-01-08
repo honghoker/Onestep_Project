@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +9,7 @@ import 'package:pattern_formatter/numeric_formatter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:random_string/random_string.dart';
-
+import 'package:onestep/PermissionLib/customPermisson.dart';
 import 'models/category.dart';
 
 class ClothAddWidget extends StatefulWidget {
@@ -20,7 +19,8 @@ class ClothAddWidget extends StatefulWidget {
   _ClothAddWidgetState createState() => _ClothAddWidgetState();
 }
 
-class _ClothAddWidgetState extends State<ClothAddWidget> {
+class _ClothAddWidgetState extends State<ClothAddWidget>
+    with OneStepPermission {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _titleTextEditingController = TextEditingController();
   final _priceTextEditingController = TextEditingController();
@@ -44,25 +44,6 @@ class _ClothAddWidgetState extends State<ClothAddWidget> {
         Radius.circular(5.0),
       ),
     );
-  }
-
-  Future<Map<Permission, PermissionStatus>> permissionRequest() async {
-    Map<Permission, PermissionStatus> _statuses;
-
-    if (Platform.isIOS) {
-      _statuses = await [
-        Permission.camera,
-        Permission.storage,
-      ].request();
-      return _statuses;
-    } else {
-      _statuses = await [
-        Permission.camera,
-        Permission.storage,
-      ].request();
-
-      return _statuses;
-    }
   }
 
   Widget setImageList() {
@@ -90,50 +71,79 @@ class _ClothAddWidgetState extends State<ClothAddWidget> {
           );
   }
 
-  void getImage() async {
-    try {
-      Map<Permission, PermissionStatus> _statuses = await permissionRequest();
-      if (!(_statuses.containsValue("PermissionStatus.granted") ||
-          _statuses.containsValue("PermissionStatus.restricted") ||
-          _statuses.containsValue("PermissionStatus.permanentlyDenied"))) {
-        List<Asset> _resultList = List<Asset>();
+  void temp() async {
+    List<Asset> _resultList = List<Asset>();
 
-        _resultList = await MultiImagePicker.pickImages(
-          maxImages: 5,
-          enableCamera: true,
-          selectedAssets: _imageList,
-          cupertinoOptions: CupertinoOptions(
-            takePhotoIcon: "chat",
-          ),
-          materialOptions: MaterialOptions(
-            // actionBarTitle: "앨범",
-            actionBarColor: "#abcdef",
-            actionBarTitleColor: "#000000",
-            statusBarColor: "#000000",
-            // allViewTitle: "전체사진",
-            useDetailsView: true,
-            selectCircleStrokeColor: "#000000",
-          ),
-        );
+    _resultList = await MultiImagePicker.pickImages(
+      maxImages: 5,
+      enableCamera: true,
+      selectedAssets: _imageList,
+      cupertinoOptions: CupertinoOptions(
+        takePhotoIcon: "chat",
+      ),
+      materialOptions: MaterialOptions(
+        // actionBarTitle: "앨범",
+        actionBarColor: "#abcdef",
+        actionBarTitleColor: "#000000",
+        statusBarColor: "#000000",
+        // allViewTitle: "전체사진",
+        useDetailsView: true,
+        selectCircleStrokeColor: "#000000",
+      ),
+    );
 
-        if (_resultList.isEmpty) return;
-        setState(() {
-          _imageCount = _resultList.length;
-          _imageList.clear();
-          _imageList = _resultList;
-        });
-      }
-    } catch (e) {
-      print(e.toString());
-    }
+    if (_resultList.isEmpty) return;
+    setState(() {
+      _imageCount = _resultList.length;
+      _imageList.clear();
+      _imageList = _resultList;
+    });
   }
+  // void getImage() async {
+  //   try {
+  //     Map<Permission, PermissionStatus> _statuses = await permissionRequest();
+  //     if (!(_statuses.containsValue("PermissionStatus.granted") ||
+  //         _statuses.containsValue("PermissionStatus.restricted") ||
+  //         _statuses.containsValue("PermissionStatus.permanentlyDenied"))) {
+  //       List<Asset> _resultList = List<Asset>();
+
+  //       _resultList = await MultiImagePicker.pickImages(
+  //         maxImages: 5,
+  //         enableCamera: true,
+  //         selectedAssets: _imageList,
+  //         cupertinoOptions: CupertinoOptions(
+  //           takePhotoIcon: "chat",
+  //         ),
+  //         materialOptions: MaterialOptions(
+  //           // actionBarTitle: "앨범",
+  //           actionBarColor: "#abcdef",
+  //           actionBarTitleColor: "#000000",
+  //           statusBarColor: "#000000",
+  //           // allViewTitle: "전체사진",
+  //           useDetailsView: true,
+  //           selectCircleStrokeColor: "#000000",
+  //         ),
+  //       );
+
+  //       if (_resultList.isEmpty) return;
+  //       setState(() {
+  //         _imageCount = _resultList.length;
+  //         _imageList.clear();
+  //         _imageList = _resultList;
+  //       });
+  //     }
+  //   } catch (e) {
+  //     print(e.toString());
+  //   }
+  // }
 
   Widget imageAddWidget() {
     return Row(
       children: <Widget>[
         GestureDetector(
           onTap: () {
-            getImage();
+            // getImage();
+            checkCamStorePermission(temp);
             print("getImage()");
           },
           child: Container(

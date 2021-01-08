@@ -7,7 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'boardMain.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'BoardContent.dart';
+import 'boardContent.dart';
 
 final List<tempTitleData> tempData = [
   tempTitleData('이게', '멋진 서브타이틀', 5000, 5, '2019.2.4'),

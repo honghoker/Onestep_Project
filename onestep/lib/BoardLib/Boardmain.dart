@@ -29,29 +29,23 @@ class BoardMain extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<BoardMain> {
-  bool isScrollingDown = false;
+  bool _hideFAB = false;
   double bottomBarHeight = 75;
-  ScrollController _scrollController;
+
   @override
   void initState() {
     print(p.split(''));
     super.initState();
-    _scrollController = ScrollController()..addListener(() => setState(() {}));
   }
 
-  bool get _hideFAB {
-    // return _scrollController.hasClients &&
-    //     _scrollController.offset > (100 - kToolbarHeight);
-    print('${_scrollController.hasClients}');
-    return !(_scrollController.hasClients &&
-        _scrollController.position.userScrollDirection ==
-            ScrollDirection.forward);
+  listViewFABCallback(bool isScrlDirectUp) {
+    setState(() {
+      _hideFAB = isScrlDirectUp;
+    });
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
-    _scrollController.removeListener(() {});
     super.dispose();
   }
 
@@ -77,71 +71,47 @@ class _MyHomePageState extends State<BoardMain> {
         length: 3,
         child: Builder(builder: (BuildContext context) {
           return Scaffold(
-            body:
-                // This is Error
-                NestedScrollView(
-              controller: _scrollController,
-              headerSliverBuilder:
-                  (BuildContext context, bool innerBoxIsScrolled) =>
-                      _boardPageTabBarDesign(context, innerBoxIsScrolled),
-              body: _boardPageTabBarView(),
-            ),
+            body: _boardPageTabBarView(),
+            appBar: PreferredSize(
+                preferredSize: Size.fromHeight(50.0),
+                child: AppBar(
+                  backgroundColor: Colors.white,
+                  bottom: TabBar(
+                    indicator: CircleTabIndicator(
+                        color: Colors.greenAccent, radius: 5),
+                    //  UnderlineTabIndicator(
+                    //     borderSide:
+                    //         BorderSide(width: 2.0, color: Colors.redAccent),
+                    //     insets: EdgeInsets.symmetric(horizontal: 16.0)),
+
+                    tabs: _boardPageTabBarDesign(context),
+                  ),
+                )),
             floatingActionButton: _hideFAB
                 ? Container()
                 : FloatingActionButton(
                     onPressed: () {
                       Navigator.of(context).pushNamed('/CreateBoard');
-                      // Navigator.push(
-                      //     context,
-                      //     CupertinoPageRoute(
-                      //         fullscreenDialog: false,
-                      //         builder: (context) => CreateBoard()));
                     },
-                    child: _changeFAB(DefaultTabController.of(context).index)
-                        ? Icon(Icons.add)
-                        : Icon(Icons.access_alarm),
-                    // child: DefaultTabController.of(context).index != 0
-                    //     ? Icon(Icons.add)
-                    //     : Icon(Icons.access_alarm)
-                  ),
+                    child: Icon(Icons.add)),
           );
         }));
   }
 
-  bool _changeFAB(index) {
-    return index != 0 ? true : false;
-  }
-
-  _boardPageTabBarDesign(BuildContext context, bool innerBoxIsScrolled) {
-    return <Widget>[
-      new SliverAppBar(
-        backgroundColor: Colors.white,
-        title: new Text("widget.title"),
-        pinned: true,
-        floating: true,
-        forceElevated: innerBoxIsScrolled,
-        bottom: TabBar(
-            labelColor: Colors.red,
-            unselectedLabelColor: Colors.black,
-            indicatorSize: TabBarIndicatorSize.label,
-            indicator: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10)),
-                color: Colors.white),
-            tabs: [
-              _tabBarTextDesign(text: "최신순"),
-              _tabBarTextDesign(text: "추천순"),
-              _tabBarTextDesign(text: "오늘의"),
-            ]),
-      ),
+  List<Widget> _boardPageTabBarDesign(BuildContext context) {
+    return [
+      _tabBarTextDesign(text: "최신순"),
+      _tabBarTextDesign(text: "추천순"),
+      _tabBarTextDesign(text: "오늘의"),
     ];
   }
 
   _boardPageTabBarView() {
     return TabBarView(
       children: <Widget>[
-        FirstPageView(),
+        FirstPageView(
+          callback: listViewFABCallback,
+        ),
         TempPageView(),
         Practice(),
       ],
@@ -154,7 +124,10 @@ class _MyHomePageState extends State<BoardMain> {
           alignment: Alignment.center,
           child: Text(text,
               style: textStyle ??
-                  TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+                  TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black))),
     );
   }
 }
@@ -198,5 +171,32 @@ class _YellowState extends State<Yellow> {
     return Container(
       color: Colors.yellowAccent,
     );
+  }
+}
+
+class CircleTabIndicator extends Decoration {
+  final BoxPainter _painter;
+
+  CircleTabIndicator({@required Color color, @required double radius})
+      : _painter = _CirclePainter(color, radius);
+
+  @override
+  BoxPainter createBoxPainter([onChanged]) => _painter;
+}
+
+class _CirclePainter extends BoxPainter {
+  final Paint _paint;
+  final double radius;
+
+  _CirclePainter(Color color, this.radius)
+      : _paint = Paint()
+          ..color = color
+          ..isAntiAlias = true;
+
+  @override
+  void paint(Canvas canvas, Offset offset, ImageConfiguration cfg) {
+    final Offset circleOffset =
+        offset + Offset(cfg.size.width / 2, cfg.size.height - radius);
+    canvas.drawCircle(circleOffset, radius, _paint);
   }
 }

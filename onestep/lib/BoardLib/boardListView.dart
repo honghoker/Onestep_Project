@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/rendering.dart';
 
 import 'Boardmain.dart';
 import 'package:flutter/cupertino.dart';
@@ -48,6 +49,8 @@ final List<tempTitleData> tempData = [
 ];
 
 class FirstPageView extends StatefulWidget {
+  Function callback;
+  FirstPageView({Key key, this.callback}) : super(key: key);
   @override
   _FirstPageState createState() => _FirstPageState();
 }
@@ -56,9 +59,30 @@ class _FirstPageState extends State<FirstPageView> {
   // BuildContext context;
   // GeneralBoard(BuildContext context);
   // GeneralBoard({@required this.context}) : assert(context != null);
-
+  ScrollController _scrollController;
+  bool isScrollDirectionUp;
   @override
   void initState() {
+    isScrollDirectionUp = true;
+    _scrollController = new ScrollController();
+    _scrollController.addListener(() {
+      if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.forward) {
+        if (isScrollDirectionUp == true) {
+          isScrollDirectionUp = false;
+          widget.callback(isScrollDirectionUp);
+        }
+      } else {
+        if (_scrollController.position.userScrollDirection ==
+            ScrollDirection.reverse) {
+          if (isScrollDirectionUp == false) {
+            isScrollDirectionUp = true;
+            widget.callback(isScrollDirectionUp);
+          }
+        }
+      }
+    });
+
     super.initState();
   }
 
@@ -66,61 +90,12 @@ class _FirstPageState extends State<FirstPageView> {
   void dispose() {
     super.dispose();
   }
-//   }
-//    Widget _buildList() {
-//     return StreamBuilder(
-//       stream:
-//           _firestore.collection('chattingroom').where('send_user').snapshots(),
-//       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-//         if (!snapshot.hasData) {
-//           return Text('Loading from chat_main..2.');
-//         }
-// // ignore: deprecated_member_use
-//         List<DocumentSnapshot> documents = snapshot.data.documents;
-//         return ListView(
-//           padding: EdgeInsets.only(top: 0.0),
-//           children: documents
-//               .map((eachDocument) => DocumentView(eachDocument, '김명수'))
-//               .toList(),
-//         );
-//       },
-//     );
-//   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return StreamBuilder(
-  //       stream: FirebaseFirestore.instance
-  //           .collection('Board')
-  //           .doc('Board_Free')
-  //           .collection('Board_Free_BoardId')
-  //           .snapshots(),
-  //       builder: (context, snapshot) {
-  //         if (snapshot.hasError) {
-  //           return Text("Error");
-  //         }
-  //         if (snapshot.connectionState == ConnectionState.waiting) {
-  //           return CircularProgressIndicator();
-  //         } else {
-  //           final boardIdList = snapshot.data.documents;
-  //           return Container(
-  //               child: ListView.builder(
-  //                   //PageStorageKey is Keepping ListView scroll position when switching pageview
-  //                   key: PageStorageKey<String>("value"),
-  //                   //Bottom Padding
-  //                   padding: const EdgeInsets.only(
-  //                       bottom: kFloatingActionButtonMargin + 60),
-  //                   itemCount: snapshot.data.documents.length,
-  //                   itemBuilder: (context, index) =>
-  //                       _buildListCard(context, index, boardIdList[index])));
-  //         }
-  //       });
-  // }
   @override
   Widget build(BuildContext context) {
     return Container(
         child: ListView.builder(
-
+            controller: _scrollController,
             //PageStorageKey is Keepping ListView scroll position when switching pageview
             key: PageStorageKey<String>("value"),
             //Bottom Padding
@@ -146,7 +121,7 @@ Widget _buildListCard(BuildContext context, int index) {
               Navigator.of(context).pushNamed(
                 '/BoardContent?INDEX=$index&BOARD_NAME="current"',
               );
-                  
+
               // Navigator.push(
               //     context,
               //     CupertinoPageRoute(
@@ -222,6 +197,7 @@ Widget _buildListCard(BuildContext context, int index) {
           )));
 }
 
+@override
 Widget titleContainerMethod({@required String title}) {
   return Container(
       margin: const EdgeInsets.only(left: 5),

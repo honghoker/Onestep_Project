@@ -3,11 +3,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class FirebaseApi {
   static Future<String> getId() async {
+    // google getuid
     SharedPreferences pre = await SharedPreferences.getInstance();
     return pre.getString('id');
   }
 
   static Future<QuerySnapshot> getProducts(
+    // 장터 상품 불러오기
     int limit,
     String category, {
     DocumentSnapshot startAfter,

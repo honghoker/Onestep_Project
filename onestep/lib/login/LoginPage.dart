@@ -67,47 +67,54 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [Colors.lightBlueAccent, Colors.white],
-          ),
+          color: Colors.white
+          // gradient: LinearGradient(
+          //   begin: Alignment.topRight,
+          //   end: Alignment.bottomLeft,
+          //   colors: [Colors.lightBlueAccent, Colors.white],
+          // ),
         ),
         alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Onestep project Reboot5',
-              style: TextStyle(
-                  fontSize: 42.0, color: Colors.white, fontFamily: "Signatra"),
-            ),
-            GestureDetector(
-              onTap: controlSignIn,
-              child: Center(
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      width: 270,
-                      height: 65.0,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage(
-                              "assets/images/google_signin_button.png"),
-                          //fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(1.0),
-                      child: isLoading ? circularProgress() : Container(),
-                    ),
-                  ],
-                ),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 130),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                'Onestep',
+                style: TextStyle(
+                    fontSize: 42.0, color: Colors.black, fontFamily: "Signatra",fontWeight: FontWeight.bold),
               ),
-            )
-          ],
+              Padding(
+                padding: const EdgeInsets.only(top: 130),
+                child: GestureDetector(
+                  onTap: controlSignIn,
+                  child: Center(
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          width: 330,
+                          height: 65.0,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage(
+                                  "assets/images/google_signin_button.png"),
+                              //fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(1.0),
+                          child: isLoading ? circularProgress() : Container(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

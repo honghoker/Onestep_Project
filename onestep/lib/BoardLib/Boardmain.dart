@@ -1,17 +1,16 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:onestep/BoardLib/secondPageView.dart';
-import 'wasFirstPageView.dart';
 import 'package:onestep/BoardLib/boardListView.dart';
 import 'package:path/path.dart' as p;
 
-const String page1 = 'Page 1';
-const String page2 = 'Page 2';
-const int PERSONALIMPOBOARDIndex = 3;
-const int TODAYFAVORITEBOARDIndex = 1;
-const int BOARDPERSONALIMPOIndex = 2;
-const int LISTBOARDIndex = 0;
+// const String page1 = 'Page 1';
+// const String page2 = 'Page 2';
+// const int PERSONALIMPOBOARDIndex = 3;
+// const int TODAYFAVORITEBOARDIndex = 1;
+// const int BOARDPERSONALIMPOIndex = 2;
+// const int LISTBOARDIndex = 0;
 
 class tempTitleData {
   var title;
@@ -47,22 +46,6 @@ class _MyHomePageState extends State<BoardMain> {
   @override
   void dispose() {
     super.dispose();
-  }
-
-  Widget containterContent() {
-    return Container(
-      height: 50.0,
-      color: Colors.cyanAccent,
-      margin: EdgeInsets.all(8.0),
-      width: MediaQuery.of(context).size.width - 100,
-      child: Center(
-          child: Text(
-        'Item 1',
-        style: TextStyle(
-          fontSize: 14.0,
-        ),
-      )),
-    );
   }
 
   @override
@@ -112,7 +95,9 @@ class _MyHomePageState extends State<BoardMain> {
         FirstPageView(
           callback: listViewFABCallback,
         ),
-        TempPageView(),
+        FirstPageView(
+          callback: listViewFABCallback,
+        ),
         Practice(),
       ],
     );

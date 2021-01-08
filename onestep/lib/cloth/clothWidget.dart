@@ -2,12 +2,21 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:onestep/cloth/product.dart';
+import 'package:onestep/api/firebase_api.dart';
+import 'package:onestep/cloth/clothAddWidget.dart';
+import 'package:onestep/cloth/providers/productProvider.dart';
+import 'package:onestep/favorite/favoriteWidget.dart';
+import 'package:onestep/moor/moor_database.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:unicorndial/unicorndial.dart';
 
 import 'clothitem.dart';
+import 'models/category.dart';
 
 class ClothWidget extends StatefulWidget {
-  ClothWidget({Key key}) : super(key: key);
+  final ProuductProvider productProvider;
+  ClothWidget({Key key, this.productProvider}) : super(key: key);
 
   @override
   _ClothWidgetState createState() => _ClothWidgetState();
@@ -15,32 +24,30 @@ class ClothWidget extends StatefulWidget {
 
 class _ClothWidgetState extends State<ClothWidget> {
   int _headerindex;
-  List<String> _categoryItems;
-  Stream stream;
+  final ScrollController _scrollController = ScrollController();
+  final _category = Category();
 
   @override
   void initState() {
-    super.initState();
     _headerindex = 0;
+    _scrollController.addListener(scrollListener);
+    widget.productProvider
+        .fetchNextProducts(_category.getCategoryItems()[_headerindex]);
+    super.initState();
+  }
 
-    _categoryItems = [
-      "전체",
-      "티셔츠",
-      "블라우스",
-      "셔츠/남방",
-      "맨투맨",
-      "미니원피스",
-      "롱원피스",
-      "점프수트",
-      "바지",
-      "미니스커트",
-      "롱스커트",
-    ];
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
-    stream = FirebaseFirestore.instance
-        .collection('products')
-        .orderBy("uploadtime", descending: true)
-        .snapshots();
+  void scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      widget.productProvider
+          .fetchNextProducts(_category.getCategoryItems()[_headerindex]);
+    }
   }
 
   Widget renderHeader() {
@@ -55,7 +62,7 @@ class _ClothWidgetState extends State<ClothWidget> {
             physics: ClampingScrollPhysics(),
             // shrinkWrap: true,
             scrollDirection: Axis.horizontal,
-            itemCount: _categoryItems.length,
+            itemCount: _category.getCategoryItems().length,
             itemBuilder: (BuildContext context, int index) {
               return Card(
                 color: _headerindex == index ? Colors.black : Colors.white,
@@ -73,7 +80,8 @@ class _ClothWidgetState extends State<ClothWidget> {
                     child: Align(
                       alignment: Alignment.center,
                       child: Text(
-                        _categoryItems[index],
+                        Provider.of<Category>(context, listen: false)
+                            .getCategoryItems()[index],
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 12,
@@ -87,17 +95,8 @@ class _ClothWidgetState extends State<ClothWidget> {
                   onTap: () {
                     setState(() {
                       _headerindex = index;
-                      stream = _headerindex == 0
-                          ? FirebaseFirestore.instance
-                              .collection('products')
-                              .orderBy("uploadtime", descending: true)
-                              .snapshots()
-                          : FirebaseFirestore.instance
-                              .collection('products')
-                              .where("category",
-                                  isEqualTo: _categoryItems[_headerindex])
-                              .orderBy("uploadtime", descending: true)
-                              .snapshots();
+                      widget.productProvider.fetchProducts(
+                          _category.getCategoryItems()[_headerindex]);
                     });
                   },
                 ),
@@ -111,46 +110,33 @@ class _ClothWidgetState extends State<ClothWidget> {
   }
 
   Widget renderBody(double itemWidth, double itemHeight) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: stream,
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return new Text("");
-          default:
-            return GridView.builder(
-              shrinkWrap: true,
-              itemCount: snapshot.data.size,
-              physics: NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                childAspectRatio: (itemWidth / itemHeight),
-                crossAxisCount: 3,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
+    return GridView(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        childAspectRatio: (itemWidth / itemHeight),
+        crossAxisCount: 3,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+      ),
+      children: [
+        ...widget.productProvider.products
+            .map(
+              (product) => ClothItem(
+                product: product,
               ),
-              itemBuilder: (context, index) {
-                Timestamp time = snapshot.data.docs[index].data()['uploadtime'];
-
-                return ClothItem(
-                  product: Product(
-                    firestoreid: snapshot.data.docs[index].id,
-                    title: snapshot.data.docs[index].data()['title'],
-                    category: snapshot.data.docs[index].data()['category'],
-                    price: snapshot.data.docs[index].data()['price'],
-                    images:
-                        jsonEncode(snapshot.data.docs[index].data()['images']),
-                    explain: snapshot.data.docs[index].data()['explain'],
-                    views: snapshot.data.docs[index].data()['views'],
-                    uploadtime: time.toDate(),
-                  ),
-                );
-              },
-            );
-        }
-      },
+            )
+            .toList(),
+      ],
     );
+  }
+
+  Future<void> _refreshPage() async {
+    // setState(() {
+    widget.productProvider
+        .fetchProducts(_category.getCategoryItems()[_headerindex]);
+    // });
   }
 
   @override
@@ -158,6 +144,50 @@ class _ClothWidgetState extends State<ClothWidget> {
     var _size = MediaQuery.of(context).size;
     final double _itemHeight = (_size.height - kToolbarHeight - 24) / 1.9;
     final double _itemWidth = _size.width / 2;
+
+    final floatingButtons = List<UnicornButton>();
+
+    floatingButtons.add(
+      UnicornButton(
+        hasLabel: true,
+        labelText: "위로",
+        currentButton: FloatingActionButton(
+          onPressed: () {
+            print('ScrollTop');
+            _scrollController.position
+                .moveTo(0.5, duration: Duration(milliseconds: 500));
+          },
+          heroTag: "ScrollTop",
+          backgroundColor: Colors.black,
+          mini: true,
+          child: Icon(Icons.keyboard_arrow_up),
+        ),
+      ),
+    );
+    floatingButtons.add(
+      UnicornButton(
+        hasLabel: true,
+        labelText: "물품 등록",
+        currentButton: FloatingActionButton(
+          heroTag: "clothAdd",
+          backgroundColor: Colors.black,
+          mini: true,
+          child: Icon(Icons.shopping_bag),
+          onPressed: () async {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ClothAddWidget()),
+            ).then((value) {
+              setState(() {
+                _headerindex = 0;
+                widget.productProvider
+                    .fetchProducts(_category.getCategoryItems()[_headerindex]);
+              });
+            });
+          },
+        ),
+      ),
+    );
 
     return Scaffold(
       resizeToAvoidBottomPadding: false,
@@ -170,16 +200,23 @@ class _ClothWidgetState extends State<ClothWidget> {
         actions: <Widget>[
           new IconButton(
             icon: new Icon(
+              Icons.refresh,
+              color: Colors.black,
+            ),
+            onPressed: () => {
+              setState(() {
+                widget.productProvider
+                    .fetchProducts(_category.getCategoryItems()[_headerindex]);
+              })
+            },
+          ),
+          new IconButton(
+            icon: new Icon(
               Icons.search,
               color: Colors.black,
             ),
             onPressed: () => {
-              // showDialog(
-              //   context: context,
-              //   builder: (BuildContext context) {
-              //     return DialogTest();
-              //   },
-              // ),
+              print("검색"),
             },
           ),
           new IconButton(
@@ -188,49 +225,59 @@ class _ClothWidgetState extends State<ClothWidget> {
               color: Colors.pink,
             ),
             onPressed: () => {
-              print("찜"),
-              //   Navigator.push(
-              //     context,
-              //     MaterialPageRoute(builder: (context) => FavoriteWidget()),
-              //   ).then((value) {
-              //     setState(() => {});
-              //   }),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => FavoriteWidget()),
+              ),
             },
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          color: Colors.white,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              this.renderHeader(),
-              this.renderBody(_itemWidth, _itemHeight),
-            ],
+      body: RefreshIndicator(
+        onRefresh: _refreshPage,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          child: Container(
+            color: Colors.white,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                this.renderHeader(),
+                this.renderBody(_itemWidth, _itemHeight),
+              ],
+            ),
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          print("물품 등록");
-          // final result = await Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => ClothAdd()),
-          // );
-
-          // if (result == "OK") {
-          //   Scaffold.of(context)
-          //     ..removeCurrentSnackBar()
-          //     ..showSnackBar(SnackBar(content: Text("물품 등록이 완료되었습니다.")));
-          // }
-        },
-        child: Icon(
+      floatingActionButton: UnicornDialer(
+        backgroundColor: Colors.black38,
+        parentButtonBackground: Colors.black,
+        orientation: UnicornOrientation.VERTICAL,
+        parentButton: Icon(
           Icons.add,
           color: Colors.black,
         ),
-        backgroundColor: Colors.white,
+        childButtons: floatingButtons,
       ),
+
+      // floatingActionButton: FloatingActionButton(
+      // onPressed: () async {
+      //   Navigator.push(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => ClothAddWidget()),
+      //   ).then((value) {
+      //     setState(() {
+      //       widget.productProvider
+      //           .fetchProducts(_category.getCategoryItems()[_headerindex]);
+      //     });
+      //   });
+      // },
+      //   child: Icon(
+      //     Icons.add,
+      //     color: Colors.black,
+      //   ),
+      //   backgroundColor: Colors.white,
+      // ),
     );
   }
 }

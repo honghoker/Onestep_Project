@@ -58,7 +58,7 @@ class _HomeWidgetState extends State<HomeWidget> {
             children: <Widget>[
               HomeNoticeBody(),
               HomeHotBoardBody(),
-              HomeImagesBody(_itemWidth, _itemHeight),
+              // HomeImagesBody(_itemWidth, _itemHeight),
             ],
           ),
         ),

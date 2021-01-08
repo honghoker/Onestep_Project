@@ -1,13 +1,29 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+
 import 'BoardLib/route_Generator.dart';
+
+import 'package:onestep/moor/moor_database.dart';
+import 'package:provider/provider.dart';
+
+import 'cloth/models/category.dart';
+import 'cloth/providers/productProvider.dart';
+
 import 'login/LoginPage.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(
-    MyApp(),
+    MultiProvider(
+      providers: [
+        Provider<Category>.value(value: new Category()),
+        Provider<AppDatabase>.value(value: AppDatabase()),
+        ChangeNotifierProvider<ProuductProvider>.value(
+            value: new ProuductProvider()),
+      ],
+      child: MyApp(),
+    ),
   );
 }
 

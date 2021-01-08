@@ -8,10 +8,6 @@ import 'commentInBoardContent.dart';
 import 'package:flutter/animation.dart';
 import 'package:tip_dialog/tip_dialog.dart';
 
-final String IOSTHEME = 'IOS';
-final String ANDROIDTHEME = 'Android';
-final Color POPUP_FAVORITE_BACKGROUND_COLOR = Colors.black.withOpacity(0.1);
-
 class BoardContent extends StatefulWidget {
   final int index;
   final String boardName;
@@ -288,7 +284,7 @@ class Board extends State<BoardContent> with TickerProviderStateMixin {
     TipDialogHelper.show(
         tipDialog: new TipDialog.builder(bodyBuilder: (context) {
       return new Container(
-          color: POPUP_FAVORITE_BACKGROUND_COLOR,
+          color: Colors.red,
           width: 90,
           height: 90,
           alignment: Alignment.center,

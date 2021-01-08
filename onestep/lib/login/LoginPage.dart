@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 
 import 'ProgressWidget.dart';
+import 'joinPage.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key key}) : super(key: key);
@@ -37,6 +38,17 @@ class _LoginScreenState extends State<LoginScreen> {
       isLoggedIn = true;
       print('로그인 상태 반환0 ' + isLoggedIn.toString());
     });
+
+//        "id": userUid,
+//         "nickname": userName,
+// //        "photoUrl": userImageFile,
+//         "authUniversity": "",
+//         "userLevel": 1, // 0: BAN / 1: GUEST / 2:AUTHENTIFICATION USER
+//         "userScore": 100, //장터 평가, 유저 신고 점수 , 100 이하일 경우 불량 유저
+//         "userUniversity": "", //universityID
+//         "userUniversityEmail": "", //학교인증 이메일
+//         "userEmail": "", //User Email
+//         "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
 
     preferences = await SharedPreferences.getInstance();
     print('로그인 상태 반환1 ' + isLoggedIn.toString());
@@ -177,10 +189,16 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MyHomePage(
+            builder: (context) => JoinScreen(
               currentUserId: firebaseUser.uid,
             ),
-          ));
+          )
+          // MaterialPageRoute(
+          //   builder: (context) => MyHomePage(
+          //     currentUserId: firebaseUser.uid,
+          //   ),
+          // )
+          );
       Fluttertoast.showToast(msg: 'uid 하단' + currentUser.uid);
       print('uid 하단' + currentUser.uid);
     }

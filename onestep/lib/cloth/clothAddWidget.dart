@@ -71,7 +71,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
           );
   }
 
-  void temp() async {
+  void getImage() async {
     List<Asset> _resultList = List<Asset>();
 
     _resultList = await MultiImagePicker.pickImages(
@@ -143,7 +143,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
         GestureDetector(
           onTap: () {
             // getImage();
-            checkCamStorePermission(temp);
+            checkCamStorePermission(getImage);
             print("getImage()");
           },
           child: Container(

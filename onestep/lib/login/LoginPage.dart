@@ -38,9 +38,8 @@ class _LoginScreenState extends State<LoginScreen> {
     preferences = await SharedPreferences.getInstance();
     isLoggedIn = await googleSignIn.isSignedIn();
     if (isLoggedIn) {
-      print('로그인 상태 반환2 ' + isLoggedIn.toString());
       var arg = preferences.getString('id') ?? '아이디없음';
-      Navigator.of(context).pushNamed('/MainPage?UID=$arg');
+      Navigator.of(context).pushReplacementNamed('/MainPage?UID=$arg');
 
       // Navigator.push(
       //     context,
@@ -162,13 +161,10 @@ class _LoginScreenState extends State<LoginScreen> {
       this.setState(() {
         isLoading = false;
       });
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MyHomePage(
-              currentUserId: firebaseUser.uid,
-            ),
-          ));
+
+      Navigator.of(context)
+          .pushReplacementNamed('/MainPage?UID=${firebaseUser.uid}');
+
       Fluttertoast.showToast(msg: 'uid 하단' + currentUser.uid);
     }
     //Signin Not Success - signin Failed

@@ -87,6 +87,8 @@ class _LastChatState extends State<ChatScreen> {
 
   //메시지 보내기
   String chatId; //내아이디 #미사용
+  String senderId; //보내는 내 아이디
+  String receiveId; //받는 상대 아이디
   //SharedPreferences preferences;
   //String id; //내아이디
   var listMessage;
@@ -270,7 +272,7 @@ class _LastChatState extends State<ChatScreen> {
     //얘는 falst 반환
     if ((index > 0 &&
             listMessage != null &&
-            listMessage[index - 1]["idFrom"] == myId) ||
+            listMessage[index - 1]["idFrom"] == receiveId) ||
         index == 0) {
       return true;
     } else {
@@ -282,7 +284,7 @@ class _LastChatState extends State<ChatScreen> {
     //얘는 트루 반환함
     if ((index > 0 &&
             listMessage != null &&
-            listMessage[index - 1]["idFrom"] != friendId) ||
+            listMessage[index - 1]["idFrom"] != receiveId) ||
         index == 0) {
       return true;
     } else {
@@ -294,7 +296,9 @@ class _LastChatState extends State<ChatScreen> {
     //My messages - Right Side
 
     if (document["idFrom"] == myId) {
-      print("^^^idFrom : " + myId);
+      senderId = myId;
+      receiveId = friendId;
+      print("#프롬과 동일 : {$myId $friendId $senderId $receiveId}");
       //내가 보냈을 경우
       return Row(
         children: <Widget>[

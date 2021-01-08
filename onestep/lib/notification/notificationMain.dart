@@ -97,19 +97,37 @@ class _NotificationMainState extends State<NotificationMain> {
                                   Text("1"),
                                 ],
                               ),
-                              onTap: () => {
+                              onTap: () {
+                                print("idtest");
+
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             InChattingRoomPage(
-                                              myUId: chatDocumentsnapshot[
-                                                  "send_user"],
-                                              friendId: chatDocumentsnapshot[
-                                                  "receive_user"],
+                                              myUId: snapshot.data.id ==
+                                                      chatDocumentsnapshot[
+                                                          "send_user"]
+                                                  ? chatDocumentsnapshot[
+                                                      "send_user"]
+                                                  : chatDocumentsnapshot[
+                                                      "receive_user"],
+                                              friendId: snapshot.data.id !=
+                                                      chatDocumentsnapshot[
+                                                          "send_user"]
+                                                  ? chatDocumentsnapshot[
+                                                      "send_user"]
+                                                  : chatDocumentsnapshot[
+                                                      "receive_user"],
                                               chattingRoomId:
                                                   chatDocumentsnapshot.id,
-                                            ))),
+                                            )));
+                                print("###########UID : " +
+                                    snapshot.data.id +
+                                    "sendUser : " +
+                                    chatDocumentsnapshot["send_user"] +
+                                    " receUser : " +
+                                    chatDocumentsnapshot["receive_user"]);
                               },
                             );
                           } else

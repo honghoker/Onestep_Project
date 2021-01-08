@@ -7,6 +7,7 @@ import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:onestep/favorite/favoriteWidget.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
+import 'package:unicorndial/unicorndial.dart';
 
 import 'clothitem.dart';
 import 'models/category.dart';
@@ -22,13 +23,14 @@ class ClothWidget extends StatefulWidget {
 class _ClothWidgetState extends State<ClothWidget> {
   int _headerindex;
   final ScrollController _scrollController = ScrollController();
-
-  Future _productfuture;
+  final _category = Category();
 
   @override
   void initState() {
+    _headerindex = 0;
     _scrollController.addListener(scrollListener);
-    widget.productProvider.fetchNextProducts();
+    widget.productProvider
+        .fetchNextProducts(_category.getCategoryItems()[_headerindex]);
     super.initState();
   }
 
@@ -41,17 +43,9 @@ class _ClothWidgetState extends State<ClothWidget> {
   void scrollListener() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
-      widget.productProvider.fetchNextProducts();
+      widget.productProvider
+          .fetchNextProducts(_category.getCategoryItems()[_headerindex]);
     }
-
-    // if (_scrollController.offset >=
-    //         _scrollController.position.maxScrollExtent / 2 &&
-    //     !_scrollController.position.outOfRange) {
-    //   if (widget.productProvider.hasNext) {
-    //     print("@@@@@@dtdtdtd");
-    //     widget.productProvider.fetchNextProducts();
-    //   }
-    // }
   }
 
   Widget renderHeader() {
@@ -66,9 +60,7 @@ class _ClothWidgetState extends State<ClothWidget> {
             physics: ClampingScrollPhysics(),
             // shrinkWrap: true,
             scrollDirection: Axis.horizontal,
-            itemCount: Provider.of<Category>(context, listen: false)
-                .getCategoryItems()
-                .length,
+            itemCount: _category.getCategoryItems().length,
             itemBuilder: (BuildContext context, int index) {
               return Card(
                 color: _headerindex == index ? Colors.black : Colors.white,
@@ -101,19 +93,8 @@ class _ClothWidgetState extends State<ClothWidget> {
                   onTap: () {
                     setState(() {
                       _headerindex = index;
-                      _productfuture = _headerindex == 0
-                          ? FirebaseFirestore.instance
-                              .collection('products')
-                              .orderBy("uploadtime", descending: true)
-                              .get()
-                          : FirebaseFirestore.instance
-                              .collection('products')
-                              .where("category",
-                                  isEqualTo: Provider.of<Category>(context,
-                                          listen: false)
-                                      .getCategoryItems()[_headerindex])
-                              .orderBy("uploadtime", descending: true)
-                              .get();
+                      widget.productProvider.fetchProducts(
+                          _category.getCategoryItems()[_headerindex]);
                     });
                   },
                 ),
@@ -151,7 +132,8 @@ class _ClothWidgetState extends State<ClothWidget> {
 
   Future<void> _refreshPage() async {
     // setState(() {
-    widget.productProvider.fetchProducts();
+    widget.productProvider
+        .fetchProducts(_category.getCategoryItems()[_headerindex]);
     // });
   }
 
@@ -161,7 +143,50 @@ class _ClothWidgetState extends State<ClothWidget> {
     final double _itemHeight = (_size.height - kToolbarHeight - 24) / 1.9;
     final double _itemWidth = _size.width / 2;
 
-    //print("@@@@@@ ${category.length}");
+    final floatingButtons = List<UnicornButton>();
+
+    floatingButtons.add(
+      UnicornButton(
+        hasLabel: true,
+        labelText: "위로",
+        currentButton: FloatingActionButton(
+          onPressed: () {
+            print('ScrollTop');
+            _scrollController.position
+                .moveTo(0.5, duration: Duration(milliseconds: 500));
+          },
+          heroTag: "ScrollTop",
+          backgroundColor: Colors.black,
+          mini: true,
+          child: Icon(Icons.keyboard_arrow_up),
+        ),
+      ),
+    );
+    floatingButtons.add(
+      UnicornButton(
+        hasLabel: true,
+        labelText: "물품 등록",
+        currentButton: FloatingActionButton(
+          heroTag: "clothAdd",
+          backgroundColor: Colors.black,
+          mini: true,
+          child: Icon(Icons.shopping_bag),
+          onPressed: () async {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ClothAddWidget()),
+            ).then((value) {
+              setState(() {
+                _headerindex = 0;
+                widget.productProvider
+                    .fetchProducts(_category.getCategoryItems()[_headerindex]);
+              });
+            });
+          },
+        ),
+      ),
+    );
+
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
@@ -173,17 +198,23 @@ class _ClothWidgetState extends State<ClothWidget> {
         actions: <Widget>[
           new IconButton(
             icon: new Icon(
+              Icons.refresh,
+              color: Colors.black,
+            ),
+            onPressed: () => {
+              setState(() {
+                widget.productProvider
+                    .fetchProducts(_category.getCategoryItems()[_headerindex]);
+              })
+            },
+          ),
+          new IconButton(
+            icon: new Icon(
               Icons.search,
               color: Colors.black,
             ),
             onPressed: () => {
-              // a(),
-              // showDialog(
-              //   context: context,
-              //   builder: (BuildContext context) {
-              //     return DialogTest();
-              //   },
-              // ),
+              print("검색"),
             },
           ),
           new IconButton(
@@ -216,29 +247,35 @@ class _ClothWidgetState extends State<ClothWidget> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ClothAddWidget()),
-          ).then((value) {
-            widget.productProvider.fetchProducts();
-            // Provider.of<ProuductProvider>(context).reset();
-            // setState(() {
-            //   _productfuture = FirebaseFirestore.instance
-            //       .collection('products')
-            //       .orderBy("uploadtime", descending: true)
-            //       .limit(_limit)
-            //       .get();
-            // });
-          });
-        },
-        child: Icon(
+      floatingActionButton: UnicornDialer(
+        backgroundColor: Colors.black38,
+        parentButtonBackground: Colors.black,
+        orientation: UnicornOrientation.VERTICAL,
+        parentButton: Icon(
           Icons.add,
           color: Colors.black,
         ),
-        backgroundColor: Colors.white,
+        childButtons: floatingButtons,
       ),
+
+      // floatingActionButton: FloatingActionButton(
+      // onPressed: () async {
+      //   Navigator.push(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => ClothAddWidget()),
+      //   ).then((value) {
+      //     setState(() {
+      //       widget.productProvider
+      //           .fetchProducts(_category.getCategoryItems()[_headerindex]);
+      //     });
+      //   });
+      // },
+      //   child: Icon(
+      //     Icons.add,
+      //     color: Colors.black,
+      //   ),
+      //   backgroundColor: Colors.white,
+      // ),
     );
   }
 }

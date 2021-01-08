@@ -27,13 +27,14 @@ class ProuductProvider with ChangeNotifier {
         );
       }).toList();
 
-  Future fetchNextProducts() async {
+  Future fetchNextProducts(String category) async {
     if (_isFetchingUsers) return;
     _isFetchingUsers = true;
 
     try {
       final snap = await FirebaseApi.getProducts(
         documentLimit,
+        category,
         startAfter:
             _productsSnapshot.isNotEmpty ? _productsSnapshot.last : null,
       );
@@ -49,11 +50,12 @@ class ProuductProvider with ChangeNotifier {
     _isFetchingUsers = false;
   }
 
-  Future fetchProducts() async {
+  Future fetchProducts(String category) async {
     _productsSnapshot.clear();
     try {
       final snap = await FirebaseApi.getProducts(
         documentLimit,
+        category,
         startAfter: null,
       );
       _productsSnapshot.addAll(snap.docs);

@@ -32,7 +32,24 @@ class _ClothItemState extends State<ClothItem> {
         }
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
-            return Text("");
+            return Positioned(
+              right: 0,
+              bottom: 0,
+              child: Padding(
+                padding: EdgeInsets.all(5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Icon(
+                      !snapshot.hasData
+                          ? Icons.favorite_border
+                          : Icons.favorite,
+                      color: Colors.pink,
+                    ),
+                  ],
+                ),
+              ),
+            );
           default:
             if (snapshot.hasData) {
               if (snapshot.data.data.toString() !=

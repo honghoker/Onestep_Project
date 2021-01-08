@@ -50,6 +50,7 @@ dependencies:
   random_string: ^2.1.0        # fireStoreage image random name
   flutter_swiper: ^1.1.6       # image slider
   photo_view: ^0.10.3          # image fullViewer
+  unicorndial: "^1.1.5"        # multi floatingActionButton 
 
 dev_dependencies:
   flutter_test:

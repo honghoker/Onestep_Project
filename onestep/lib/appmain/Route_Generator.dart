@@ -35,7 +35,7 @@ class RouteGenerator {
       case 'MainPage':
         //var arg = preferences.getString('id') ?? '아이디없음';
         // Navigator.of(context).pushNamed('/MainPage?UID=$arg');
-        _pageWidget = MyHomePage(currentUserId: arguments['UID']);
+        _pageWidget = MyHomePage();
         break;
 
       case 'BoardContent':

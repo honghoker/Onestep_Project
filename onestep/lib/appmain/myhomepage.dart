@@ -3,24 +3,19 @@ import 'package:onestep/cloth/clothWidget.dart';
 import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:onestep/home/homeWidget.dart';
 import 'package:onestep/myinfo/myinfoWidget.dart';
-import 'package:onestep/notification/test.dart';
+import 'package:onestep/notification/notificationMain.dart';
 import 'package:provider/provider.dart';
 import 'package:onestep/BoardLib/boardMain.dart';
 
 class MyHomePage extends StatefulWidget {
-  final String currentUserId;
-
-  MyHomePage({Key key, @required this.currentUserId}) : super(key: key);
+  MyHomePage({Key key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() =>
-      _MyHomePageState(currentUserId: currentUserId);
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final String currentUserId;
-
-  _MyHomePageState({Key key, @required this.currentUserId});
+  _MyHomePageState({Key key});
 
   int _bottombarindex;
 
@@ -38,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     ),
     BoardMain(),
-    NotificationWidget23(),
+    NotificationMain(),
     MyinfoWidget(),
   ];
 

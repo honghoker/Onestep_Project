@@ -29,34 +29,26 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     isSignedIn();
-    print('로그인 초기상태 1 ' + isLoggedIn.toString());
   }
 
   void isSignedIn() async {
     this.setState(() {
       isLoggedIn = true;
-      print('로그인 상태 반환0 ' + isLoggedIn.toString());
     });
 
     preferences = await SharedPreferences.getInstance();
-    print('로그인 상태 반환1 ' + isLoggedIn.toString());
     isLoggedIn = await googleSignIn.isSignedIn();
     if (isLoggedIn) {
-      print('로그인 상태 반환2 ' + isLoggedIn.toString());
       Navigator.push(
           context,
           MaterialPageRoute(
-            //builder: (context) => NotificationWidget23(),
             builder: (context) => MyHomePage(
-              //currentUserId: 'test',
               currentUserId: preferences.getString('id') ?? '아이디없음',
             ),
           ));
     } else {
       //Fluttertoast.showToast(msg: '안된답니다~' + currentUser.uid);
     }
-    //Fluttertoast.showToast(msg: 'uid 상단' + currentUser.uid);
-    //print('uid 상단' + currentUser.uid);
     this.setState(() {
       isLoading = false;
     });
@@ -132,7 +124,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     //Signin Sucess
     if (firebaseUser != null) {
-      print('파이어베이스는 널이 아니야' + firebaseUser.uid);
       final QuerySnapshot resultQuery = await FirebaseFirestore.instance
           .collection("users")
           .where("id", isEqualTo: firebaseUser.uid)
@@ -162,7 +153,6 @@ class _LoginScreenState extends State<LoginScreen> {
         await preferences.setString("aboutMe", documentSnapshots[0]["aboutMe"]);
       }
       Fluttertoast.showToast(msg: "로그인 완료");
-      print('##9 로그인 완료');
 
       this.setState(() {
         isLoading = false;
@@ -175,11 +165,9 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ));
       Fluttertoast.showToast(msg: 'uid 하단' + currentUser.uid);
-      print('uid 하단' + currentUser.uid);
     }
     //Signin Not Success - signin Failed
     else {
-      print('##10 로그인 실패');
       Fluttertoast.showToast(msg: '로그인 실패');
       this.setState(() {
         isLoading = false;

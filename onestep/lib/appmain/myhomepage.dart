@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:onestep/BoardLib/Boardmain.dart';
 import 'package:onestep/cloth/clothWidget.dart';
 import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:onestep/community/communityWidget.dart';
@@ -50,12 +49,6 @@ class _MyHomePageState extends State<MyHomePage> {
       onTap: (int index) {
         setState(() {
           this._bottombarindex = index;
-          print(this._bottombarindex);
-          print('##겟 바텀바');
-
-          if (index == 3) {
-            print('message');
-          }
         });
       },
       type: BottomNavigationBarType.fixed,

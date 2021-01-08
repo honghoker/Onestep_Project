@@ -22,19 +22,13 @@ class _NotificationMainState extends State<NotificationMain> {
     return Scaffold(body: _buildList(), backgroundColor: Colors.purple[100]);
   }
 
-  int qw = 1;
-  String test2;
-  List<String> getChatList;
-
   Widget _buildList() {
-    print("dd");
-    Stream ref = FirebaseFirestore.instance
+    Stream userChatListStream = FirebaseFirestore.instance
         .collection('user_chatlist')
         .doc('WRITE UID')
         .snapshots();
-
     return StreamBuilder<DocumentSnapshot>(
-        stream: ref,
+        stream: userChatListStream,
         builder: (BuildContext context, snapshot) {
           if (!snapshot.hasData) {
             return Text('Loading from chat_main...');
@@ -48,29 +42,29 @@ class _NotificationMainState extends State<NotificationMain> {
                 itemBuilder: (BuildContext ctx, int index) {
                   var chatid = snapshot.data.data().keys.elementAt(index);
                   print(chatid);
-                  Stream s = FirebaseFirestore.instance
+                  Stream chattingRoomStream = FirebaseFirestore.instance
                       .collection('chattingroom')
                       .doc(chatid)
                       .snapshots();
-                  print("stream 시작");
                   return StreamBuilder<DocumentSnapshot>(
-                    stream: s,
+                    stream: chattingRoomStream,
                     builder: (BuildContext ctx, chatroomsnapshot) {
                       switch (chatroomsnapshot.connectionState) {
                         case ConnectionState.waiting:
                           return Container();
                         default:
-                          DocumentSnapshot test55 = chatroomsnapshot.data;
+                          DocumentSnapshot chatDocumentsnapshot =
+                              chatroomsnapshot.data;
 
-                          if (test55.data() != null) {
+                          if (chatDocumentsnapshot.data() != null) {
                             return ListTile(
                               title: Row(
                                 children: <Widget>[
-                                  Text(test55['board']),
+                                  Text(chatDocumentsnapshot['board']),
                                   //Text("${snapshot.data.data()}"),
                                   Spacer(),
                                   SizedBox(width: 150, height: 10),
-                                  GetTime(test55),
+                                  GetTime(chatDocumentsnapshot),
                                 ],
                               ),
                               subtitle: Row(
@@ -82,7 +76,9 @@ class _NotificationMainState extends State<NotificationMain> {
                                   ),
                                   //SizedBox(width: 10, height: 10),
                                   Text('type : text : ' +
-                                      test55.data()["recent_text"].toString()),
+                                      chatDocumentsnapshot
+                                          .data()["recent_text"]
+                                          .toString()),
                                   SizedBox(width: 10, height: 10),
                                   Spacer(),
                                   Text("1"),

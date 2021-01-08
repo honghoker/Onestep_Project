@@ -1,9 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' as foundation;
-import 'CreateAlterBoard/parentState.dart';
-import 'boardContent.dart';
+import '../BoardLib/CreateAlterBoard/parentState.dart';
+import '../BoardLib/boardContent.dart';
 import 'package:path/path.dart' as p;
 import 'package:onestep/appmain/myhomepage.dart';
 
@@ -22,18 +21,25 @@ class RouteGenerator {
     // print(Uri.base.toString()); // http://localhost:8082/game.html?id=15&randomNumber=3.14
     // print(Uri.base.query);  // id=15&randomNumber=3.14
     // print(Uri.base.queryParameters['randomNumber']); // 3.14
+
     Map<String, dynamic> arguments = settings.arguments ??
         Uri.parse(settings.name.replaceFirst("/", "")).queryParameters ??
         {};
     var _pageName = _pathParams.isNotEmpty ? _pathParams.first : null;
     Widget _pageWidget;
 
+    //example:
+
+    //case에는 /를 제외하고 원하는 이름으로 설정, pushNamed할 때는 /를 포함하여 자신이 설정한 이름으로 불러옴.
     switch (_pageName) {
       case 'MainPage':
+        //var arg = preferences.getString('id') ?? '아이디없음';
+        // Navigator.of(context).pushNamed('/MainPage?UID=$arg');
         _pageWidget = MyHomePage(currentUserId: arguments['UID']);
         break;
 
       case 'BoardContent':
+        // Navigator.of(context).pushNamed('/BoardContent?INDEX=$index&BOARD_NAME="current"') -> arguments['INDEX'] = index, arguments['BOARD_NAME'] = "current"
         _pageWidget = BoardContent(
           index: int.parse(arguments['INDEX']),
           boardName: arguments["BOARD_NAME"],

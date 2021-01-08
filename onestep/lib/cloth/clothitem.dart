@@ -1,8 +1,9 @@
 import 'dart:convert';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:onestep/cloth/product.dart';
+import 'package:moor_flutter/moor_flutter.dart' as mf;
+import 'package:onestep/cloth/clothDetailViewWidget.dart';
+import 'package:onestep/moor/moor_database.dart';
+import 'package:provider/provider.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class ClothItem extends StatefulWidget {
@@ -19,32 +20,88 @@ class _ClothItemState extends State<ClothItem> {
     super.initState();
   }
 
+  Widget setFavorite() {
+    ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
+
+    return StreamBuilder<mf.QueryRow>(
+      stream: p.watchsingleProduct(this.widget.product.firestoreid),
+      builder: (BuildContext context, AsyncSnapshot<mf.QueryRow> snapshot) {
+        if (snapshot.hasError) {
+          print(snapshot.error);
+          return new Text('Error: ${snapshot.error}');
+        }
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return Positioned(
+              right: 0,
+              bottom: 0,
+              child: Padding(
+                padding: EdgeInsets.all(5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Icon(
+                      !snapshot.hasData
+                          ? Icons.favorite_border
+                          : Icons.favorite,
+                      color: Colors.pink,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          default:
+            if (snapshot.hasData) {
+              if (snapshot.data.data.toString() !=
+                  widget.product.toJson().toString()) {
+                p.updateProduct(widget.product);
+              }
+            }
+            return Positioned(
+              right: 0,
+              bottom: 0,
+              child: Padding(
+                padding: EdgeInsets.all(5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: () {
+                        !snapshot.hasData
+                            ? p.insertProduct(this.widget.product)
+                            : p.deleteProduct(this.widget.product);
+                      },
+                      child: Icon(
+                        !snapshot.hasData
+                            ? Icons.favorite_border
+                            : Icons.favorite,
+                        color: Colors.pink,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double coverSize = 110;
+    var img = jsonDecode(widget.product.images);
 
     return GestureDetector(
       onTap: () {
-        try {
-          FirebaseFirestore.instance
-              .collection("products")
-              .doc(widget.product.firestoreid)
-              .update(
-            {
-              'views': widget.product.views + 1,
-            },
-          );
-        } catch (e) {}
-        print("상세보기");
-        // Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //       builder: (context) => ClothDetailView(product: widget.product),
-        //     )).then((value) {
-        //   setState(() => {});
-        // });
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  ClothDetailViewWidget(product: widget.product),
+            ));
       },
-      child: new Container(
+      child: Container(
         child: Column(
           children: <Widget>[
             Expanded(
@@ -58,12 +115,12 @@ class _ClothItemState extends State<ClothItem> {
                       placeholder: MemoryImage(
                         kTransparentImage,
                       ), // 이미지 로드 시 빈 이미지 표시
-                      image: NetworkImage(widget.product.images.isEmpty == false
+
+                      image: NetworkImage(img == null
                           ? 'https://grlib.sen.go.kr/resources/common/img/noimg-apply.png'
-                          : jsonDecode(widget.product.images)[0]),
+                          : img[0]),
                       fit: BoxFit.cover,
                     ),
-
                     Positioned(
                       left: 0,
                       right: 0,
@@ -82,7 +139,7 @@ class _ClothItemState extends State<ClothItem> {
                         ),
                       ),
                     ),
-                    //setFavorite(),
+                    setFavorite(),
                   ].where((item) => item != null).toList(),
                 ),
               ),

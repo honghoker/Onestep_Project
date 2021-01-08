@@ -1,22 +1,21 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:onestep/notification/time/chat_time.dart';
 import 'package:onestep/notification/widget/FullmageWidget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class InChattingRoomPage extends StatelessWidget {
-  final String myId;
-  final String friendId;
   final String chattingRoomId;
 
-  InChattingRoomPage(
-      {this.myId, @required this.friendId, @required this.chattingRoomId});
+  InChattingRoomPage({@required this.chattingRoomId});
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +31,9 @@ class InChattingRoomPage extends StatelessWidget {
             ),
           )
         ],
-        title: Text('ToUser $myId FromUser $friendId'),
+        title: Text('CHatid $chattingRoomId'),
       ),
       body: ChatScreen(
-        myId: myId,
-        friendId: friendId,
         chattingRoomId: chattingRoomId,
       ),
     );
@@ -44,32 +41,38 @@ class InChattingRoomPage extends StatelessWidget {
 }
 
 class ChatScreen extends StatefulWidget {
-  final String myId;
-  final String friendId;
   final String chattingRoomId;
 
-  ChatScreen(
-      {Key key,
-      @required this.myId,
-      @required this.friendId,
-      @required this.chattingRoomId})
-      : super(key: key);
+  ChatScreen({Key key, @required this.chattingRoomId}) : super(key: key);
 
   @override
-  _LastChatState createState() => _LastChatState(
-      myId: myId, friendId: friendId, chattingRoomId: chattingRoomId);
+  _LastChatState createState() =>
+      _LastChatState(chattingRoomId: chattingRoomId);
 }
 
 class _LastChatState extends State<ChatScreen> {
-  final String myId;
-  final String friendId;
+  final String myId = "파베오아스";
+  final String friendId = "쿼리로 가져옴";
   final String chattingRoomId;
 
-  _LastChatState(
-      {Key key,
-      @required this.myId,
-      @required this.friendId,
-      @required this.chattingRoomId});
+  Future<Null> controlSignIn2() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+
+    GoogleSignInAccount googleUser = await googleSignIn.signIn();
+    GoogleSignInAuthentication googleSignInAuthentication =
+        await googleUser.authentication;
+    final AuthCredential credential = GoogleAuthProvider.getCredential(
+        idToken: googleSignInAuthentication.idToken,
+        accessToken: googleSignInAuthentication.accessToken);
+
+    final User firebaseUser =
+        (await firebaseAuth.signInWithCredential(credential)).user;
+    print("uid@@");
+    print("uid@@" + firebaseUser.uid);
+  }
+
+  _LastChatState({Key key, @required this.chattingRoomId});
 
   final TextEditingController textEditingController = TextEditingController();
   final ScrollController listScrollController = ScrollController();
@@ -90,6 +93,7 @@ class _LastChatState extends State<ChatScreen> {
   @override
   void initState() {
     // TODO: implement initState
+
     super.initState();
     focusNode.addListener(() {
       onFocusChange();
@@ -99,7 +103,6 @@ class _LastChatState extends State<ChatScreen> {
     isLoading = false;
 
     chatId = "";
-    //print("^^^init 실행" + preferences.getString("id"));
     readLocal();
   }
 
@@ -178,7 +181,8 @@ class _LastChatState extends State<ChatScreen> {
           Row(
             children: <Widget>[
               FlatButton(
-                onPressed: () => onSendMessage("mimi1", 2),
+                onPressed: () => print("test@"),
+                //onSendMessage("mimi1", 2),
                 child: Image.asset(
                   "images/mimi1.gif",
                   width: 50.0,
@@ -521,7 +525,7 @@ class _LastChatState extends State<ChatScreen> {
                     margin: EdgeInsets.only(left: 50.0, top: 50.0, bottom: 5.0),
                   )
                 : Container(
-                    child: Text('무슨 텍스트?'),
+                    child: Text(' 텍스트?'),
                   )
                   */
           ],

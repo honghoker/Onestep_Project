@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'document_view.dart';
+import 'inChattingRoom.dart';
+import 'time/chat_time.dart';
 
 class NotificationMain extends StatefulWidget {
   NotificationMain({Key key}) : super(key: key);
@@ -12,42 +13,100 @@ class NotificationMain extends StatefulWidget {
 
 class _NotificationMainState extends State<NotificationMain> {
   SharedPreferences preferences;
-
   _NotificationMainState({Key key});
 
   final _firestore = FirebaseFirestore.instance;
 
   @override
   build(BuildContext context) {
-    return Scaffold(
-        // appBar: AppBar(
-        //   title: Text('채팅방 목록'),
-        //   actions: <Widget>[
-        //     //_bulidIconButton(),
-        //     _buildExpandedTitle(),
-        //     _buildChattingRoom(),
-        //   ],
-        // ),
-        body: _buildList(),
-        backgroundColor: Colors.purple[50]);
+    return Scaffold(body: _buildList(), backgroundColor: Colors.purple[100]);
   }
 
+  int qw = 1;
+  String test2;
+  List<String> getChatList;
+
   Widget _buildList() {
-    return StreamBuilder(
-      stream: _firestore.collection('chattingroom').snapshots(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (!snapshot.hasData) {
-          return Text('Loading from chat_main...');
-        }
-        List<DocumentSnapshot> documents = snapshot.data.docs;
-        return ListView(
-          padding: EdgeInsets.only(top: 0.0),
-          children: documents
-              .map((eachDocument) => DocumentView(eachDocument))
-              .toList(),
-        );
-      },
-    );
+    print("dd");
+    Stream ref = FirebaseFirestore.instance
+        .collection('user_chatlist')
+        .doc('WRITE UID')
+        .snapshots();
+
+    return StreamBuilder<DocumentSnapshot>(
+        stream: ref,
+        builder: (BuildContext context, snapshot) {
+          if (!snapshot.hasData) {
+            return Text('Loading from chat_main...');
+          }
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Container();
+            default:
+              return ListView.builder(
+                itemCount: snapshot.data.data().length,
+                itemBuilder: (BuildContext ctx, int index) {
+                  var chatid = snapshot.data.data().keys.elementAt(index);
+                  print(chatid);
+                  Stream s = FirebaseFirestore.instance
+                      .collection('chattingroom')
+                      .doc(chatid)
+                      .snapshots();
+                  print("stream 시작");
+                  return StreamBuilder<DocumentSnapshot>(
+                    stream: s,
+                    builder: (BuildContext ctx, chatroomsnapshot) {
+                      switch (chatroomsnapshot.connectionState) {
+                        case ConnectionState.waiting:
+                          return Container();
+                        default:
+                          DocumentSnapshot test55 = chatroomsnapshot.data;
+
+                          if (test55.data() != null) {
+                            return ListTile(
+                              title: Row(
+                                children: <Widget>[
+                                  Text(test55['board']),
+                                  //Text("${snapshot.data.data()}"),
+                                  Spacer(),
+                                  SizedBox(width: 150, height: 10),
+                                  GetTime(test55),
+                                ],
+                              ),
+                              subtitle: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text(
+                                    '닉네임/익명 : ',
+                                  ),
+                                  //SizedBox(width: 10, height: 10),
+                                  Text('type : text : ' +
+                                      test55.data()["recent_text"].toString()),
+                                  SizedBox(width: 10, height: 10),
+                                  Spacer(),
+                                  Text("1"),
+                                ],
+                              ),
+                              onTap: () => {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            InChattingRoomPage(
+                                              chattingRoomId: "WRITE ROOMID",
+                                            ))),
+                              },
+                            );
+                          } else
+                            return Container();
+                      }
+                    },
+                  );
+                },
+              );
+          }
+        });
   }
 
   Widget _buildExpandedTitle() {
@@ -100,18 +159,6 @@ class _NotificationMainState extends State<NotificationMain> {
   Future<String> getUserId() async {
     preferences = await SharedPreferences.getInstance();
     return preferences.getString('id');
-  }
-
-  DocumentReference getUserDoc() {
-    //DocumentReference doc_ref = _firestore.collection('user_chatlist').doc("dd").get().then((value) => null)
-  }
-
-  Stream<DocumentSnapshot> getChatList(String id) {
-    return _firestore.collection('user_chatlist').doc("user_uid").snapshots();
-  }
-
-  Stream<QuerySnapshot> getChatList2(String id) {
-    return _firestore.collection('chattingroom').where('send_user').snapshots();
   }
 
   void createRecord() async {

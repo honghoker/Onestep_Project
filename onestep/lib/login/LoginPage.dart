@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:onestep/appmain/myhomepage.dart';
+import 'package:onestep/notification/Controllers/loginController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'ProgressWidget.dart';
@@ -127,17 +128,22 @@ class _LoginScreenState extends State<LoginScreen> {
       final List<DocumentSnapshot> documentSnapshots = resultQuery.docs;
 
       if (documentSnapshots.length == 0) {
-        FirebaseFirestore.instance
-            .collection("users")
-            .doc(firebaseUser.uid)
-            .set({
-          "nickname": firebaseUser.displayName,
-          "photoUrl": firebaseUser.photoURL,
-          "id": firebaseUser.uid,
-          "aboutMe": "저장",
-          "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
-          "chattingWith": null,
-        });
+        LoginController.instanace.saveUserInfoToFirebaseStorage(
+            firebaseUser.uid,
+            firebaseUser.displayName,
+            //firebaseUser.photoURL,
+            DateTime.now().millisecondsSinceEpoch.toString());
+        // FirebaseFirestore.instance
+        //     .collection("users")
+        //     .doc(firebaseUser.uid)
+        //     .set({
+        //                 "id": firebaseUser.uid,
+        //   "nickname": firebaseUser.displayName,
+        //   "photoUrl": firebaseUser.photoURL,
+        //   "aboutMe": "저장",
+        //   "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+
+        // });
       } else {
         //Write data to Local
         currentUser = firebaseUser;

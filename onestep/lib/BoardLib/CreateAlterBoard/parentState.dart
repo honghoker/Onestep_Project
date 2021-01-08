@@ -5,6 +5,7 @@ import 'package:onestep/BoardLib/mySlideOverDialog/slide_dialog.dart';
 import 'package:onestep/BoardLib/mySlideOverDialog/slide_popup_dialog.dart'
     as slideDialog;
 import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:onestep/PermissionLib/customPermisson.dart';
 
 enum BoardCategory { SMALLTALK, QUESTION }
 const int MAX_IMAGE_COUNT = 5;
@@ -23,7 +24,8 @@ class _CreateBoardState extends _CreatePageParent<CreateBoard> {
   }
 }
 
-abstract class _CreatePageParent<T extends StatefulWidget> extends State<T> {
+abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
+    with OneStepPermission {
   CustomSlideDialog customSlideDialog;
   BoardCategory _category;
   String _error = 'No Error Dectected';
@@ -216,8 +218,7 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T> {
         width: 50,
         child: GestureDetector(
             onTap: () {
-              // print("hi");
-              getImage();
+              checkCamStorePermission(getImage);
             },
             child: imageRendering),
       ),

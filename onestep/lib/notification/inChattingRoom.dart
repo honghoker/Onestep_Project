@@ -300,6 +300,7 @@ class _LastChatState extends State<ChatScreen> {
       //내가 보냈을 경우
       return Row(
         children: <Widget>[
+          GetTime(document),
           document["type"] == 0
               //Text Msg
               ? Container(
@@ -385,7 +386,7 @@ class _LastChatState extends State<ChatScreen> {
                           bottom: isLastMsgRight(index) ? 20.0 : 10.0,
                           right: 10.0),
                     ),
-          GetTime(document), //채팅 우측 시간출력
+          // GetTime(document), //채팅 우측 시간출력
         ],
         mainAxisAlignment: MainAxisAlignment.end,
       );

@@ -3,22 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class FirebaseApi {
-  static Future<String> getId() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-    // google getuid
-    GoogleSignInAccount googleUser = await googleSignIn.signIn();
-    GoogleSignInAuthentication googleSignInAuthentication =
-        await googleUser.authentication;
-
-    final AuthCredential credential = GoogleAuthProvider.credential(
-        idToken: googleSignInAuthentication.idToken,
-        accessToken: googleSignInAuthentication.accessToken);
-
-    final User firebaseUser =
-        (await firebaseAuth.signInWithCredential(credential)).user;
-    print("####uid ${firebaseUser.uid}");
-    return firebaseUser.uid;
+  static String getId() {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    return _auth.currentUser.uid;
   }
 
   static Future<QuerySnapshot> getProducts(

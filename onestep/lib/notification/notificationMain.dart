@@ -24,105 +24,107 @@ class _NotificationMainState extends State<NotificationMain> {
   }
 
   Widget _buildList() {
-    return FutureBuilder(
-        future: FirebaseApi.getId(),
-        builder: (BuildContext ctx, AsyncSnapshot<String> snapshot1) {
-          if (snapshot1.hasData) {
-            print("@@@ snapshotdata = ${snapshot1.data}");
-            Stream userChatListStream = FirebaseFirestore.instance
-                .collection('user_chatlist')
-                .doc(snapshot1.data)
-                .snapshots();
+    // return FutureBuilder(
+    //     future: FirebaseApi.getId(),
+    //     builder: (BuildContext ctx, AsyncSnapshot<String> snapshot1) {
+    //       if (snapshot1.hasData) {
+    //         print("@@@ snapshotdata = ${snapshot1.data}");
+    //         Stream userChatListStream = FirebaseFirestore.instance
+    //             .collection('user_chatlist')
+    //             .doc(snapshot1.data)
+    //             .snapshots();
+    // );
 
-            return StreamBuilder<DocumentSnapshot>(
-                stream: userChatListStream,
-                builder: (BuildContext context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return Text('Loading from chat_main...');
-                  }
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                      return Container();
-                    default:
-                      return ListView.builder(
-                        itemCount: snapshot.data.data().length,
-                        itemBuilder: (BuildContext ctx, int index) {
-                          var chatid =
-                              snapshot.data.data().keys.elementAt(index);
-                          print("@@@ chatid =  ${chatid}");
-                          Stream chattingRoomStream = FirebaseFirestore.instance
-                              .collection('chattingroom')
-                              .doc(chatid)
-                              .snapshots();
-                          return StreamBuilder<DocumentSnapshot>(
-                            stream: chattingRoomStream,
-                            builder: (BuildContext ctx, chatroomsnapshot) {
-                              switch (chatroomsnapshot.connectionState) {
-                                case ConnectionState.waiting:
-                                  return Container();
-                                default:
-                                  DocumentSnapshot chatDocumentsnapshot =
-                                      chatroomsnapshot.data;
-                                  //     "aaaa = ${chatDocumentsnapshot}");
-                                  if (chatDocumentsnapshot.data() != null) {
-                                    return ListTile(
-                                      title: Row(
-                                        children: <Widget>[
-                                          Text(chatDocumentsnapshot['board']),
-                                          //Text("${snapshot.data.data()}"),
-                                          Spacer(),
-                                          SizedBox(width: 150, height: 10),
-                                          GetTime(chatDocumentsnapshot),
-                                        ],
-                                      ),
-                                      subtitle: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Text(
-                                            '닉네임/익명 : ',
-                                          ),
-                                          //SizedBox(width: 10, height: 10),
-                                          Text('type : text : ' +
-                                              chatDocumentsnapshot
-                                                  .data()["recent_text"]
-                                                  .toString()),
-                                          SizedBox(width: 10, height: 10),
-                                          Spacer(),
-                                          Text("1"),
-                                        ],
-                                      ),
-                                      onTap: () => {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    InChattingRoomPage(
-                                                      myUId:
-                                                          chatDocumentsnapshot[
-                                                              "send_user"],
-                                                      friendId:
-                                                          chatDocumentsnapshot[
-                                                              "receive_user"],
-                                                      chattingRoomId:
-                                                          chatDocumentsnapshot
-                                                              .id,
-                                                    ))),
-                                      },
-                                    );
-                                  } else
-                                    return Container();
-                              }
-                            },
-                          );
-                        },
-                      );
-                  }
-                });
-          } else {
-            return Container();
+    Stream userChatListStream = FirebaseFirestore.instance
+        .collection('user_chatlist')
+        .doc(FirebaseApi.getId())
+        .snapshots();
+
+    return StreamBuilder<DocumentSnapshot>(
+        stream: userChatListStream,
+        builder: (BuildContext context, snapshot) {
+          if (!snapshot.hasData) {
+            return Text('Loading from chat_main...');
+          }
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Container();
+            default:
+              return ListView.builder(
+                itemCount: snapshot.data.data().length,
+                itemBuilder: (BuildContext ctx, int index) {
+                  var chatid = snapshot.data.data().keys.elementAt(index);
+                  print("@@@ chatid =  ${chatid}");
+                  Stream chattingRoomStream = FirebaseFirestore.instance
+                      .collection('chattingroom')
+                      .doc(chatid)
+                      .snapshots();
+                  return StreamBuilder<DocumentSnapshot>(
+                    stream: chattingRoomStream,
+                    builder: (BuildContext ctx, chatroomsnapshot) {
+                      switch (chatroomsnapshot.connectionState) {
+                        case ConnectionState.waiting:
+                          return Container();
+                        default:
+                          DocumentSnapshot chatDocumentsnapshot =
+                              chatroomsnapshot.data;
+                          //     "aaaa = ${chatDocumentsnapshot}");
+                          if (chatDocumentsnapshot.data() != null) {
+                            return ListTile(
+                              title: Row(
+                                children: <Widget>[
+                                  Text(chatDocumentsnapshot['board']),
+                                  //Text("${snapshot.data.data()}"),
+                                  Spacer(),
+                                  SizedBox(width: 150, height: 10),
+                                  GetTime(chatDocumentsnapshot),
+                                ],
+                              ),
+                              subtitle: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text(
+                                    '닉네임/익명 : ',
+                                  ),
+                                  //SizedBox(width: 10, height: 10),
+                                  Text('type : text : ' +
+                                      chatDocumentsnapshot
+                                          .data()["recent_text"]
+                                          .toString()),
+                                  SizedBox(width: 10, height: 10),
+                                  Spacer(),
+                                  Text("1"),
+                                ],
+                              ),
+                              onTap: () => {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            InChattingRoomPage(
+                                              myUId: chatDocumentsnapshot[
+                                                  "send_user"],
+                                              friendId: chatDocumentsnapshot[
+                                                  "receive_user"],
+                                              chattingRoomId:
+                                                  chatDocumentsnapshot.id,
+                                            ))),
+                              },
+                            );
+                          } else
+                            return Container();
+                      }
+                    },
+                  );
+                },
+              );
           }
         });
+    //   } else {
+    //     return Container();
+    //   }
+    // });
   }
 
   Widget _buildExpandedTitle() {

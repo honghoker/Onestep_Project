@@ -70,13 +70,30 @@ class _NotificationMainState extends State<NotificationMain> {
                               chatroomsnapshot.data;
                           if (chatDocumentsnapshot.data() != null) {
                             return ListTile(
-                              title: Row(
-                                children: <Widget>[
-                                  Text(chatDocumentsnapshot['board']),
-                                  Spacer(),
-                                  SizedBox(width: 150, height: 10),
-                                  GetTime(chatDocumentsnapshot),
-                                ],
+                              title: Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 3),
+                                child: Row(
+                                  children: <Widget>[
+                                    Text(chatDocumentsnapshot['board']),
+                                    //Spacer(),
+                                    SizedBox(width: 5, height: 10),
+                                    // StreamBuilder(
+                                    //   //product
+                                    //   stream: FirebaseFirestore.instance
+                                    //       .collection('products')
+                                    //       .doc("WRITE_PRODUCT_ID")
+                                    //       .snapshots(),
+                                    //   builder: (BuildContext context,
+                                    //       AsyncSnapshot productsnapshot) {
+                                    //     return
+                                    //Text(productsnapshot.data["title"]);
+                                    //   },
+                                    // ),
+                                    Text(" 글 제목 가져옴"),
+                                    SizedBox(width: 75, height: 10),
+                                    GetTime(chatDocumentsnapshot),
+                                  ],
+                                ),
                               ),
                               subtitle: Row(
                                 mainAxisAlignment:

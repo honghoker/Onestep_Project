@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:onestep/BoardLib/boardProvider/BoardClass.dart';
 import 'package:flutter/services.dart';
 import 'package:onestep/BoardLib/mySlideOverDialog/slide_dialog.dart';
 import 'package:onestep/BoardLib/mySlideOverDialog/slide_popup_dialog.dart'
     as slideDialog;
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:onestep/PermissionLib/customPermisson.dart';
+import 'package:onestep/BoardLib/BoardProvider/boardClass.dart';
 
 enum BoardCategory { SMALLTALK, QUESTION }
 const int MAX_IMAGE_COUNT = 5;
 
 class CreateBoard extends StatefulWidget {
-  CreateBoard({Key key}) : super(key: key);
+  CreateBoard({
+    Key key,
+  }) : super(key: key);
 
   @override
   _CreateBoardState createState() => _CreateBoardState();
@@ -22,6 +24,9 @@ class _CreateBoardState extends _CreatePageParent<CreateBoard> {
   void dispose() {
     super.dispose();
   }
+
+  @override
+  setBoardData() {}
 }
 
 abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
@@ -33,12 +38,13 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
   ScrollController _scrollController;
   BoardData boardData;
   String _title;
-
+  setBoardData();
   List<Asset> images = [];
 
   @override
   void initState() {
     super.initState();
+    setBoardData();
     SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
     textEditingControllerContent = new TextEditingController();
     _scrollController = new ScrollController();
@@ -57,7 +63,7 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
     // return Container(child: Text('HI'));
     return WillPopScope(
         onWillPop: () {
-          _isDataContain()
+          !_isDataContain()
               ? Navigator.pop(context)
               : _navigatorPopAlterDialog();
         },
@@ -86,6 +92,8 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
   firstContainer() {
     TextStyle _textStyle =
         TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
+    TextStyle _confirmTextStyle =
+        TextStyle(color: Colors.grey, fontWeight: FontWeight.bold);
     return Container(
       padding: EdgeInsets.only(top: 15),
       decoration: BoxDecoration(
@@ -95,7 +103,7 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
         children: [
           GestureDetector(
             onTap: () {
-              _isDataContain()
+              !_isDataContain()
                   ? Navigator.pop(context)
                   : _navigatorPopAlterDialog();
             },
@@ -116,7 +124,6 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
                   _category = _result["category"];
                 }
               });
-              // print(a.keys);
             },
             child: Container(
               child: Text(
@@ -126,7 +133,17 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
             ),
           ),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              var _result = _isDataContain(checkAllData: true).runtimeType;
+              if (_result == bool) {
+                print("hi");
+              } else if (_result == String) {
+                switch (_result) {
+                  case "CONTENT":
+                }
+                ;
+              }
+            },
             child: Container(
               child: Text(
                 "작성",
@@ -155,16 +172,32 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
     );
   }
 
-  bool _isDataContain() {
+  _isDataContain({bool checkAllData}) {
     String content = textEditingControllerContent.text.trim();
-    if (_title == null || _title == '') {
-      if (_category == null) {
-        if (content == null || content == '') {
-          return true;
+    if (!checkAllData || checkAllData == null) {
+      if (_title == null || _title == '') {
+        if (_category == null) {
+          if (content == null || content == '') {
+            return false;
+          }
         }
       }
+      return true;
+    } else {
+      if (_title != null && _title != '') {
+        if (_category != null) {
+          if (content != null && content != '') {
+            return true;
+          } else {
+            return "CONTENT";
+          }
+        } else {
+          return "CATEGORY";
+        }
+      } else {
+        return "TITLE";
+      }
     }
-    return false;
   }
 
   _navigatorPopAlterDialog() async {
@@ -227,8 +260,8 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
 
   getImage() async {
     List<Asset> resultList = [];
-    resultList =
-        await MultiImagePicker.pickImages(maxImages: 5, enableCamera: true);
+    resultList = await MultiImagePicker.pickImages(
+        maxImages: 5, enableCamera: true, selectedAssets: images);
     setState(() {
       images = resultList;
     });

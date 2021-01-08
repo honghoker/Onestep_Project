@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:onestep/api/firebase_api.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -202,6 +203,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget> {
       }
 
       FirebaseFirestore.instance.collection('products').add({
+        'uid': await FirebaseApi.getId(),
         'price': _priceTextEditingController.text,
         'title': _titleTextEditingController.text,
         'category': _selectedCategoryItem,
@@ -213,7 +215,6 @@ class _ClothAddWidgetState extends State<ClothAddWidget> {
         if (Navigator.canPop(context)) {
           // await _pr.hide();
           Navigator.pop(context, "OK");
-          print("등록완료");
         } else {
           SystemNavigator.pop();
         }

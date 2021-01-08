@@ -1,6 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FirebaseApi {
+  static Future<String> getId() async {
+    SharedPreferences pre = await SharedPreferences.getInstance();
+    return pre.getString('id');
+  }
+
   static Future<QuerySnapshot> getProducts(
     int limit,
     String category, {

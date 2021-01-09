@@ -75,14 +75,13 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          color: Colors.white
-          // gradient: LinearGradient(
-          //   begin: Alignment.topRight,
-          //   end: Alignment.bottomLeft,
-          //   colors: [Colors.lightBlueAccent, Colors.white],
-          // ),
-        ),
+        decoration: BoxDecoration(color: Colors.white
+            // gradient: LinearGradient(
+            //   begin: Alignment.topRight,
+            //   end: Alignment.bottomLeft,
+            //   colors: [Colors.lightBlueAccent, Colors.white],
+            // ),
+            ),
         alignment: Alignment.center,
         child: Padding(
           padding: const EdgeInsets.only(top: 130),
@@ -93,7 +92,10 @@ class _LoginScreenState extends State<LoginScreen> {
               Text(
                 'Onestep',
                 style: TextStyle(
-                    fontSize: 42.0, color: Colors.black, fontFamily: "Signatra",fontWeight: FontWeight.bold),
+                    fontSize: 42.0,
+                    color: Colors.black,
+                    fontFamily: "Signatra",
+                    fontWeight: FontWeight.bold),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 130),
@@ -181,21 +183,22 @@ class _LoginScreenState extends State<LoginScreen> {
       this.setState(() {
         isLoading = false;
       });
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => JoinScreen(
-              currentUserId: firebaseUser.uid,
-            ),
-          )
-          // MaterialPageRoute(
-          //   builder: (context) => MyHomePage(
-          //     currentUserId: firebaseUser.uid,
-          //   ),
-          // )
-          );
-          
-      // 여기 확인
+      
+      // Navigator.of(context).pushNamed(
+      //           '/BoardContent?INDEX=$index&BOARD_NAME="current"',
+      //         );
+
+      Navigator.of(context).pushNamed('/JoinPage?UID=${firebaseUser.uid}');
+      // Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (context) => JoinScreen(
+      //         currentUserId: firebaseUser.uid,
+      //       ),
+      //     )
+      //     );
+
+      // 찬섭이형 예시 코드 여기 확인
       // Navigator.of(context)
       //     .pushReplacementNamed('/MainPage?UID=${firebaseUser.uid}');
 

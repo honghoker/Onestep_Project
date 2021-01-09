@@ -33,11 +33,17 @@ class _JoinScreenState extends State<JoinScreen> {
   List<Email> _emailList = Email.getEmailList();
   List<DropdownMenuItem<Email>> _dropdownEmailList;
   Email _selectedEmail;
+  bool _isNickNameChecked = false;
+  bool _isEmailChecked = false;
+  String tempNickName = "";
+  String tempEmail = "";
 
   @override
   void initState() {
     _dropdownEmailList = buildDropdownMenuItems(_emailList);
     _selectedEmail = _dropdownEmailList[0].value;
+    _isNickNameChecked = false;
+    _isEmailChecked = false;
 
     super.initState();
   }
@@ -61,8 +67,19 @@ class _JoinScreenState extends State<JoinScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final emailController = TextEditingController();
-    final nicknameController = TextEditingController();
+    TextEditingController emailController;
+    TextEditingController nicknameController;
+
+    @override
+    void initState() {
+      _isNickNameChecked = false;
+      _isEmailChecked = false;
+
+      // 중복확인하고 editText 부분에 적었던거 기억하기 위함
+      nicknameController = TextEditingController(text: tempNickName);
+      emailController = TextEditingController(text: tempEmail);
+      super.initState();
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -70,106 +87,78 @@ class _JoinScreenState extends State<JoinScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.only(top: 100),
+          padding: const EdgeInsets.only(top: 150),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(50, 0, 80, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Container(
-                        //   child: Text("*"),
-                        // ),
-                        Container(
-                          child: Text("이메일"),
-                        ),
-                        Container(
-                          width: 200,
-                          child: TextField(
-                            controller: emailController,
-                            // obscureText: true,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              // labelText: "email",
+              Center(
+                child: Container(
+                  width: 300,
+                  child: TextField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      hintText: "이메일",
+                      suffix: _isEmailChecked
+                          ? Text("확인완료")
+                          : GestureDetector(
+                              child: Text("중복확인"),
+                              onTap: () {
+                                print("click");
+                                setState(() {
+                                  _isEmailChecked = !_isEmailChecked;
+                                });
+                              },
                             ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                child: Container(
+                  width: 300,
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: TextField(
+                          controller: nicknameController,
+                          onChanged: (text) {
+                            tempNickName = text;
+                          },
+                          decoration: InputDecoration(
+                            hintText: "닉네임",
+                            suffix: _isNickNameChecked
+                                ? Text("확인완료")
+                                : GestureDetector(
+                                    child: Text("중복확인"),
+                                    onTap: () {
+                                      print("click");
+                                      setState(() {
+                                        _isNickNameChecked =
+                                            !_isNickNameChecked;
+                                      });
+                                    },
+                                  ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(50, 10, 80, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          child: Text(""),
-                        ),
-                        DropdownButton(
-                          value: _selectedEmail,
-                          items: _dropdownEmailList,
-                          onChanged: onChangeDropdwonItem,
-                        ),
-                      ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Container(
+                      child: Text("학교인증"),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(50, 10, 80, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          child: Text("별명"),
-                        ),
-                        Container(
-                          width: 200,
-                          child: TextField(
-                            controller: nicknameController,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              // labelText: "email",
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(50, 10, 80, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          child: Text(""),
-                        ),
-                        Container(
-                            width: 100,
-                            child: RaisedButton(
-                                // 별명 추후에 중복확인 예외처리 추가
-                                onPressed: () {}, child: Text("중복확인"))),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(50, 10, 80, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          child: Text("학교인증"),
-                        ),
-                        Container(
-                            width: 100,
-                            child: RaisedButton(
-                                onPressed: () {}, child: Text("하러가기"))),
-                      ],
-                    ),
-                  ),
-                ],
+                    Container(
+                        width: 100,
+                        child: RaisedButton(
+                            onPressed: () {}, child: Text("하러가기"))),
+                  ],
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 50, 0, 0),
@@ -179,10 +168,11 @@ class _JoinScreenState extends State<JoinScreen> {
                   child: RaisedButton(
                     onPressed: () {
                       // test : email text 공백 아니면 넘어감
-                      if(emailController.text!=""){
+                      if (emailController.text != "") {
                         print("성공");
-                      }
-                      else{
+                        Navigator.of(context).pushReplacementNamed(
+                            '/MainPage?UID=$currentUserId');
+                      } else {
                         print("실패");
                       }
                     },

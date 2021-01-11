@@ -200,8 +200,10 @@ class _LoginScreenState extends State<LoginScreen> {
       //           '/BoardContent?INDEX=$index&BOARD_NAME="current"',
       //         );
 
-      Navigator.of(context).pushNamed('/JoinPage?UID=${firebaseUser.uid}');
+      // 회원가입으로 넘어가는 navigator
+      // Navigator.of(context).pushNamed('/JoinPage?UID=${firebaseUser.uid}');
       // Navigator.push(
+
       //     context,
       //     MaterialPageRoute(
       //       builder: (context) => JoinScreen(
@@ -211,8 +213,8 @@ class _LoginScreenState extends State<LoginScreen> {
       //     );
 
       // 찬섭이형 예시 코드 여기 확인
-      // Navigator.of(context)
-      //     .pushReplacementNamed('/MainPage?UID=${firebaseUser.uid}');
+      Navigator.of(context)
+          .pushReplacementNamed('/MainPage?UID=${firebaseUser.uid}');
 
       Fluttertoast.showToast(msg: 'uid 하단' + currentUser.uid);
     }

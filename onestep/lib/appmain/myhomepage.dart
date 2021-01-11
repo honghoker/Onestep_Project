@@ -104,12 +104,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return WillPopScope(
         child: Scaffold(
           // appbar 삭제
-          appBar: AppBar(
-            title: Text(
-              currentUserId,
-              textScaleFactor: 0.9,
-            ),
-          ),
+          // appBar: AppBar(
+          //   title: Text(
+          //     "",
+          //     // currentUserId,
+          //     textScaleFactor: 0.9,
+          //   ),
+          // ),
           key: _globalKey,
           body: _bottomWidgetList[_bottombarindex],
           bottomNavigationBar: getBottomBar(),

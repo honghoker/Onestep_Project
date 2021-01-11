@@ -45,126 +45,45 @@ class _NotificationMainState extends State<NotificationMain> {
     //             .snapshots();
     // );
 
-    Stream userChatListStream = FirebaseFirestore.instance
-        .collection('user_chatlist')
-        .doc(FirebaseApi.getId())
+    // Stream userChatListStream = FirebaseFirestore.instance
+    //     .collection('user_chatlist')
+    //     .doc(FirebaseApi.getId())
+    //     .snapshots();
+    var test22 = 1;
+    Stream userChatListStream1 = FirebaseFirestore.instance
+        .collection('chattingroom')
+//        .where("read_count", isEqualTo: 2)
+        .where("cusers", arrayContains: "EeSxjIzFDGWuxmEItV7JheMDZ6C2")
+//        .orderBy('timestamp', descending: true)
         .snapshots();
-    print('#### ' + FirebaseApi.getId());
-    return StreamBuilder<DocumentSnapshot>(
-        stream: userChatListStream,
-        builder: (BuildContext context, snapshot) {
+
+    return StreamBuilder<QuerySnapshot>(
+        stream: userChatListStream1,
+        builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return Text('Loading from chat_main...');
+            Text('Loading from chat_main...');
+            return Container(
+              child: Center(
+                child: CircularProgressIndicator(), //유저 없어서 로딩
+              ),
+              color: Colors.white.withOpacity(0.7),
+            );
+          } else {
+            return (1 > 0) //유저 수가 더 크면
+                ? ListView(
+                    children: snapshot.data.docs.map((chatroomData) {
+                    //return ListTile();
+                    return Text("$test22 dd 포함된 채팅방 id : " +
+                        chatroomData.id +
+                        "     " +
+                        chatroomData["cusers"][0] +
+                        "     " +
+                        chatroomData["cusers"][1]);
+                  }).toList())
+                : Text("뭐씨");
           }
-          switch (snapshot.connectionState) {
-            case ConnectionState.waiting:
-              return Container();
-            default:
-              return ListView.builder(
-                itemCount: snapshot.data.data().length,
-                itemBuilder: (BuildContext ctx, int index) {
-                  var chatid = snapshot.data.data().keys.elementAt(index);
-                  print("### chatid =  ${chatid}");
-                  Stream chattingRoomStream = FirebaseFirestore.instance
-                      .collection('chattingroom')
-                      .doc(chatid)
-                      .snapshots();
-                  return StreamBuilder<DocumentSnapshot>(
-                    stream: chattingRoomStream,
-                    builder: (BuildContext ctx, chatroomsnapshot) {
-                      switch (chatroomsnapshot.connectionState) {
-                        case ConnectionState.waiting:
-                          return Container();
-                        default:
-                          DocumentSnapshot chatDocumentsnapshot =
-                              chatroomsnapshot.data;
-                          // print(
-                          //     "### chat leng =  ${chatDocumentsnapshot.data().keys.toString()}");
 
-                          if (chatDocumentsnapshot.data() != null) {
-                            return ListTile(
-                              title: Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 3),
-                                child: Row(
-                                  children: <Widget>[
-                                    Text(
-                                        chatDocumentsnapshot['board'] + chatid),
-                                    //Spacer(),
-                                    SizedBox(width: 5, height: 10),
-                                    // StreamBuilder(
-                                    //   //product
-                                    //   stream: FirebaseFirestore.instance
-                                    //       .collection('products')
-                                    //       .doc("WRITE_PRODUCT_ID")
-                                    //       .snapshots(),
-                                    //   builder: (BuildContext context,
-                                    //       AsyncSnapshot productsnapshot) {
-                                    //     return
-                                    //Text(productsnapshot.data["title"]);
-                                    //   },
-                                    // ),
-                                    Text(" 글 제목 가져옴"),
-                                    SizedBox(width: 75, height: 10),
-                                    GetTime(chatDocumentsnapshot),
-                                  ],
-                                ),
-                              ),
-                              subtitle: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    '닉네임/익명 : ',
-                                  ),
-                                  //SizedBox(width: 10, height: 10),
-                                  Text('type : text : ' +
-                                      chatDocumentsnapshot
-                                          .data()["recent_text"]
-                                          .toString()),
-                                  SizedBox(width: 10, height: 10),
-                                  Spacer(),
-                                  Text("1"),
-                                ],
-                              ),
-                              onTap: () {
-                                print("idtest");
-
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            InChattingRoomPage(
-                                              myUId: snapshot.data.id ==
-                                                      chatDocumentsnapshot[
-                                                          "send_user"]
-                                                  ? chatDocumentsnapshot[
-                                                      "send_user"]
-                                                  : chatDocumentsnapshot[
-                                                      "receive_user"],
-                                              friendId: snapshot.data.id !=
-                                                      chatDocumentsnapshot[
-                                                          "send_user"]
-                                                  ? chatDocumentsnapshot[
-                                                      "send_user"]
-                                                  : chatDocumentsnapshot[
-                                                      "receive_user"],
-                                              chattingRoomId:
-                                                  chatDocumentsnapshot.id,
-                                            )));
-                                // print("###########UID : " +snapshot.data.id +"sendUser : " +
-                                //     chatDocumentsnapshot["send_user"] +" receUser : " +chatDocumentsnapshot["receive_user"]);
-                              },
-                            );
-                          } else {
-                            print("##반환없음");
-                            return Container();
-                          }
-                      }
-                    },
-                  );
-                },
-              );
-          }
+          return Container();
         });
     //   } else {
     //     return Container();
@@ -189,6 +108,7 @@ class _NotificationMainState extends State<NotificationMain> {
         IconButton(
             icon: Icon(Icons.chat_bubble),
             onPressed: () {
+              FirebaseChatController().saveArrayContain();
               //_onClickNotification;
               print(Text('빌트스택 우측'));
               //FirebaseChatController().whereTest();

@@ -6,6 +6,18 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../../main.dart';
 
 class FirebaseChatController {
+  Future<void> normalForm(String userUid, String chatId) async {
+    // userImageFile,
+    try {
+      FirebaseFirestore.instance.collection("").doc(userUid).update({
+        //"id": userUid,
+        chatId: true,
+      });
+    } catch (e) {
+      print(e.message);
+    }
+  }
+
   Future<void> createChatListToFirebaseStorage(
       String userUid, String chatId) async {
     // userImageFile,
@@ -90,6 +102,24 @@ class FirebaseChatController {
           .update({
         //"id": userUid,
         nowTime: true,
+      });
+    } catch (e) {
+      print(e.message);
+    }
+  }
+
+  Future<void> saveArrayContain() async {
+    // userImageFile,
+    try {
+      FirebaseFirestore.instance
+          .collection("chattingroom")
+          .doc("UBpx0T9dbF22I2g5ZC2G")
+          .update({
+        //"id": userUid,
+        "cusers": [
+          "EeSxjIzFDGWuxmEItV7JheMDZ6C2",
+          "V92paJ9JAOfkT5Yn7euAKiZfpoS2"
+        ],
       });
     } catch (e) {
       print(e.message);

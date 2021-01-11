@@ -176,7 +176,7 @@ class _NotificationMainState extends State<NotificationMain> {
     return Expanded(
       child: Center(
           child: Text(
-        '알림메인 텍스트',
+        '알림메인 텍스트 채팅구조 변경',
         textScaleFactor: 1.5,
       )),
     );

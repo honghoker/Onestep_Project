@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
+import 'package:onestep/notification/Controllers/firebaseChatController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'inChattingRoom.dart';
 import 'time/chat_time.dart';
@@ -20,7 +21,16 @@ class _NotificationMainState extends State<NotificationMain> {
 
   @override
   build(BuildContext context) {
-    return Scaffold(body: _buildList(), backgroundColor: Colors.purple[100]);
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('채팅&알림'),
+          actions: [
+            _buildExpandedTitle(),
+            _buildChattingRoom(context),
+          ],
+        ),
+        body: _buildList(),
+        backgroundColor: Colors.white);
   }
 
   Widget _buildList() {
@@ -39,7 +49,7 @@ class _NotificationMainState extends State<NotificationMain> {
         .collection('user_chatlist')
         .doc(FirebaseApi.getId())
         .snapshots();
-
+    print('#### ' + FirebaseApi.getId());
     return StreamBuilder<DocumentSnapshot>(
         stream: userChatListStream,
         builder: (BuildContext context, snapshot) {
@@ -54,7 +64,7 @@ class _NotificationMainState extends State<NotificationMain> {
                 itemCount: snapshot.data.data().length,
                 itemBuilder: (BuildContext ctx, int index) {
                   var chatid = snapshot.data.data().keys.elementAt(index);
-                  print("@@@ chatid =  ${chatid}");
+                  print("### chatid =  ${chatid}");
                   Stream chattingRoomStream = FirebaseFirestore.instance
                       .collection('chattingroom')
                       .doc(chatid)
@@ -68,13 +78,17 @@ class _NotificationMainState extends State<NotificationMain> {
                         default:
                           DocumentSnapshot chatDocumentsnapshot =
                               chatroomsnapshot.data;
+                          // print(
+                          //     "### chat leng =  ${chatDocumentsnapshot.data().keys.toString()}");
+
                           if (chatDocumentsnapshot.data() != null) {
                             return ListTile(
                               title: Padding(
                                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 3),
                                 child: Row(
                                   children: <Widget>[
-                                    Text(chatDocumentsnapshot['board']),
+                                    Text(
+                                        chatDocumentsnapshot['board'] + chatid),
                                     //Spacer(),
                                     SizedBox(width: 5, height: 10),
                                     // StreamBuilder(
@@ -141,8 +155,10 @@ class _NotificationMainState extends State<NotificationMain> {
                                 //     chatDocumentsnapshot["send_user"] +" receUser : " +chatDocumentsnapshot["receive_user"]);
                               },
                             );
-                          } else
+                          } else {
+                            print("##반환없음");
                             return Container();
+                          }
                       }
                     },
                   );
@@ -166,24 +182,28 @@ class _NotificationMainState extends State<NotificationMain> {
     );
   }
 
-  Widget _buildChattingRoom() {
+  Widget _buildChattingRoom(var context) {
     return Stack(
       alignment: Alignment.center,
       children: <Widget>[
         IconButton(
-            icon: Icon(Icons.mail_outline),
+            icon: Icon(Icons.chat_bubble),
             onPressed: () {
               //_onClickNotification;
               print(Text('빌트스택 우측'));
+              //FirebaseChatController().whereTest();
+              //FirebaseChatController().createChatingRoomToFirebaseStorage2();
 
-              Firestore.instance
-                  .collection('chattinglist')
-                  .getDocuments()
-                  .then((snapshot) {
-                for (DocumentSnapshot ds in snapshot.docs) {
-                  ds.reference.delete();
-                }
-              });
+              //FirebaseChatController().logoutUser(context);
+
+              // Firestore.instance
+              //     .collection('chattinglist')
+              //     .getDocuments()
+              //     .then((snapshot) {
+              //   for (DocumentSnapshot ds in snapshot.docs) {
+              //     ds.reference.delete();
+              //   }
+              // });
 
               //createRecord();
             }),

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
+import 'package:onestep/notification/Controllers/firebaseChatController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'inChattingRoom.dart';
 import 'time/chat_time.dart';
@@ -20,7 +21,16 @@ class _NotificationMainState extends State<NotificationMain> {
 
   @override
   build(BuildContext context) {
-    return Scaffold(body: _buildList(), backgroundColor: Colors.purple[100]);
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('채팅&알림'),
+          actions: [
+            _buildExpandedTitle(),
+            _buildChattingRoom(context),
+          ],
+        ),
+        body: _buildList(),
+        backgroundColor: Colors.white);
   }
 
   Widget _buildList() {
@@ -35,122 +45,108 @@ class _NotificationMainState extends State<NotificationMain> {
     //             .snapshots();
     // );
 
-    Stream userChatListStream = FirebaseFirestore.instance
-        .collection('user_chatlist')
-        .doc(FirebaseApi.getId())
-        // .doc('EeSxjIzFDGWuxmEItV7JheMDZ6C2')
+    // Stream userChatListStream = FirebaseFirestore.instance
+    //     .collection('user_chatlist')
+    //     .doc(FirebaseApi.getId())
+    //     .snapshots();
+    Stream userChatListStream1 = FirebaseFirestore.instance
+        .collection('chattingroom')
+//        .where("read_count", isEqualTo: 2)
+        .where("cusers", arrayContains: FirebaseApi.getId())
+        .orderBy('timestamp', descending: true)
+        //.limit(2)
         .snapshots();
 
-    return StreamBuilder<DocumentSnapshot>(
-        stream: userChatListStream,
-        builder: (BuildContext context, snapshot) {
+    return StreamBuilder<QuerySnapshot>(
+        stream: userChatListStream1,
+        builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return Text('Loading from chat_main...');
-          }
-          switch (snapshot.connectionState) {
-            case ConnectionState.waiting:
-              return Container();
-            default:
-              return ListView.builder(
-                itemCount: snapshot.data.data().length,
-                itemBuilder: (BuildContext ctx, int index) {
-                  String chatid = snapshot.data.data().keys.elementAt(index);
-                  print("@@@ chatid =  ${chatid}");
-                  Stream chattingRoomStream = FirebaseFirestore.instance
-                      .collection('chattingroom')
-                      .doc(chatid.toString())
-                      .snapshots();
-                  return StreamBuilder<DocumentSnapshot>(
-                    stream: chattingRoomStream,
-                    builder: (BuildContext ctx, chatroomsnapshot) {
-                      switch (chatroomsnapshot.connectionState) {
-                        case ConnectionState.waiting:
-                          return Container();
-                        default:
-                          print(
-                              "@@@@ id = ${chatroomsnapshot.data.id}, data =  ${chatroomsnapshot.data.data().toString()}");
-                          DocumentSnapshot chatDocumentsnapshot =
-                              chatroomsnapshot.data;
-                          if (chatDocumentsnapshot.data() != null) {
-                            return ListTile(
-                              title: Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 3),
-                                child: Row(
-                                  children: <Widget>[
-                                    Text(chatDocumentsnapshot['board']),
-                                    //Spacer(),
-                                    SizedBox(width: 5, height: 10),
-                                    // StreamBuilder(
-                                    //   //product
-                                    //   stream: FirebaseFirestore.instance
-                                    //       .collection('products')
-                                    //       .doc("WRITE_PRODUCT_ID")
-                                    //       .snapshots(),
-                                    //   builder: (BuildContext context,
-                                    //       AsyncSnapshot productsnapshot) {
-                                    //     return
-                                    //Text(productsnapshot.data["title"]);
-                                    //   },
-                                    // ),
-                                    Text(" 글 제목 가져옴"),
-                                    SizedBox(width: 75, height: 10),
-                                    GetTime(chatDocumentsnapshot),
-                                  ],
+            Text('Loading from chat_main...');
+            return Container(
+              child: Center(
+                child: CircularProgressIndicator(), //유저 없어서 로딩
+              ),
+              color: Colors.white.withOpacity(0.7),
+            );
+          } else {
+            return (1 > 0) //유저 수가 더 크면
+                ? ListView(
+                    children: snapshot.data.docs.map((chatroomData) {
+                    if (chatroomData.data() != null) {
+                      return ListTile(
+                        title: Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 3),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: <Widget>[
+                              Text(chatroomData['boardtype']),
+                              //Spacer(),
+                              SizedBox(width: 5, height: 10),
+                              // StreamBuilder(
+                              //   //product
+                              //   stream: FirebaseFirestore.instance
+                              //       .collection('products')
+                              //       .doc("WRITE_PRODUCT_ID")
+                              //       .snapshots(),
+                              //   builder: (BuildContext context,
+                              //       AsyncSnapshot productsnapshot) {
+                              //     return
+                              //Text(productsnapshot.data["title"]);
+                              //   },
+                              // ),
+                              Text(
+                                chatroomData['title'],
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12.0,
+                                  //  fontStyle: FontStyle.italic,
                                 ),
                               ),
-                              subtitle: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    '닉네임/익명 : ',
-                                  ),
-                                  //SizedBox(width: 10, height: 10),
-                                  Text('type : text : ' +
-                                      chatDocumentsnapshot
-                                          .data()["recent_text"]
-                                          .toString()),
-                                  SizedBox(width: 10, height: 10),
-                                  Spacer(),
-                                  Text("1"),
-                                ],
-                              ),
-                              onTap: () {
-                                print("idtest");
+                              SizedBox(width: 10, height: 10),
+                              Spacer(),
+                              GetTime(chatroomData),
+                            ],
+                          ),
+                        ),
+                        subtitle: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              '닉네임 : ',
+                            ),
+                            //SizedBox(width: 10, height: 10),
+                            Text('type : text : ' +
+                                chatroomData.data()["recent_text"].toString()),
+                            SizedBox(width: 10, height: 10),
+                            Spacer(),
+                            Text("1"),
+                          ],
+                        ),
+                        onTap: () {
+                          print("idtest");
 
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            InChattingRoomPage(
-                                              myUId: snapshot.data.id ==
-                                                      chatDocumentsnapshot[
-                                                          "send_user"]
-                                                  ? chatDocumentsnapshot[
-                                                      "send_user"]
-                                                  : chatDocumentsnapshot[
-                                                      "receive_user"],
-                                              friendId: snapshot.data.id !=
-                                                      chatDocumentsnapshot[
-                                                          "send_user"]
-                                                  ? chatDocumentsnapshot[
-                                                      "send_user"]
-                                                  : chatDocumentsnapshot[
-                                                      "receive_user"],
-                                              chattingRoomId:
-                                                  chatDocumentsnapshot.id,
-                                            )));
-                                // print("###########UID : " +snapshot.data.id +"sendUser : " +
-                                //     chatDocumentsnapshot["send_user"] +" receUser : " +chatDocumentsnapshot["receive_user"]);
-                              },
-                            );
-                          } else
-                            return Container();
-                      }
-                    },
-                  );
-                },
-              );
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => InChattingRoomPage(
+                                        myUId: FirebaseApi.getId() ==
+                                                chatroomData["cusers"][0]
+                                            ? chatroomData["cusers"][0]
+                                            : chatroomData["cusers"][1],
+                                        friendId: FirebaseApi.getId() !=
+                                                chatroomData["cusers"][0]
+                                            ? chatroomData["cusers"][0]
+                                            : chatroomData["cusers"][1],
+                                        chattingRoomId: chatroomData.id,
+                                      )));
+                        },
+                      );
+                    } else {
+                      print("##반환없음");
+                      return Container();
+                    }
+                  }).toList())
+                : Text("null");
           }
         });
     //   } else {
@@ -163,31 +159,28 @@ class _NotificationMainState extends State<NotificationMain> {
     return Expanded(
       child: Center(
           child: Text(
-        '알림메인 텍스트',
+        '알림메인 텍스트 채팅구조 변경',
         textScaleFactor: 1.5,
       )),
     );
   }
 
-  Widget _buildChattingRoom() {
+  Widget _buildChattingRoom(var context) {
     return Stack(
       alignment: Alignment.center,
       children: <Widget>[
         IconButton(
-            icon: Icon(Icons.mail_outline),
+            icon: Icon(Icons.chat_bubble),
             onPressed: () {
               //_onClickNotification;
-              print(Text('빌트스택 우측'));
-
-              Firestore.instance
-                  .collection('chattinglist')
-                  .getDocuments()
-                  .then((snapshot) {
-                for (DocumentSnapshot ds in snapshot.docs) {
-                  ds.reference.delete();
-                }
-              });
-
+              print(Text('우측 상단'));
+              FirebaseChatController().createChatingRoomToFirebaseStorage(
+                false,
+                "Board_Free",
+                "임시타이틀",
+                "userUId",
+                "friendId",
+              );
               //createRecord();
             }),
         Positioned(

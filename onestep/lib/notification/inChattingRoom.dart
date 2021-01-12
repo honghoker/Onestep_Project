@@ -3,7 +3,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:onestep/notification/Controllers/firebaseChatController.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:onestep/notification/time/chat_time.dart';
@@ -257,8 +256,10 @@ class _LastChatState extends State<ChatScreen> {
                     listMessage = snapshot.data.documents;
                     return ListView.builder(
                       padding: EdgeInsets.all(10.0),
-                      itemBuilder: (context, index) =>
-                          createItem(index, snapshot.data.documents[index]),
+                      itemBuilder: (context, index) {
+                        return createItem(
+                            index, snapshot.data.documents[index]);
+                      },
                       itemCount: snapshot.data.documents.length,
                       reverse: true,
                       controller: listScrollController,
@@ -292,15 +293,23 @@ class _LastChatState extends State<ChatScreen> {
     }
   }
 
+  int test = 2;
   Widget createItem(int index, DocumentSnapshot document) {
     //My messages - Right Side
+
+    if (document["idFrom"] != "ddf") {
+      Text("날짜 출력 @");
+    }
+
     if (document["idFrom"] == myId) {
       senderId = myId;
       receiveId = friendId;
       //내가 보냈을 경우
       return Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>[
           GetTime(document),
+          SizedBox(width: 5, height: 10),
           document["type"] == 0
               //Text Msg
               ? Container(
@@ -317,7 +326,10 @@ class _LastChatState extends State<ChatScreen> {
                       color: Colors.lightBlueAccent,
                       borderRadius: BorderRadius.circular(8.0)),
                   margin: EdgeInsets.only(
-                      bottom: isLastMsgRight(index) ? 20.0 : 10.0, right: 10.0),
+                      //textmargin
+                      top: 10,
+                      bottom: isLastMsgRight(index) ? 0.0 : 10.0,
+                      right: 10.0),
                 )
 
               //Image Msg
@@ -370,8 +382,10 @@ class _LastChatState extends State<ChatScreen> {
                         },
                       ),
                       margin: EdgeInsets.only(
-                          bottom: isLastMsgRight(index) ? 20.0 : 10.0,
-                          right: 10.0),
+                          //image margin
+                          top: 10,
+                          bottom: isLastMsgRight(index) ? 0.0 : 10.0,
+                          right: 0.0),
                     )
 
                   //Sticker . gif Msg

@@ -18,109 +18,33 @@ class FirebaseChatController {
     }
   }
 
-  Future<void> createChatListToFirebaseStorage(
-      String userUid, String chatId) async {
+  Future<void> createChatingRoomToFirebaseStorage(bool products, String boardId,
+      String title, String userUid, String friendId) async {
     // userImageFile,
+    String _boardtype;
     try {
-      FirebaseFirestore.instance
-          .collection("user_chatlist")
-          .doc(userUid)
-          .update({
-        //"id": userUid,
-        chatId: true,
-      });
-    } catch (e) {
-      print(e.message);
-    }
-  }
+      if (products == true)
+        _boardtype = "장터게시판";
+      else {
+        FirebaseFirestore.instance
+            .collection("Board")
+            .doc(boardId)
+            .get()
+            .then((value) {
+          _boardtype = value.data().values.elementAt(0);
+        }); //게시판명 가져옴
+        var nowTime = DateTime.now().millisecondsSinceEpoch.toString();
 
-  Future<void> whereTest() async {
-    print("count");
-    // userImageFile,
-    try {
-      FirebaseFirestore.instance
-          .collection("chattingroom")
-          .where("read_count", isEqualTo: 0)
-          .get()
-          .then((QuerySnapshot ds) {
-        print("count!!!");
-
-        ds.docs.forEach((doc) => print(doc["count@@@"]));
-      });
-    } catch (e) {
-      print("count fail");
-
-      print(e.message);
-    }
-  }
-
-  Future<void> createChatingRoomToFirebaseStorage(
-      String userUid, String friendId, String chatId) async {
-    // userImageFile,
-    try {
-      FirebaseFirestore.instance.collection("chattingroom").doc(chatId).update({
-        "board": "자유게시판",
-        "read_count": 0,
-        "receive_user": userUid,
-        "send_user": friendId,
-        "recent_chattime": "오늘",
-        "recent_text": "안녕하세요.",
-        "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
-      });
-    } catch (e) {
-      print(e.message);
-    }
-  }
-
-  Future<void> createChatingRoomToFirebaseStorage2(
-      String userUid, String friendId) async {
-    // userImageFile,
-    try {
-      var nowTime = DateTime.now().millisecondsSinceEpoch.toString();
-      FirebaseFirestore.instance.collection("chattingroom").doc(nowTime)
-          //.doc(DateTime.now().millisecondsSinceEpoch.toString())
-          .set({
-        "board": "게시판 이름 정하세요",
-        "read_count": 0,
-        "receive_user": userUid,
-        "send_user": friendId,
-        "recent_chattime": "최근 채팅 시간",
-        "recent_text": "최근 텍스트 update ",
-        "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
-      });
-
-      FirebaseFirestore.instance
-          .collection("user_chatlist")
-          .doc(userUid)
-          .update({
-        //"id": userUid,
-        nowTime: true,
-      });
-      FirebaseFirestore.instance
-          .collection("user_chatlist")
-          .doc(friendId)
-          .update({
-        //"id": userUid,
-        nowTime: true,
-      });
-    } catch (e) {
-      print(e.message);
-    }
-  }
-
-  Future<void> saveArrayContain() async {
-    // userImageFile,
-    try {
-      FirebaseFirestore.instance
-          .collection("chattingroom")
-          .doc("UBpx0T9dbF22I2g5ZC2G")
-          .update({
-        //"id": userUid,
-        "cusers": [
-          "EeSxjIzFDGWuxmEItV7JheMDZ6C2",
-          "V92paJ9JAOfkT5Yn7euAKiZfpoS2"
-        ],
-      });
+        FirebaseFirestore.instance.collection("chattingroom").doc(nowTime).set({
+          "boardtype": "boardType", //boardtype, title 가져와야한다.
+          "title": "장터/게시판 글 제목", //title
+          "read_count": 0,
+          "cusers": [userUid, friendId],
+          "recent_chattime": "최근 채팅 시간",
+          "recent_text": "최근 텍스트 update ",
+          "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+        });
+      }
     } catch (e) {
       print(e.message);
     }

@@ -49,12 +49,12 @@ class _NotificationMainState extends State<NotificationMain> {
     //     .collection('user_chatlist')
     //     .doc(FirebaseApi.getId())
     //     .snapshots();
-    var test22 = 1;
     Stream userChatListStream1 = FirebaseFirestore.instance
         .collection('chattingroom')
 //        .where("read_count", isEqualTo: 2)
-        .where("cusers", arrayContains: "EeSxjIzFDGWuxmEItV7JheMDZ6C2")
-//        .orderBy('timestamp', descending: true)
+        .where("cusers", arrayContains: FirebaseApi.getId())
+        .orderBy('timestamp', descending: true)
+        //.limit(2)
         .snapshots();
 
     return StreamBuilder<QuerySnapshot>(
@@ -72,18 +72,82 @@ class _NotificationMainState extends State<NotificationMain> {
             return (1 > 0) //유저 수가 더 크면
                 ? ListView(
                     children: snapshot.data.docs.map((chatroomData) {
-                    //return ListTile();
-                    return Text("$test22 dd 포함된 채팅방 id : " +
-                        chatroomData.id +
-                        "     " +
-                        chatroomData["cusers"][0] +
-                        "     " +
-                        chatroomData["cusers"][1]);
-                  }).toList())
-                : Text("뭐씨");
-          }
+                    if (chatroomData.data() != null) {
+                      return ListTile(
+                        title: Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 3),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: <Widget>[
+                              Text(chatroomData['boardtype']),
+                              //Spacer(),
+                              SizedBox(width: 5, height: 10),
+                              // StreamBuilder(
+                              //   //product
+                              //   stream: FirebaseFirestore.instance
+                              //       .collection('products')
+                              //       .doc("WRITE_PRODUCT_ID")
+                              //       .snapshots(),
+                              //   builder: (BuildContext context,
+                              //       AsyncSnapshot productsnapshot) {
+                              //     return
+                              //Text(productsnapshot.data["title"]);
+                              //   },
+                              // ),
+                              Text(
+                                chatroomData['title'],
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12.0,
+                                  //  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                              SizedBox(width: 10, height: 10),
+                              Spacer(),
+                              GetTime(chatroomData),
+                            ],
+                          ),
+                        ),
+                        subtitle: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              '닉네임 : ',
+                            ),
+                            //SizedBox(width: 10, height: 10),
+                            Text('type : text : ' +
+                                chatroomData.data()["recent_text"].toString()),
+                            SizedBox(width: 10, height: 10),
+                            Spacer(),
+                            Text("1"),
+                          ],
+                        ),
+                        onTap: () {
+                          print("idtest");
 
-          return Container();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => InChattingRoomPage(
+                                        myUId: FirebaseApi.getId() ==
+                                                chatroomData["cusers"][0]
+                                            ? chatroomData["cusers"][0]
+                                            : chatroomData["cusers"][1],
+                                        friendId: FirebaseApi.getId() !=
+                                                chatroomData["cusers"][0]
+                                            ? chatroomData["cusers"][0]
+                                            : chatroomData["cusers"][1],
+                                        chattingRoomId: chatroomData.id,
+                                      )));
+                        },
+                      );
+                    } else {
+                      print("##반환없음");
+                      return Container();
+                    }
+                  }).toList())
+                : Text("null");
+          }
         });
     //   } else {
     //     return Container();
@@ -108,23 +172,15 @@ class _NotificationMainState extends State<NotificationMain> {
         IconButton(
             icon: Icon(Icons.chat_bubble),
             onPressed: () {
-              FirebaseChatController().saveArrayContain();
               //_onClickNotification;
-              print(Text('빌트스택 우측'));
-              //FirebaseChatController().whereTest();
-              //FirebaseChatController().createChatingRoomToFirebaseStorage2();
-
-              //FirebaseChatController().logoutUser(context);
-
-              // Firestore.instance
-              //     .collection('chattinglist')
-              //     .getDocuments()
-              //     .then((snapshot) {
-              //   for (DocumentSnapshot ds in snapshot.docs) {
-              //     ds.reference.delete();
-              //   }
-              // });
-
+              print(Text('우측 상단'));
+              FirebaseChatController().createChatingRoomToFirebaseStorage(
+                false,
+                "Board_Free",
+                "임시타이틀",
+                "userUId",
+                "friendId",
+              );
               //createRecord();
             }),
         Positioned(

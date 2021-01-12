@@ -38,6 +38,7 @@ class _NotificationMainState extends State<NotificationMain> {
     Stream userChatListStream = FirebaseFirestore.instance
         .collection('user_chatlist')
         .doc(FirebaseApi.getId())
+        // .doc('EeSxjIzFDGWuxmEItV7JheMDZ6C2')
         .snapshots();
 
     return StreamBuilder<DocumentSnapshot>(
@@ -53,11 +54,11 @@ class _NotificationMainState extends State<NotificationMain> {
               return ListView.builder(
                 itemCount: snapshot.data.data().length,
                 itemBuilder: (BuildContext ctx, int index) {
-                  var chatid = snapshot.data.data().keys.elementAt(index);
+                  String chatid = snapshot.data.data().keys.elementAt(index);
                   print("@@@ chatid =  ${chatid}");
                   Stream chattingRoomStream = FirebaseFirestore.instance
                       .collection('chattingroom')
-                      .doc(chatid)
+                      .doc(chatid.toString())
                       .snapshots();
                   return StreamBuilder<DocumentSnapshot>(
                     stream: chattingRoomStream,
@@ -66,6 +67,8 @@ class _NotificationMainState extends State<NotificationMain> {
                         case ConnectionState.waiting:
                           return Container();
                         default:
+                          print(
+                              "@@@@ id = ${chatroomsnapshot.data.id}, data =  ${chatroomsnapshot.data.data().toString()}");
                           DocumentSnapshot chatDocumentsnapshot =
                               chatroomsnapshot.data;
                           if (chatDocumentsnapshot.data() != null) {

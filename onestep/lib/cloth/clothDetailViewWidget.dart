@@ -69,6 +69,9 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
                 snapshot.data.contains(this.widget.product) == false
                     ? pd.insertProduct(this.widget.product)
                     : pd.deleteProduct(this.widget.product);
+                // showGeneralDialog(
+                //   transitionBuilder : (context, ) AlertDialog();
+                // );
               },
               child: Icon(
                 snapshot.data.contains(this.widget.product) == false
@@ -89,6 +92,20 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
         .get();
   }
 
+  void incProductViews(int views) {
+    // 조회수 증가
+    try {
+      FirebaseFirestore.instance
+          .collection("products")
+          .doc(widget.product.firestoreid)
+          .update(
+        {
+          'views': views,
+        },
+      );
+    } catch (e) {}
+  }
+
   Widget renderBody() {
     return FutureBuilder(
       future: getProduct(),
@@ -98,147 +115,158 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
           case ConnectionState.waiting:
             return new Text("");
           default:
-            try {
-              FirebaseFirestore.instance
-                  .collection("products")
-                  .doc(widget.product.firestoreid)
-                  .update(
-                {
-                  'views': snapshot.data.data()['views'] + 1,
-                },
-              );
-            } catch (e) {}
-            return SingleChildScrollView(
-              child: Container(
-                child: Column(
-                  // mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      color: Color(0xFFDF0F4),
-                      height: 430,
-                      child: Swiper(
-                        onTap: (index) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ImageFullViewerWidget(
-                                  galleryItems: _imageItem,
-                                  index: index,
+            incProductViews(snapshot.data.data()['views'] + 1);
+            return LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: constraints.copyWith(
+                      minHeight: constraints.maxHeight,
+                      maxHeight: double.infinity,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        // mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Container(
+                            color: Color(0xFFDF0F4),
+                            height: 430,
+                            child: Swiper(
+                              onTap: (index) {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ImageFullViewerWidget(
+                                        galleryItems: _imageItem,
+                                        index: index,
+                                      ),
+                                    ));
+                              },
+                              pagination: SwiperPagination(
+                                alignment: Alignment.bottomCenter,
+                                builder: DotSwiperPaginationBuilder(
+                                  activeColor: Colors.pink,
+                                  color: Colors.grey,
                                 ),
-                              ));
-                        },
-                        pagination: SwiperPagination(
-                          alignment: Alignment.bottomCenter,
-                          builder: DotSwiperPaginationBuilder(
-                            activeColor: Colors.pink,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        itemCount: _imageItem.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Image.network(
-                            _imageItem[index],
-                            fit: BoxFit.cover,
-                          );
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Text(
-                        "${snapshot.data.data()['price']}원",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF333333),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Text(
-                        "${snapshot.data.data()['title']}",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF333333),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.local_offer,
-                            color: Colors.grey,
-                            size: 17,
+                              ),
+                              itemCount: _imageItem.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return Image.network(
+                                  _imageItem[index],
+                                  fit: BoxFit.cover,
+                                );
+                              },
+                            ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(right: 2.0),
+                            padding: const EdgeInsets.all(5.0),
+                            child: Text(
+                              "${snapshot.data.data()['price']}원",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF333333),
+                              ),
+                            ),
                           ),
-                          Text("${snapshot.data.data()['category']}"),
+                          Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Text(
+                              "${snapshot.data.data()['title']}",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF333333),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.local_offer,
+                                  color: Colors.grey,
+                                  size: 17,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 2.0),
+                                ),
+                                Text("${snapshot.data.data()['category']}"),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.access_time,
+                                  color: Colors.grey,
+                                  size: 15,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 2.0),
+                                ),
+                                Text(
+                                    "${getDiffTime(snapshot.data.data()['uploadtime'])}"),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                ),
+                                Icon(
+                                  Icons.remove_red_eye,
+                                  color: Colors.grey,
+                                  size: 15,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 2.0),
+                                ),
+                                Text("${snapshot.data.data()['views']}"),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                ),
+                                Icon(
+                                  Icons.favorite,
+                                  color: Colors.grey,
+                                  size: 15,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 2.0),
+                                ),
+                                Text("22"),
+                              ],
+                            ),
+                          ),
+                          Divider(),
+                          Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Text("${snapshot.data.data()['explain']}"),
+                          ),
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.access_time,
-                            color: Colors.grey,
-                            size: 15,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 2.0),
-                          ),
-                          Text(
-                              "${getDiffTime(snapshot.data.data()['uploadtime'])}"),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                          ),
-                          Icon(
-                            Icons.remove_red_eye,
-                            color: Colors.grey,
-                            size: 15,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 2.0),
-                          ),
-                          Text("${snapshot.data.data()['views']}"),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                          ),
-                          Icon(
-                            Icons.favorite,
-                            color: Colors.grey,
-                            size: 15,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 2.0),
-                          ),
-                          Text("22"),
-                        ],
-                      ),
-                    ),
-                    Divider(),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Text("${snapshot.data.data()['explain']}"),
-                    ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             );
         }
       },
     );
+  }
+
+  void handleClick(String value) {
+    switch (value) {
+      case '새로고침':
+        break;
+      case '신고하기':
+        break;
+    }
   }
 
   @override
@@ -254,22 +282,81 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
         ),
         backgroundColor: Colors.white,
         actions: <Widget>[
-          setFavorite(),
           new IconButton(
             icon: new Icon(Icons.share),
             onPressed: () => {
               print("share"),
             },
           ),
-          new IconButton(
-            icon: new Icon(Icons.chat),
-            onPressed: () => {
-              print("chat"),
+          PopupMenuButton<String>(
+            onSelected: handleClick,
+            itemBuilder: (BuildContext context) {
+              return {'새로고침', '신고하기'}.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
             },
-          )
+          ),
         ],
       ),
       body: renderBody(),
+      bottomNavigationBar: SizedBox(
+        height: 70,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(
+                color: Colors.black87,
+                width: 0.1,
+              ),
+            ),
+          ),
+          child: Row(
+            children: <Widget>[
+              SizedBox(
+                width: 60,
+                height: 60,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      right: BorderSide(
+                        color: Colors.black87,
+                        width: 0.1,
+                      ),
+                    ),
+                  ),
+                  child: setFavorite(),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(right: 10.0),
+              ),
+              SizedBox(
+                width: 100,
+                child: Text(
+                  "${widget.product.price}원",
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Expanded(child: Container()),
+              Padding(
+                padding: EdgeInsets.only(right: 10.0),
+                child: SizedBox(
+                  width: 150,
+                  child: RaisedButton(
+                    onPressed: () {},
+                    color: Colors.pink,
+                    textColor: Colors.white,
+                    child: Text('채팅'),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

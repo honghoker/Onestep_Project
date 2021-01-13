@@ -51,7 +51,8 @@ class BoardData {
       this.scribeCount,
       this.watchCount,
       this.documentId,
-      this.commentCount});
+      this.commentCount,
+      this.imgUriList});
   Future toFireStore(BuildContext context) async {
     imgUriList = await convertImage(imageList).whenComplete(() => true);
     await FirebaseFirestore.instance
@@ -98,7 +99,7 @@ class FreeBoardList extends BoardData {
       String documentId,
       String textContent,
       int commentCount,
-      List imageURI})
+      List imgUriList})
       : super(
             title: title,
             contentCategory: contentCategory,
@@ -108,7 +109,8 @@ class FreeBoardList extends BoardData {
             favoriteCount: favoriteCount,
             textContent: textContent,
             watchCount: watchCount,
-            commentCount: commentCount);
+            commentCount: commentCount,
+            imgUriList: imgUriList);
 
   factory FreeBoardList.fromFireStore(DocumentSnapshot snapshot) {
     Map _boardData = snapshot.data();

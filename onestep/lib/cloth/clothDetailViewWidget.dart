@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
+import 'package:onestep/notification/Controllers/firebaseChatController.dart';
+import 'package:onestep/api/firebase_api.dart';
 
 class ClothDetailViewWidget extends StatefulWidget {
   final Product product;
@@ -346,7 +348,12 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
                 child: SizedBox(
                   width: 150,
                   child: RaisedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      FirebaseChatController()
+                          .createChatingRoomToFirebaseStorage(true, "상품ID",
+                              "상품제목", FirebaseApi.getId(), "상품게시자 ID");
+                      print("ddd");
+                    },
                     color: Colors.pink,
                     textColor: Colors.white,
                     child: Text('채팅'),

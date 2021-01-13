@@ -31,7 +31,8 @@ class InChattingRoomPage extends StatelessWidget {
               backgroundColor: Colors.black,
               //backgroundImage: CachedNetworkImageProvider(),
             ),
-          )
+          ),
+          _deleteChattingRoom(context),
         ],
         title: Text(
           ' $myUId/$chattingRoomId',
@@ -43,6 +44,39 @@ class InChattingRoomPage extends StatelessWidget {
         friendId: friendId,
         chattingRoomId: chattingRoomId,
       ),
+    );
+  }
+
+  Widget _deleteChattingRoom(var context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: <Widget>[
+        IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              try {
+                FirebaseFirestore.instance
+                    .collection("chattingroom")
+                    .doc(chattingRoomId)
+                    .collection('message')
+                    .get()
+                    .then((snapshot) {
+                  for (DocumentSnapshot ds in snapshot.docs) {
+                    ds.reference.delete();
+                  }
+                });
+                FirebaseFirestore.instance
+                    .collection("chattingroom")
+                    .doc(chattingRoomId)
+                    .delete();
+
+                Navigator.of(context).pop();
+                print("삭제 되었습니다." + chattingRoomId);
+              } catch (e) {
+                print(e.message);
+              }
+            }),
+      ],
     );
   }
 }

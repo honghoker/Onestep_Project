@@ -5,6 +5,7 @@ part 'moor_database.g.dart';
 class Products extends Table {
   TextColumn get title => text()();
   TextColumn get firestoreid => text()();
+  TextColumn get uid => text()();
   TextColumn get category => text()();
   TextColumn get price => text()();
   TextColumn get explain => text().nullable()();

@@ -136,6 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     //Signin Sucess
     if (firebaseUser != null) {
+      print("### s SS");
       final QuerySnapshot resultQuery = await FirebaseFirestore.instance
           .collection("users")
           .where("id", isEqualTo: firebaseUser.uid)

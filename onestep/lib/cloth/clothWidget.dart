@@ -1,14 +1,8 @@
-import 'dart:convert';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/cloth/clothAddWidget.dart';
 import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:onestep/favorite/favoriteWidget.dart';
-import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unicorndial/unicorndial.dart';
 
 import 'clothitem.dart';

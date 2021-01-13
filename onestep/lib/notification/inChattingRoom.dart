@@ -1,21 +1,22 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:onestep/notification/time/chat_time.dart';
 import 'package:onestep/notification/widget/FullmageWidget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class InChattingRoomPage extends StatelessWidget {
+  final String myUId;
   final String chattingRoomId;
+  final String friendId;
 
-  InChattingRoomPage({@required this.chattingRoomId});
+  InChattingRoomPage(
+      {@required this.myUId,
+      @required this.friendId,
+      @required this.chattingRoomId});
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +32,14 @@ class InChattingRoomPage extends StatelessWidget {
             ),
           )
         ],
-        title: Text('CHatid $chattingRoomId'),
+        title: Text(
+          ' $myUId/$chattingRoomId',
+          style: TextStyle(fontSize: 8),
+        ),
       ),
       body: ChatScreen(
+        myUId: myUId,
+        friendId: friendId,
         chattingRoomId: chattingRoomId,
       ),
     );
@@ -41,38 +47,32 @@ class InChattingRoomPage extends StatelessWidget {
 }
 
 class ChatScreen extends StatefulWidget {
+  final String myUId;
+  final String friendId;
   final String chattingRoomId;
 
-  ChatScreen({Key key, @required this.chattingRoomId}) : super(key: key);
+  ChatScreen(
+      {Key key,
+      @required this.myUId,
+      @required this.friendId,
+      @required this.chattingRoomId})
+      : super(key: key);
 
   @override
-  _LastChatState createState() =>
-      _LastChatState(chattingRoomId: chattingRoomId);
+  _LastChatState createState() => _LastChatState(
+      myId: myUId, friendId: friendId, chattingRoomId: chattingRoomId);
 }
 
 class _LastChatState extends State<ChatScreen> {
-  final String myId = "파베오아스";
-  final String friendId = "쿼리로 가져옴";
+  final String myId; // uid 받음
+  final String friendId;
   final String chattingRoomId;
 
-  Future<Null> controlSignIn2() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-
-    GoogleSignInAccount googleUser = await googleSignIn.signIn();
-    GoogleSignInAuthentication googleSignInAuthentication =
-        await googleUser.authentication;
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
-        idToken: googleSignInAuthentication.idToken,
-        accessToken: googleSignInAuthentication.accessToken);
-
-    final User firebaseUser =
-        (await firebaseAuth.signInWithCredential(credential)).user;
-    print("uid@@");
-    print("uid@@" + firebaseUser.uid);
-  }
-
-  _LastChatState({Key key, @required this.chattingRoomId});
+  _LastChatState(
+      {Key key,
+      @required this.myId,
+      @required this.friendId,
+      @required this.chattingRoomId});
 
   final TextEditingController textEditingController = TextEditingController();
   final ScrollController listScrollController = ScrollController();
@@ -85,9 +85,11 @@ class _LastChatState extends State<ChatScreen> {
   String imageUrl;
 
   //메시지 보내기
-  String chatId;
-  SharedPreferences preferences;
-  String id;
+  String chatId; //내아이디 #미사용
+  String senderId; //보내는 내 아이디
+  String receiveId; //받는 상대 아이디
+  //SharedPreferences preferences;
+  //String id; //내아이디
   var listMessage;
 
   @override
@@ -103,19 +105,18 @@ class _LastChatState extends State<ChatScreen> {
     isLoading = false;
 
     chatId = "";
-    readLocal();
+//    readLocal(); Local DB
   }
 
-  readLocal() async {
-    preferences = await SharedPreferences.getInstance();
-    id = preferences.getString("id").toString() ?? ""; //일단 가져온 아이디값으로 사용함
-    //if(id.hashCode <= )
-    print("읽은 로그인 아이디 : " + id + ' 내 아이디 ' + myId + "상대 아이디" + friendId);
-  }
+  // readLocal() async {
+  //   preferences = await SharedPreferences.getInstance();
+  //   id = preferences.getString("id").toString() ?? ""; //일단 가져온 아이디값으로 사용함
+  //   //if(id.hashCode <= )
+  //   print("읽은 로그인 아이디 : " + id + ' 내 아이디 ' + myId + "상대 아이디" + friendId);
+  // }
 
   onFocusChange() {
-    print("^^^포커스체인지" + id.toString());
-    //print("^^^포커스체인지" + preferences.getString('id').toString());
+    //print("^^^포커스체인지" + id.toString());
     if (focusNode.hasFocus) {
       //hide stickers whenever keypad appears
       setState(() {
@@ -127,24 +128,14 @@ class _LastChatState extends State<ChatScreen> {
   @override
   build(BuildContext context) {
     return WillPopScope(
-      //back 처리 막음
       child: Stack(
         children: <Widget>[
-          // Scaffold(
-          //     appBar: AppBar(
-          //       title:
-          //           Text('lcState' + ' 로그인 $loginId / 본인 $myId / 상대 $friendId'),
-          //       actions: <Widget>[],
-          //     ),
-          //     body: _chattingbuildList(),
-          //     backgroundColor: Colors.red),
           Column(
             children: <Widget>[
               //create List of Message
               //_chattingbuildList(),
               createListMessages(),
               (isDisplaySticker ? createStickers() : Container()),
-
               //Input Controllers
               createInput(),
             ],
@@ -169,7 +160,7 @@ class _LastChatState extends State<ChatScreen> {
       });
     } else {
       Navigator.pop(context);
-      print('뒤로감');
+      //print('뒤로감');
     }
     return Future.value(false);
   }
@@ -201,10 +192,7 @@ class _LastChatState extends State<ChatScreen> {
                 ),
               ),
               FlatButton(
-                onPressed: () {
-                  onSendMessage("mimi3", 2);
-                  print('3번 클릭 ' + ' ' + friendId);
-                },
+                onPressed: () => onSendMessage("mimi3", 2),
                 child: Image.asset(
                   "images/mimi3.gif",
                   width: 50.0,
@@ -265,13 +253,13 @@ class _LastChatState extends State<ChatScreen> {
                     );
                   } //if 종료
                   else {
-                    //데이터 있으면 출력 @@@입력해도 생김
-
                     listMessage = snapshot.data.documents;
                     return ListView.builder(
                       padding: EdgeInsets.all(10.0),
-                      itemBuilder: (context, index) =>
-                          createItem(index, snapshot.data.documents[index]),
+                      itemBuilder: (context, index) {
+                        return createItem(
+                            index, snapshot.data.documents[index]);
+                      },
                       itemCount: snapshot.data.documents.length,
                       reverse: true,
                       controller: listScrollController,
@@ -285,7 +273,7 @@ class _LastChatState extends State<ChatScreen> {
     //얘는 falst 반환
     if ((index > 0 &&
             listMessage != null &&
-            listMessage[index - 1]["idFrom"] == id) ||
+            listMessage[index - 1]["idFrom"] == receiveId) ||
         index == 0) {
       return true;
     } else {
@@ -297,7 +285,7 @@ class _LastChatState extends State<ChatScreen> {
     //얘는 트루 반환함
     if ((index > 0 &&
             listMessage != null &&
-            listMessage[index - 1]["idFrom"] != friendId) ||
+            listMessage[index - 1]["idFrom"] != receiveId) ||
         index == 0) {
       return true;
     } else {
@@ -305,14 +293,23 @@ class _LastChatState extends State<ChatScreen> {
     }
   }
 
+  int test = 2;
   Widget createItem(int index, DocumentSnapshot document) {
     //My messages - Right Side
 
-    if (document["idFrom"] == id) {
-      print("^^^idFrom : " + id);
+    if (document["idFrom"] != "ddf") {
+      Text("날짜 출력 @");
+    }
+
+    if (document["idFrom"] == myId) {
+      senderId = myId;
+      receiveId = friendId;
       //내가 보냈을 경우
       return Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>[
+          GetTime(document),
+          SizedBox(width: 5, height: 10),
           document["type"] == 0
               //Text Msg
               ? Container(
@@ -329,7 +326,10 @@ class _LastChatState extends State<ChatScreen> {
                       color: Colors.lightBlueAccent,
                       borderRadius: BorderRadius.circular(8.0)),
                   margin: EdgeInsets.only(
-                      bottom: isLastMsgRight(index) ? 20.0 : 10.0, right: 10.0),
+                      //textmargin
+                      top: 10,
+                      bottom: isLastMsgRight(index) ? 0.0 : 10.0,
+                      right: 10.0),
                 )
 
               //Image Msg
@@ -382,8 +382,10 @@ class _LastChatState extends State<ChatScreen> {
                         },
                       ),
                       margin: EdgeInsets.only(
-                          bottom: isLastMsgRight(index) ? 20.0 : 10.0,
-                          right: 10.0),
+                          //image margin
+                          top: 10,
+                          bottom: isLastMsgRight(index) ? 0.0 : 10.0,
+                          right: 0.0),
                     )
 
                   //Sticker . gif Msg
@@ -398,7 +400,7 @@ class _LastChatState extends State<ChatScreen> {
                           bottom: isLastMsgRight(index) ? 20.0 : 10.0,
                           right: 10.0),
                     ),
-          GetTime(document), //채팅 우측 시간출력
+          // GetTime(document), //채팅 우측 시간출력
         ],
         mainAxisAlignment: MainAxisAlignment.end,
       );
@@ -585,10 +587,13 @@ class _LastChatState extends State<ChatScreen> {
                 horizontal: 8.0,
               ),
               child: IconButton(
-                icon: Icon(Icons.send),
-                color: Colors.lightBlueAccent,
-                onPressed: () => onSendMessage(textEditingController.text, 0),
-              ),
+                  icon: Icon(Icons.send),
+                  color: Colors.lightBlueAccent,
+                  onPressed: () {
+                    print("^^^$chatId / myid $myId / fid $friendId");
+
+                    onSendMessage(textEditingController.text, 0);
+                  }),
               color: Colors.white,
             ),
           ),

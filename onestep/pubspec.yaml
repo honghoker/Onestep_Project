@@ -55,6 +55,10 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  #HEP moor
+  build_runner: ^1.10.12
+  moor_generator: ^3.4.0
+
   #Pcs dependencies
   pull_to_refresh: ^1.6.1
   swipedetector: ^1.2.0
@@ -67,7 +71,6 @@ dev_dependencies:
   line_icons: ^0.2.0
   badges: ^1.1.3
   like_button: ^1.0.3
-
   page_indicator: ^0.3.0
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FirebaseApi {
-  static Future<String> getId() async {
-    SharedPreferences pre = await SharedPreferences.getInstance();
-    return pre.getString('id');
+  static String getId() {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    return _auth.currentUser.uid;
   }
 
   static Future<QuerySnapshot> getProducts(
+    // 장터 상품 불러오기
     int limit,
     String category, {
     DocumentSnapshot startAfter,

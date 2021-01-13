@@ -33,9 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  final GoogleSignIn googleSignIn = GoogleSignIn();
-
   Future<Null> logoutUser() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+
     print('##로그아웃 버튼 누름');
     await FirebaseAuth.instance.signOut();
     await googleSignIn.disconnect();

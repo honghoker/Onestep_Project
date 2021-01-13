@@ -178,7 +178,7 @@ class _NotificationMainState extends State<NotificationMain> {
                 false,
                 "Board_Free",
                 "임시타이틀",
-                "userUId",
+                FirebaseApi.getId(),
                 "friendId",
               );
               //createRecord();

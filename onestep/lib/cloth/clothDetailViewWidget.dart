@@ -350,9 +350,14 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
                   child: RaisedButton(
                     onPressed: () {
                       FirebaseChatController()
-                          .createChatingRoomToFirebaseStorage(true, "상품ID",
-                              "상품제목", FirebaseApi.getId(), "상품게시자 ID");
-                      print("ddd");
+                          .createChatingRoomToFirebaseStorage(
+                        true,
+                        "장터게시판",
+                        "장터 테스트",
+                        FirebaseApi.getId(),
+                        "friendId",
+                      );
+                      print(FirebaseApi.getId());
                     },
                     color: Colors.pink,
                     textColor: Colors.white,

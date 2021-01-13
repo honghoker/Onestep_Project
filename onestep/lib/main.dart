@@ -11,10 +11,13 @@ import 'cloth/models/category.dart';
 import 'cloth/providers/productProvider.dart';
 
 import 'login/LoginPage.dart';
+import 'BoardLib/BoardProvi/boardClass.dart';
+import 'BoardLib/BoardProvi/boardProvider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  BoardProvider _boardDB = BoardProvider();
   runApp(
     MultiProvider(
       providers: [
@@ -22,6 +25,12 @@ void main() async {
         Provider<AppDatabase>.value(value: AppDatabase()),
         ChangeNotifierProvider<ProuductProvider>.value(
             value: new ProuductProvider()),
+        StreamProvider<List<FreeBoardList>>.value(
+            value: _boardDB.getFreeBoard(),
+            catchError: (context, error) {
+              print(error);
+              return null;
+            })
       ],
       child: MyApp(),
     ),

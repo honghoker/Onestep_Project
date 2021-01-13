@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'boardList.dart';
-import 'boardListView.dart';
+import 'BoardList/boardList.dart';
+import 'BoardList/boardListView.dart';
 import 'boardContent.dart';
 import 'boardPersonal.dart';
 
@@ -19,15 +19,16 @@ class _Temp extends State<TempPageView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: ListView.builder(
+        // child: ListView.builder(
 
-            //PageStorageKey is Keepping ListView scroll position when switching pageview
-            key: PageStorageKey<String>("value"),
-            //Bottom Padding
-            padding:
-                const EdgeInsets.only(bottom: kFloatingActionButtonMargin + 60),
-            itemCount: tempData.length,
-            itemBuilder: (context, index) => _buildListCard(context, index)));
+        //     //PageStorageKey is Keepping ListView scroll position when switching pageview
+        //     key: PageStorageKey<String>("value"),
+        //     //Bottom Padding
+        //     padding:
+        //         const EdgeInsets.only(bottom: kFloatingActionButtonMargin + 60),
+        //     itemCount: tempData.length,
+        //     itemBuilder: (context, index) => _buildListCard(context, index))
+        );
   }
 }
 
@@ -62,8 +63,7 @@ Widget _buildListCard(BuildContext context, int index) {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     //Title Container
-                    titleContainerMethod(index),
-                    _commentCountMethod(index)
+                    // titleContainerMethod(index),
                   ],
                 )),
                 Container(
@@ -118,61 +118,4 @@ Widget _buildListCard(BuildContext context, int index) {
               ],
             ),
           )));
-}
-
-Widget titleContainerMethod(int index) {
-  return Container(
-      margin: const EdgeInsets.only(left: 5),
-      width: 300,
-      child: Text(
-        tempData[index].title,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-            color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold),
-      ));
-}
-
-Widget _commentCountMethod(int index) {
-  int _commentCount = tempData[index].commentCount;
-  Widget _commentCountText;
-  BoxDecoration _commentBoxDecoration;
-  //Under 30
-  if (tempData[index].commentCount < 30) {
-    _commentBoxDecoration =
-        new BoxDecoration(shape: BoxShape.circle, color: Colors.yellow);
-    _commentCountText = new Text('$_commentCount',
-        maxLines: 1,
-        style: TextStyle(
-            color: Colors.black, fontSize: 13, fontWeight: FontWeight.bold));
-    //Up 30 Under 50
-  } else if (_commentCount >= 30 && _commentCount < 50) {
-    _commentBoxDecoration =
-        new BoxDecoration(shape: BoxShape.circle, color: Colors.orange);
-    _commentCountText = new Text('$_commentCount',
-        maxLines: 1,
-        style: TextStyle(
-            color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold));
-    //Over 50
-  } else {
-    _commentBoxDecoration =
-        new BoxDecoration(shape: BoxShape.circle, color: Colors.red);
-    if (_commentCount <= 100) {
-      _commentCountText = new Text('$_commentCount',
-          maxLines: 1,
-          style: TextStyle(
-              color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold));
-    } else {
-      _commentCountText = new Text('100+',
-          maxLines: 1,
-          style: TextStyle(
-              color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold));
-    }
-  }
-
-  return Container(
-      //CommentCount Container
-      height: 30,
-      width: 30,
-      decoration: _commentBoxDecoration,
-      child: Center(child: _commentCountText));
 }

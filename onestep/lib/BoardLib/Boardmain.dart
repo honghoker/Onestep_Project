@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:onestep/BoardLib/secondPageView.dart';
-import 'package:onestep/BoardLib/boardListView.dart';
+import 'package:onestep/BoardLib/BoardList/boardListView.dart';
 import 'package:path/path.dart' as p;
 
 // const String page1 = 'Page 1';
@@ -12,22 +12,13 @@ import 'package:path/path.dart' as p;
 // const int BOARDPERSONALIMPOIndex = 2;
 // const int LISTBOARDIndex = 0;
 
-class tempTitleData {
-  var title;
-  var subtitle;
-  int commentCount;
-  int favoriteCount;
-  var date;
-  tempTitleData(this.title, this.subtitle, this.commentCount,
-      this.favoriteCount, this.date);
-}
-
 class BoardMain extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<BoardMain> {
+  String currentBoard = "자유게시판";
   bool _hideFAB = false;
   double bottomBarHeight = 75;
 
@@ -75,7 +66,8 @@ class _MyHomePageState extends State<BoardMain> {
                 : FloatingActionButton(
                     backgroundColor: Colors.black,
                     onPressed: () {
-                      Navigator.of(context).pushNamed('/CreateBoard');
+                      Navigator.of(context)
+                          .pushNamed('/CreateBoard?CURRENTBOARD=$currentBoard');
                     },
                     child: Icon(Icons.add)),
           );
@@ -93,10 +85,10 @@ class _MyHomePageState extends State<BoardMain> {
   _boardPageTabBarView() {
     return TabBarView(
       children: <Widget>[
-        FirstPageView(
+        FreeBoard(
           callback: listViewFABCallback,
         ),
-        FirstPageView(
+        FreeBoard(
           callback: listViewFABCallback,
         ),
         Practice(),

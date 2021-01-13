@@ -46,7 +46,9 @@ class RouteGenerator {
         );
         break;
       case 'CreateBoard':
-        _pageWidget = CreateBoard();
+        _pageWidget = CreateBoard(
+          currentBoard: arguments['CURRENTBOARD'],
+        );
         break;
     }
     return _isIOS

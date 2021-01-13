@@ -265,7 +265,8 @@ class _LastChatState extends State<ChatScreen> {
                               snapshot.data.documents[index],
                               snapshot.data.documents[index + 1],
                               snapshot.data.documents.length);
-                        else if (index == 0) //첫 문자
+                        else if (index == 0 &&
+                            index != snapshot.data.documents.length - 1) //첫 문자
                           return createItem(
                               index,
                               snapshot.data.documents[index],

@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:onestep/notification/time/chat_time.dart';
 import 'package:onestep/notification/widget/FullmageWidget.dart';
+import 'package:intl/intl.dart';
 
 class InChattingRoomPage extends StatelessWidget {
   final String myUId;
@@ -257,8 +258,26 @@ class _LastChatState extends State<ChatScreen> {
                     return ListView.builder(
                       padding: EdgeInsets.all(10.0),
                       itemBuilder: (context, index) {
-                        return createItem(
-                            index, snapshot.data.documents[index]);
+                        if (index > 0 &&
+                            index < snapshot.data.documents.length - 1) //중간 문자
+                          return createItem(
+                              index,
+                              snapshot.data.documents[index],
+                              snapshot.data.documents[index + 1],
+                              snapshot.data.documents.length);
+                        else if (index == 0) //첫 문자
+                          return createItem(
+                              index,
+                              snapshot.data.documents[index],
+                              snapshot.data.documents[index + 1],
+                              snapshot.data.documents.length);
+                        else if (index ==
+                            snapshot.data.documents.length - 1) //가장 마지막 문자
+                          return createItem(
+                              index,
+                              snapshot.data.documents[index],
+                              snapshot.data.documents[index],
+                              snapshot.data.documents.length);
                       },
                       itemCount: snapshot.data.documents.length,
                       reverse: true,
@@ -293,116 +312,128 @@ class _LastChatState extends State<ChatScreen> {
     }
   }
 
-  int test = 2;
-  Widget createItem(int index, DocumentSnapshot document) {
+  Widget createItem(int index, DocumentSnapshot document,
+      DocumentSnapshot datedocument, int size) {
     //My messages - Right Side
-
-    if (document["idFrom"] != "ddf") {
-      Text("날짜 출력 @");
-    }
-
+    var chatTime = DateFormat("yyyy-MM-dd").format(
+        DateTime.fromMillisecondsSinceEpoch(int.parse(document["timestamp"])));
+    var nextchatTime = DateFormat("yyyy-MM-dd").format(
+        DateTime.fromMillisecondsSinceEpoch(
+            int.parse(datedocument["timestamp"])));
     if (document["idFrom"] == myId) {
       senderId = myId;
       receiveId = friendId;
       //내가 보냈을 경우
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+      return Column(
+        //요기
         children: <Widget>[
-          GetTime(document),
-          SizedBox(width: 5, height: 10),
-          document["type"] == 0
-              //Text Msg
-              ? Container(
-                  child: Text(
-                    document["content"],
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-                  width: 150.0,
-                  decoration: BoxDecoration(
-                      color: Colors.lightBlueAccent,
-                      borderRadius: BorderRadius.circular(8.0)),
-                  margin: EdgeInsets.only(
-                      //textmargin
-                      top: 10,
-                      bottom: isLastMsgRight(index) ? 0.0 : 10.0,
-                      right: 10.0),
-                )
-
-              //Image Msg
-              : document["type"] == 1
+          // Text("index = $index / " +
+          //     document.data().length.toString() +
+          //     " size : " +
+          //     size.toString()),
+          if (index == size - 1) Text(chatTime),
+          if (chatTime != nextchatTime) Text(chatTime),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              GetTime(document),
+              SizedBox(width: 5, height: 10),
+              document["type"] == 0
+                  //Text Msg
                   ? Container(
-                      child: FlatButton(
-                        child: Material(
-                          child: CachedNetworkImage(
-                            placeholder: (context, url) => Container(
-                              child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                    (Colors.lightBlueAccent)),
-                              ),
-                              width: 200.0,
-                              height: 200.0,
-                              padding: EdgeInsets.all(70.0),
-                              decoration: BoxDecoration(
-                                color: Colors.grey,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(8.0)),
-                              ),
-                            ),
-                            errorWidget: (context, url, error) => Material(
-                              child: Image.asset("images/mimi1.gif",
+                      child: Text(
+                        document["content"],
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+                      width: 150.0,
+                      decoration: BoxDecoration(
+                          color: Colors.lightBlueAccent,
+                          borderRadius: BorderRadius.circular(8.0)),
+                      margin: EdgeInsets.only(
+                          //textmargin
+                          top: 10,
+                          bottom: isLastMsgRight(index) ? 0.0 : 10.0,
+                          right: 10.0),
+                    )
+
+                  //Image Msg
+                  : document["type"] == 1
+                      ? Container(
+                          child: FlatButton(
+                            child: Material(
+                              child: CachedNetworkImage(
+                                placeholder: (context, url) => Container(
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        (Colors.lightBlueAccent)),
+                                  ),
                                   width: 200.0,
                                   height: 200.0,
-                                  fit: BoxFit.cover),
+                                  padding: EdgeInsets.all(70.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8.0)),
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => Material(
+                                  child: Image.asset("images/mimi1.gif",
+                                      width: 200.0,
+                                      height: 200.0,
+                                      fit: BoxFit.cover),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0)),
+                                  clipBehavior: Clip.hardEdge,
+                                ),
+                                imageUrl: document["content"],
+                                width: 200.0,
+                                height: 200.0,
+                                fit: BoxFit.cover,
+                              ),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(8.0)),
                               clipBehavior: Clip.hardEdge,
                             ),
-                            imageUrl: document["content"],
-                            width: 200.0,
-                            height: 200.0,
+                            onPressed: () {
+                              print("pic click " +
+                                  document["content"] +
+                                  'index : ' +
+                                  index.toString());
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          FullPhoto(url: document["content"])));
+                            },
+                          ),
+                          margin: EdgeInsets.only(
+                              //image margin
+                              top: 10,
+                              bottom: isLastMsgRight(index) ? 0.0 : 10.0,
+                              right: 0.0),
+                        )
+
+                      //Sticker . gif Msg
+                      : Container(
+                          child: Image.asset(
+                            "images/${document['content']}.gif",
+                            width: 100.0,
+                            height: 100.0,
                             fit: BoxFit.cover,
                           ),
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          clipBehavior: Clip.hardEdge,
+                          margin: EdgeInsets.only(
+                              bottom: isLastMsgRight(index) ? 20.0 : 10.0,
+                              right: 10.0),
                         ),
-                        onPressed: () {
-                          print("pic click " +
-                              document["content"] +
-                              'index : ' +
-                              index.toString());
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      FullPhoto(url: document["content"])));
-                        },
-                      ),
-                      margin: EdgeInsets.only(
-                          //image margin
-                          top: 10,
-                          bottom: isLastMsgRight(index) ? 0.0 : 10.0,
-                          right: 0.0),
-                    )
-
-                  //Sticker . gif Msg
-                  : Container(
-                      child: Image.asset(
-                        "images/${document['content']}.gif",
-                        width: 100.0,
-                        height: 100.0,
-                        fit: BoxFit.cover,
-                      ),
-                      margin: EdgeInsets.only(
-                          bottom: isLastMsgRight(index) ? 20.0 : 10.0,
-                          right: 10.0),
-                    ),
-          // GetTime(document), //채팅 우측 시간출력
+              // GetTime(document), //채팅 우측 시간출력
+            ],
+            mainAxisAlignment: MainAxisAlignment.end,
+          )
         ],
-        mainAxisAlignment: MainAxisAlignment.end,
       );
     } //if My messages - Right Side
 

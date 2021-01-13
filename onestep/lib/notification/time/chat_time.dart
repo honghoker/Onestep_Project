@@ -51,13 +51,15 @@ String _getChatListTime(DocumentSnapshot document) {
     print(nowtimelist[0] + gettimelist[0]);
     //오늘날짜일 경우 시간 보여준다.
     meridiem = _getMeridiem((gettimelist[2]));
-    time = gettimelist[3];
+    time = gettimelist[3]; //오전 오후 12시 기준
     //dayoftheweek = _getDayOfTheWeek((gettimelist[1]));
 
     return meridiem + " " + time;
   } else {
     //오늘 날짜 아닐 경우
-    var nowtime = dayoftheweek = _getDayOfTheWeek((gettimelist[1]));
+    var nowtime = DateFormat("yyyy-MM-dd-").format(
+        DateTime.fromMillisecondsSinceEpoch(int.parse(document["timestamp"])));
+    dayoftheweek = _getDayOfTheWeek((gettimelist[1]));
     return nowtime + dayoftheweek;
   }
 }
@@ -67,28 +69,28 @@ String _getMeridiem(String meridiem) {
 }
 
 String _getDayOfTheWeek(String dayoftheweek) {
-  String dayoftheweek;
+  //String dayoftheweek;
   switch (dayoftheweek) {
     case 'Monday':
-      dayoftheweek = "월요일";
+      dayoftheweek = "월";
       break;
     case 'Tuesday':
-      dayoftheweek = "화요일";
+      dayoftheweek = "화";
       break;
     case 'Wednesday':
-      dayoftheweek = "수요일";
+      dayoftheweek = "수";
       break;
     case 'Thursday':
-      dayoftheweek = "목요일";
+      dayoftheweek = "목";
       break;
     case 'Friday':
-      dayoftheweek = "금요일";
+      dayoftheweek = "금";
       break;
     case 'Saturday':
-      dayoftheweek = "토요일";
+      dayoftheweek = "토";
       break;
     case 'Sunday':
-      dayoftheweek = "일요일";
+      dayoftheweek = "일";
       break;
     default:
       dayoftheweek = "요일 오류";

@@ -117,6 +117,7 @@ class FreeBoardList extends BoardData {
 
     return FreeBoardList(
         title: _boardData["title"],
+        imgUriList: _boardData["imageContent"],
         contentCategory: _boardData["contentCategory"],
         favoriteCount: _boardData["favoriteCount"],
         textContent: _boardData["textContent"],

@@ -15,6 +15,7 @@ class Product extends DataClass implements Insertable<Product> {
   final String price;
   final String explain;
   final int views;
+  final int favorites;
   final DateTime uploadtime;
   final String images;
   Product(
@@ -25,6 +26,7 @@ class Product extends DataClass implements Insertable<Product> {
       @required this.price,
       this.explain,
       this.views,
+      this.favorites,
       this.uploadtime,
       @required this.images});
   factory Product.fromData(Map<String, dynamic> data, GeneratedDatabase db,
@@ -46,6 +48,8 @@ class Product extends DataClass implements Insertable<Product> {
       explain:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}explain']),
       views: intType.mapFromDatabaseResponse(data['${effectivePrefix}views']),
+      favorites:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}favorites']),
       uploadtime: dateTimeType
           .mapFromDatabaseResponse(data['${effectivePrefix}uploadtime']),
       images:
@@ -76,6 +80,9 @@ class Product extends DataClass implements Insertable<Product> {
     if (!nullToAbsent || views != null) {
       map['views'] = Variable<int>(views);
     }
+    if (!nullToAbsent || favorites != null) {
+      map['favorites'] = Variable<int>(favorites);
+    }
     if (!nullToAbsent || uploadtime != null) {
       map['uploadtime'] = Variable<DateTime>(uploadtime);
     }
@@ -103,6 +110,9 @@ class Product extends DataClass implements Insertable<Product> {
           : Value(explain),
       views:
           views == null && nullToAbsent ? const Value.absent() : Value(views),
+      favorites: favorites == null && nullToAbsent
+          ? const Value.absent()
+          : Value(favorites),
       uploadtime: uploadtime == null && nullToAbsent
           ? const Value.absent()
           : Value(uploadtime),
@@ -122,6 +132,7 @@ class Product extends DataClass implements Insertable<Product> {
       price: serializer.fromJson<String>(json['price']),
       explain: serializer.fromJson<String>(json['explain']),
       views: serializer.fromJson<int>(json['views']),
+      favorites: serializer.fromJson<int>(json['favorites']),
       uploadtime: serializer.fromJson<DateTime>(json['uploadtime']),
       images: serializer.fromJson<String>(json['images']),
     );
@@ -137,6 +148,7 @@ class Product extends DataClass implements Insertable<Product> {
       'price': serializer.toJson<String>(price),
       'explain': serializer.toJson<String>(explain),
       'views': serializer.toJson<int>(views),
+      'favorites': serializer.toJson<int>(favorites),
       'uploadtime': serializer.toJson<DateTime>(uploadtime),
       'images': serializer.toJson<String>(images),
     };
@@ -150,6 +162,7 @@ class Product extends DataClass implements Insertable<Product> {
           String price,
           String explain,
           int views,
+          int favorites,
           DateTime uploadtime,
           String images}) =>
       Product(
@@ -160,6 +173,7 @@ class Product extends DataClass implements Insertable<Product> {
         price: price ?? this.price,
         explain: explain ?? this.explain,
         views: views ?? this.views,
+        favorites: favorites ?? this.favorites,
         uploadtime: uploadtime ?? this.uploadtime,
         images: images ?? this.images,
       );
@@ -173,6 +187,7 @@ class Product extends DataClass implements Insertable<Product> {
           ..write('price: $price, ')
           ..write('explain: $explain, ')
           ..write('views: $views, ')
+          ..write('favorites: $favorites, ')
           ..write('uploadtime: $uploadtime, ')
           ..write('images: $images')
           ..write(')'))
@@ -195,7 +210,9 @@ class Product extends DataClass implements Insertable<Product> {
                           $mrjc(
                               views.hashCode,
                               $mrjc(
-                                  uploadtime.hashCode, images.hashCode)))))))));
+                                  favorites.hashCode,
+                                  $mrjc(uploadtime.hashCode,
+                                      images.hashCode))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -207,6 +224,7 @@ class Product extends DataClass implements Insertable<Product> {
           other.price == this.price &&
           other.explain == this.explain &&
           other.views == this.views &&
+          other.favorites == this.favorites &&
           other.uploadtime == this.uploadtime &&
           other.images == this.images);
 }
@@ -219,6 +237,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<String> price;
   final Value<String> explain;
   final Value<int> views;
+  final Value<int> favorites;
   final Value<DateTime> uploadtime;
   final Value<String> images;
   const ProductsCompanion({
@@ -229,6 +248,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.price = const Value.absent(),
     this.explain = const Value.absent(),
     this.views = const Value.absent(),
+    this.favorites = const Value.absent(),
     this.uploadtime = const Value.absent(),
     this.images = const Value.absent(),
   });
@@ -240,6 +260,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     @required String price,
     this.explain = const Value.absent(),
     this.views = const Value.absent(),
+    this.favorites = const Value.absent(),
     this.uploadtime = const Value.absent(),
     @required String images,
   })  : title = Value(title),
@@ -256,6 +277,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     Expression<String> price,
     Expression<String> explain,
     Expression<int> views,
+    Expression<int> favorites,
     Expression<DateTime> uploadtime,
     Expression<String> images,
   }) {
@@ -267,6 +289,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       if (price != null) 'price': price,
       if (explain != null) 'explain': explain,
       if (views != null) 'views': views,
+      if (favorites != null) 'favorites': favorites,
       if (uploadtime != null) 'uploadtime': uploadtime,
       if (images != null) 'images': images,
     });
@@ -280,6 +303,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       Value<String> price,
       Value<String> explain,
       Value<int> views,
+      Value<int> favorites,
       Value<DateTime> uploadtime,
       Value<String> images}) {
     return ProductsCompanion(
@@ -290,6 +314,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       price: price ?? this.price,
       explain: explain ?? this.explain,
       views: views ?? this.views,
+      favorites: favorites ?? this.favorites,
       uploadtime: uploadtime ?? this.uploadtime,
       images: images ?? this.images,
     );
@@ -319,6 +344,9 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     if (views.present) {
       map['views'] = Variable<int>(views.value);
     }
+    if (favorites.present) {
+      map['favorites'] = Variable<int>(favorites.value);
+    }
     if (uploadtime.present) {
       map['uploadtime'] = Variable<DateTime>(uploadtime.value);
     }
@@ -338,6 +366,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
           ..write('price: $price, ')
           ..write('explain: $explain, ')
           ..write('views: $views, ')
+          ..write('favorites: $favorites, ')
           ..write('uploadtime: $uploadtime, ')
           ..write('images: $images')
           ..write(')'))
@@ -435,6 +464,18 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     );
   }
 
+  final VerificationMeta _favoritesMeta = const VerificationMeta('favorites');
+  GeneratedIntColumn _favorites;
+  @override
+  GeneratedIntColumn get favorites => _favorites ??= _constructFavorites();
+  GeneratedIntColumn _constructFavorites() {
+    return GeneratedIntColumn(
+      'favorites',
+      $tableName,
+      true,
+    );
+  }
+
   final VerificationMeta _uploadtimeMeta = const VerificationMeta('uploadtime');
   GeneratedDateTimeColumn _uploadtime;
   @override
@@ -469,6 +510,7 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
         price,
         explain,
         views,
+        favorites,
         uploadtime,
         images
       ];
@@ -522,6 +564,10 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     if (data.containsKey('views')) {
       context.handle(
           _viewsMeta, views.isAcceptableOrUnknown(data['views'], _viewsMeta));
+    }
+    if (data.containsKey('favorites')) {
+      context.handle(_favoritesMeta,
+          favorites.isAcceptableOrUnknown(data['favorites'], _favoritesMeta));
     }
     if (data.containsKey('uploadtime')) {
       context.handle(

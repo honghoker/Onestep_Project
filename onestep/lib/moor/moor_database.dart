@@ -10,6 +10,7 @@ class Products extends Table {
   TextColumn get price => text()();
   TextColumn get explain => text().nullable()();
   IntColumn get views => integer().nullable()();
+  IntColumn get favorites => integer().nullable()();
   DateTimeColumn get uploadtime => dateTime().nullable()();
   TextColumn get images => text()();
 

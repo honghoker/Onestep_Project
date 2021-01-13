@@ -23,29 +23,25 @@ class FirebaseChatController {
     // userImageFile,
     String _boardtype = "초기값";
     try {
-      if (products == true)
+      if (products == true) {
         _boardtype = "장터게시판";
-      else if (products == false) {
-        FirebaseFirestore.instance
-            .collection("Board")
-            .doc(boardId)
-            .get()
-            .then((value) {
-          _boardtype = value.data().values.elementAt(0);
-        }); //게시판명 가져옴
-        var nowTime = DateTime.now().millisecondsSinceEpoch.toString();
+      } else if (products == false) {}
 
-        FirebaseFirestore.instance.collection("chattingroom").doc(nowTime).set({
-          "boardtype": _boardtype, //boardtype, title 가져와야한다.
-          "title": title, //title
-          "read_count": 0,
-          "cusers": [userUid, friendId],
-          "recent_chattime": "최근 채팅 시간",
-          "recent_text": "최근 텍스트 update ",
-          "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
-        });
-      }
-      print("저장완료");
+      var nowTime = DateTime.now().millisecondsSinceEpoch.toString();
+
+      FirebaseFirestore.instance.collection("chattingroom").doc(nowTime).set({
+        "boardtype": _boardtype, //boardtype, title 가져와야한다.
+        "title": title, //title
+        "read_count": 0,
+        "cusers": [userUid, friendId],
+        "recent_chattime": "최근 채팅 시간",
+        "recent_text": "최근 텍스트 update ",
+        "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+      }).whenComplete(() {
+        print("저장완료");
+      }).catchError((onError) {
+        print(onError);
+      });
     } catch (e) {
       print(e.message);
     }

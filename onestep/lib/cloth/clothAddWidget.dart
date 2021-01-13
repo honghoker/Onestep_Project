@@ -213,7 +213,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
       }
 
       FirebaseFirestore.instance.collection('products').add({
-        'uid': await FirebaseApi.getId(),
+        'uid': FirebaseApi.getId(),
         'price': _priceTextEditingController.text,
         'title': _titleTextEditingController.text,
         'category': _selectedCategoryItem,

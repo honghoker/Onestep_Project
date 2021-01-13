@@ -20,6 +20,7 @@ class ProuductProvider with ChangeNotifier {
 
         return Product(
           firestoreid: snap.id,
+          uid: product['uid'],
           title: product['title'],
           category: product['category'],
           price: product['price'],

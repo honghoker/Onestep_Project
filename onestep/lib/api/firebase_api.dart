@@ -1,12 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class FirebaseApi {
   static String getId() {
     final FirebaseAuth _auth = FirebaseAuth.instance;
-    print("ddd");
-    print("test" + _auth.currentUser.uid.toString());
     return _auth.currentUser.uid;
   }
 

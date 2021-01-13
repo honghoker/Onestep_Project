@@ -10,6 +10,7 @@ part of 'moor_database.dart';
 class Product extends DataClass implements Insertable<Product> {
   final String title;
   final String firestoreid;
+  final String uid;
   final String category;
   final String price;
   final String explain;
@@ -19,6 +20,7 @@ class Product extends DataClass implements Insertable<Product> {
   Product(
       {@required this.title,
       @required this.firestoreid,
+      @required this.uid,
       @required this.category,
       @required this.price,
       this.explain,
@@ -36,6 +38,7 @@ class Product extends DataClass implements Insertable<Product> {
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}title']),
       firestoreid: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}firestoreid']),
+      uid: stringType.mapFromDatabaseResponse(data['${effectivePrefix}uid']),
       category: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}category']),
       price:
@@ -57,6 +60,9 @@ class Product extends DataClass implements Insertable<Product> {
     }
     if (!nullToAbsent || firestoreid != null) {
       map['firestoreid'] = Variable<String>(firestoreid);
+    }
+    if (!nullToAbsent || uid != null) {
+      map['uid'] = Variable<String>(uid);
     }
     if (!nullToAbsent || category != null) {
       map['category'] = Variable<String>(category);
@@ -86,6 +92,7 @@ class Product extends DataClass implements Insertable<Product> {
       firestoreid: firestoreid == null && nullToAbsent
           ? const Value.absent()
           : Value(firestoreid),
+      uid: uid == null && nullToAbsent ? const Value.absent() : Value(uid),
       category: category == null && nullToAbsent
           ? const Value.absent()
           : Value(category),
@@ -110,6 +117,7 @@ class Product extends DataClass implements Insertable<Product> {
     return Product(
       title: serializer.fromJson<String>(json['title']),
       firestoreid: serializer.fromJson<String>(json['firestoreid']),
+      uid: serializer.fromJson<String>(json['uid']),
       category: serializer.fromJson<String>(json['category']),
       price: serializer.fromJson<String>(json['price']),
       explain: serializer.fromJson<String>(json['explain']),
@@ -124,6 +132,7 @@ class Product extends DataClass implements Insertable<Product> {
     return <String, dynamic>{
       'title': serializer.toJson<String>(title),
       'firestoreid': serializer.toJson<String>(firestoreid),
+      'uid': serializer.toJson<String>(uid),
       'category': serializer.toJson<String>(category),
       'price': serializer.toJson<String>(price),
       'explain': serializer.toJson<String>(explain),
@@ -136,6 +145,7 @@ class Product extends DataClass implements Insertable<Product> {
   Product copyWith(
           {String title,
           String firestoreid,
+          String uid,
           String category,
           String price,
           String explain,
@@ -145,6 +155,7 @@ class Product extends DataClass implements Insertable<Product> {
       Product(
         title: title ?? this.title,
         firestoreid: firestoreid ?? this.firestoreid,
+        uid: uid ?? this.uid,
         category: category ?? this.category,
         price: price ?? this.price,
         explain: explain ?? this.explain,
@@ -157,6 +168,7 @@ class Product extends DataClass implements Insertable<Product> {
     return (StringBuffer('Product(')
           ..write('title: $title, ')
           ..write('firestoreid: $firestoreid, ')
+          ..write('uid: $uid, ')
           ..write('category: $category, ')
           ..write('price: $price, ')
           ..write('explain: $explain, ')
@@ -173,19 +185,24 @@ class Product extends DataClass implements Insertable<Product> {
       $mrjc(
           firestoreid.hashCode,
           $mrjc(
-              category.hashCode,
+              uid.hashCode,
               $mrjc(
-                  price.hashCode,
+                  category.hashCode,
                   $mrjc(
-                      explain.hashCode,
-                      $mrjc(views.hashCode,
-                          $mrjc(uploadtime.hashCode, images.hashCode))))))));
+                      price.hashCode,
+                      $mrjc(
+                          explain.hashCode,
+                          $mrjc(
+                              views.hashCode,
+                              $mrjc(
+                                  uploadtime.hashCode, images.hashCode)))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Product &&
           other.title == this.title &&
           other.firestoreid == this.firestoreid &&
+          other.uid == this.uid &&
           other.category == this.category &&
           other.price == this.price &&
           other.explain == this.explain &&
@@ -197,6 +214,7 @@ class Product extends DataClass implements Insertable<Product> {
 class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<String> title;
   final Value<String> firestoreid;
+  final Value<String> uid;
   final Value<String> category;
   final Value<String> price;
   final Value<String> explain;
@@ -206,6 +224,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   const ProductsCompanion({
     this.title = const Value.absent(),
     this.firestoreid = const Value.absent(),
+    this.uid = const Value.absent(),
     this.category = const Value.absent(),
     this.price = const Value.absent(),
     this.explain = const Value.absent(),
@@ -216,6 +235,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   ProductsCompanion.insert({
     @required String title,
     @required String firestoreid,
+    @required String uid,
     @required String category,
     @required String price,
     this.explain = const Value.absent(),
@@ -224,12 +244,14 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     @required String images,
   })  : title = Value(title),
         firestoreid = Value(firestoreid),
+        uid = Value(uid),
         category = Value(category),
         price = Value(price),
         images = Value(images);
   static Insertable<Product> custom({
     Expression<String> title,
     Expression<String> firestoreid,
+    Expression<String> uid,
     Expression<String> category,
     Expression<String> price,
     Expression<String> explain,
@@ -240,6 +262,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     return RawValuesInsertable({
       if (title != null) 'title': title,
       if (firestoreid != null) 'firestoreid': firestoreid,
+      if (uid != null) 'uid': uid,
       if (category != null) 'category': category,
       if (price != null) 'price': price,
       if (explain != null) 'explain': explain,
@@ -252,6 +275,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   ProductsCompanion copyWith(
       {Value<String> title,
       Value<String> firestoreid,
+      Value<String> uid,
       Value<String> category,
       Value<String> price,
       Value<String> explain,
@@ -261,6 +285,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     return ProductsCompanion(
       title: title ?? this.title,
       firestoreid: firestoreid ?? this.firestoreid,
+      uid: uid ?? this.uid,
       category: category ?? this.category,
       price: price ?? this.price,
       explain: explain ?? this.explain,
@@ -278,6 +303,9 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     }
     if (firestoreid.present) {
       map['firestoreid'] = Variable<String>(firestoreid.value);
+    }
+    if (uid.present) {
+      map['uid'] = Variable<String>(uid.value);
     }
     if (category.present) {
       map['category'] = Variable<String>(category.value);
@@ -305,6 +333,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     return (StringBuffer('ProductsCompanion(')
           ..write('title: $title, ')
           ..write('firestoreid: $firestoreid, ')
+          ..write('uid: $uid, ')
           ..write('category: $category, ')
           ..write('price: $price, ')
           ..write('explain: $explain, ')
@@ -341,6 +370,18 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
   GeneratedTextColumn _constructFirestoreid() {
     return GeneratedTextColumn(
       'firestoreid',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _uidMeta = const VerificationMeta('uid');
+  GeneratedTextColumn _uid;
+  @override
+  GeneratedTextColumn get uid => _uid ??= _constructUid();
+  GeneratedTextColumn _constructUid() {
+    return GeneratedTextColumn(
+      'uid',
       $tableName,
       false,
     );
@@ -420,8 +461,17 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
   }
 
   @override
-  List<GeneratedColumn> get $columns =>
-      [title, firestoreid, category, price, explain, views, uploadtime, images];
+  List<GeneratedColumn> get $columns => [
+        title,
+        firestoreid,
+        uid,
+        category,
+        price,
+        explain,
+        views,
+        uploadtime,
+        images
+      ];
   @override
   $ProductsTable get asDslTable => this;
   @override
@@ -446,6 +496,12 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
               data['firestoreid'], _firestoreidMeta));
     } else if (isInserting) {
       context.missing(_firestoreidMeta);
+    }
+    if (data.containsKey('uid')) {
+      context.handle(
+          _uidMeta, uid.isAcceptableOrUnknown(data['uid'], _uidMeta));
+    } else if (isInserting) {
+      context.missing(_uidMeta);
     }
     if (data.containsKey('category')) {
       context.handle(_categoryMeta,

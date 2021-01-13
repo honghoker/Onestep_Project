@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
+import 'package:onestep/api/firebase_api.dart';
+import 'package:onestep/notification/inChattingRoom.dart';
 
 class ClothDetailViewWidget extends StatefulWidget {
   final Product product;
@@ -50,6 +52,20 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
     return _differenceTime;
   }
 
+  void showFavoriteDialog() {
+    Future.delayed(Duration(milliseconds: 300), () {
+      Navigator.pop(context);
+    });
+    showDialog(
+      context: context,
+      builder: (_) => Material(
+        type: MaterialType.transparency,
+        child: Icon(Icons.favorite, color: Colors.pink, size: 200),
+        // ),
+      ),
+    );
+  }
+
   Widget setFavorite() {
     ProductsDao pd = Provider.of<AppDatabase>(context).productsDao;
 
@@ -66,12 +82,12 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
           default:
             return GestureDetector(
               onTap: () {
-                snapshot.data.contains(this.widget.product) == false
-                    ? pd.insertProduct(this.widget.product)
-                    : pd.deleteProduct(this.widget.product);
-                // showGeneralDialog(
-                //   transitionBuilder : (context, ) AlertDialog();
-                // );
+                if (snapshot.data.contains(this.widget.product) == false) {
+                  pd.insertProduct(this.widget.product);
+                  showFavoriteDialog();
+                } else {
+                  pd.deleteProduct(this.widget.product);
+                }
               },
               child: Icon(
                 snapshot.data.contains(this.widget.product) == false
@@ -346,7 +362,21 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
                 child: SizedBox(
                   width: 150,
                   child: RaisedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // var id = FirebaseApi.getId();
+                      // Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (context) => InChattingRoomPage(
+                      //               myUId: id == widget.product.uid
+                      //                   ? widget.product.uid
+                      //                   : id,
+                      //               friendId: id != widget.product.uid
+                      //                   ? widget.product.uid
+                      //                   : id,
+                      //               // chattingRoomId: chatroomData.id,
+                      //             )));
+                    },
                     color: Colors.pink,
                     textColor: Colors.white,
                     child: Text('채팅'),

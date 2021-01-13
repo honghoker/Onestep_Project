@@ -7,8 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
+import 'package:onestep/notification/Controllers/firebaseChatController.dart';
 import 'package:onestep/api/firebase_api.dart';
-import 'package:onestep/notification/inChattingRoom.dart';
 
 class ClothDetailViewWidget extends StatefulWidget {
   final Product product;
@@ -363,19 +363,15 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
                   width: 150,
                   child: RaisedButton(
                     onPressed: () {
-                      // var id = FirebaseApi.getId();
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) => InChattingRoomPage(
-                      //               myUId: id == widget.product.uid
-                      //                   ? widget.product.uid
-                      //                   : id,
-                      //               friendId: id != widget.product.uid
-                      //                   ? widget.product.uid
-                      //                   : id,
-                      //               // chattingRoomId: chatroomData.id,
-                      //             )));
+                      FirebaseChatController()
+                          .createChatingRoomToFirebaseStorage(
+                        true,
+                        "장터게시판",
+                        "장터 테스트",
+                        FirebaseApi.getId(),
+                        "friendId",
+                      );
+                      print(FirebaseApi.getId());
                     },
                     color: Colors.pink,
                     textColor: Colors.white,

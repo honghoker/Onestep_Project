@@ -21,11 +21,11 @@ class FirebaseChatController {
   Future<void> createChatingRoomToFirebaseStorage(bool products, String boardId,
       String title, String userUid, String friendId) async {
     // userImageFile,
-    String _boardtype;
+    String _boardtype = "초기값";
     try {
       if (products == true)
         _boardtype = "장터게시판";
-      else {
+      else if (products == false) {
         FirebaseFirestore.instance
             .collection("Board")
             .doc(boardId)
@@ -36,8 +36,8 @@ class FirebaseChatController {
         var nowTime = DateTime.now().millisecondsSinceEpoch.toString();
 
         FirebaseFirestore.instance.collection("chattingroom").doc(nowTime).set({
-          "boardtype": "boardType", //boardtype, title 가져와야한다.
-          "title": "장터/게시판 글 제목", //title
+          "boardtype": _boardtype, //boardtype, title 가져와야한다.
+          "title": title, //title
           "read_count": 0,
           "cusers": [userUid, friendId],
           "recent_chattime": "최근 채팅 시간",
@@ -45,6 +45,7 @@ class FirebaseChatController {
           "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
         });
       }
+      print("저장완료");
     } catch (e) {
       print(e.message);
     }

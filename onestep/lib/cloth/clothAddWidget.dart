@@ -219,6 +219,9 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
         'category': _selectedCategoryItem,
         'explain': _explainTextEditingController.text,
         'images': _imgUriarr,
+        'favorites': 0,
+        'hide': false,
+        'deleted': false,
         'views': 0,
         'uploadtime': DateTime.now(),
       }).whenComplete(() {

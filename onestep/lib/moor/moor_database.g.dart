@@ -18,6 +18,8 @@ class Product extends DataClass implements Insertable<Product> {
   final int favorites;
   final DateTime uploadtime;
   final String images;
+  final int hide;
+  final int deleted;
   Product(
       {@required this.title,
       @required this.firestoreid,
@@ -28,7 +30,9 @@ class Product extends DataClass implements Insertable<Product> {
       this.views,
       this.favorites,
       this.uploadtime,
-      @required this.images});
+      @required this.images,
+      @required this.hide,
+      @required this.deleted});
   factory Product.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -54,6 +58,9 @@ class Product extends DataClass implements Insertable<Product> {
           .mapFromDatabaseResponse(data['${effectivePrefix}uploadtime']),
       images:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}images']),
+      hide: intType.mapFromDatabaseResponse(data['${effectivePrefix}hide']),
+      deleted:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}deleted']),
     );
   }
   @override
@@ -89,6 +96,12 @@ class Product extends DataClass implements Insertable<Product> {
     if (!nullToAbsent || images != null) {
       map['images'] = Variable<String>(images);
     }
+    if (!nullToAbsent || hide != null) {
+      map['hide'] = Variable<int>(hide);
+    }
+    if (!nullToAbsent || deleted != null) {
+      map['deleted'] = Variable<int>(deleted);
+    }
     return map;
   }
 
@@ -118,6 +131,10 @@ class Product extends DataClass implements Insertable<Product> {
           : Value(uploadtime),
       images:
           images == null && nullToAbsent ? const Value.absent() : Value(images),
+      hide: hide == null && nullToAbsent ? const Value.absent() : Value(hide),
+      deleted: deleted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deleted),
     );
   }
 
@@ -135,6 +152,8 @@ class Product extends DataClass implements Insertable<Product> {
       favorites: serializer.fromJson<int>(json['favorites']),
       uploadtime: serializer.fromJson<DateTime>(json['uploadtime']),
       images: serializer.fromJson<String>(json['images']),
+      hide: serializer.fromJson<int>(json['hide']),
+      deleted: serializer.fromJson<int>(json['deleted']),
     );
   }
   @override
@@ -151,6 +170,8 @@ class Product extends DataClass implements Insertable<Product> {
       'favorites': serializer.toJson<int>(favorites),
       'uploadtime': serializer.toJson<DateTime>(uploadtime),
       'images': serializer.toJson<String>(images),
+      'hide': serializer.toJson<int>(hide),
+      'deleted': serializer.toJson<int>(deleted),
     };
   }
 
@@ -164,7 +185,9 @@ class Product extends DataClass implements Insertable<Product> {
           int views,
           int favorites,
           DateTime uploadtime,
-          String images}) =>
+          String images,
+          int hide,
+          int deleted}) =>
       Product(
         title: title ?? this.title,
         firestoreid: firestoreid ?? this.firestoreid,
@@ -176,6 +199,8 @@ class Product extends DataClass implements Insertable<Product> {
         favorites: favorites ?? this.favorites,
         uploadtime: uploadtime ?? this.uploadtime,
         images: images ?? this.images,
+        hide: hide ?? this.hide,
+        deleted: deleted ?? this.deleted,
       );
   @override
   String toString() {
@@ -189,7 +214,9 @@ class Product extends DataClass implements Insertable<Product> {
           ..write('views: $views, ')
           ..write('favorites: $favorites, ')
           ..write('uploadtime: $uploadtime, ')
-          ..write('images: $images')
+          ..write('images: $images, ')
+          ..write('hide: $hide, ')
+          ..write('deleted: $deleted')
           ..write(')'))
         .toString();
   }
@@ -211,8 +238,12 @@ class Product extends DataClass implements Insertable<Product> {
                               views.hashCode,
                               $mrjc(
                                   favorites.hashCode,
-                                  $mrjc(uploadtime.hashCode,
-                                      images.hashCode))))))))));
+                                  $mrjc(
+                                      uploadtime.hashCode,
+                                      $mrjc(
+                                          images.hashCode,
+                                          $mrjc(hide.hashCode,
+                                              deleted.hashCode))))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -226,7 +257,9 @@ class Product extends DataClass implements Insertable<Product> {
           other.views == this.views &&
           other.favorites == this.favorites &&
           other.uploadtime == this.uploadtime &&
-          other.images == this.images);
+          other.images == this.images &&
+          other.hide == this.hide &&
+          other.deleted == this.deleted);
 }
 
 class ProductsCompanion extends UpdateCompanion<Product> {
@@ -240,6 +273,8 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<int> favorites;
   final Value<DateTime> uploadtime;
   final Value<String> images;
+  final Value<int> hide;
+  final Value<int> deleted;
   const ProductsCompanion({
     this.title = const Value.absent(),
     this.firestoreid = const Value.absent(),
@@ -251,6 +286,8 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.favorites = const Value.absent(),
     this.uploadtime = const Value.absent(),
     this.images = const Value.absent(),
+    this.hide = const Value.absent(),
+    this.deleted = const Value.absent(),
   });
   ProductsCompanion.insert({
     @required String title,
@@ -263,12 +300,16 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.favorites = const Value.absent(),
     this.uploadtime = const Value.absent(),
     @required String images,
+    @required int hide,
+    @required int deleted,
   })  : title = Value(title),
         firestoreid = Value(firestoreid),
         uid = Value(uid),
         category = Value(category),
         price = Value(price),
-        images = Value(images);
+        images = Value(images),
+        hide = Value(hide),
+        deleted = Value(deleted);
   static Insertable<Product> custom({
     Expression<String> title,
     Expression<String> firestoreid,
@@ -280,6 +321,8 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     Expression<int> favorites,
     Expression<DateTime> uploadtime,
     Expression<String> images,
+    Expression<int> hide,
+    Expression<int> deleted,
   }) {
     return RawValuesInsertable({
       if (title != null) 'title': title,
@@ -292,6 +335,8 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       if (favorites != null) 'favorites': favorites,
       if (uploadtime != null) 'uploadtime': uploadtime,
       if (images != null) 'images': images,
+      if (hide != null) 'hide': hide,
+      if (deleted != null) 'deleted': deleted,
     });
   }
 
@@ -305,7 +350,9 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       Value<int> views,
       Value<int> favorites,
       Value<DateTime> uploadtime,
-      Value<String> images}) {
+      Value<String> images,
+      Value<int> hide,
+      Value<int> deleted}) {
     return ProductsCompanion(
       title: title ?? this.title,
       firestoreid: firestoreid ?? this.firestoreid,
@@ -317,6 +364,8 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       favorites: favorites ?? this.favorites,
       uploadtime: uploadtime ?? this.uploadtime,
       images: images ?? this.images,
+      hide: hide ?? this.hide,
+      deleted: deleted ?? this.deleted,
     );
   }
 
@@ -353,6 +402,12 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     if (images.present) {
       map['images'] = Variable<String>(images.value);
     }
+    if (hide.present) {
+      map['hide'] = Variable<int>(hide.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<int>(deleted.value);
+    }
     return map;
   }
 
@@ -368,7 +423,9 @@ class ProductsCompanion extends UpdateCompanion<Product> {
           ..write('views: $views, ')
           ..write('favorites: $favorites, ')
           ..write('uploadtime: $uploadtime, ')
-          ..write('images: $images')
+          ..write('images: $images, ')
+          ..write('hide: $hide, ')
+          ..write('deleted: $deleted')
           ..write(')'))
         .toString();
   }
@@ -501,6 +558,30 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     );
   }
 
+  final VerificationMeta _hideMeta = const VerificationMeta('hide');
+  GeneratedIntColumn _hide;
+  @override
+  GeneratedIntColumn get hide => _hide ??= _constructHide();
+  GeneratedIntColumn _constructHide() {
+    return GeneratedIntColumn(
+      'hide',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _deletedMeta = const VerificationMeta('deleted');
+  GeneratedIntColumn _deleted;
+  @override
+  GeneratedIntColumn get deleted => _deleted ??= _constructDeleted();
+  GeneratedIntColumn _constructDeleted() {
+    return GeneratedIntColumn(
+      'deleted',
+      $tableName,
+      false,
+    );
+  }
+
   @override
   List<GeneratedColumn> get $columns => [
         title,
@@ -512,7 +593,9 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
         views,
         favorites,
         uploadtime,
-        images
+        images,
+        hide,
+        deleted
       ];
   @override
   $ProductsTable get asDslTable => this;
@@ -580,6 +663,18 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
           images.isAcceptableOrUnknown(data['images'], _imagesMeta));
     } else if (isInserting) {
       context.missing(_imagesMeta);
+    }
+    if (data.containsKey('hide')) {
+      context.handle(
+          _hideMeta, hide.isAcceptableOrUnknown(data['hide'], _hideMeta));
+    } else if (isInserting) {
+      context.missing(_hideMeta);
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(_deletedMeta,
+          deleted.isAcceptableOrUnknown(data['deleted'], _deletedMeta));
+    } else if (isInserting) {
+      context.missing(_deletedMeta);
     }
     return context;
   }

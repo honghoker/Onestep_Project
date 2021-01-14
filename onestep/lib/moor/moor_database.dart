@@ -13,6 +13,8 @@ class Products extends Table {
   IntColumn get favorites => integer().nullable()();
   DateTimeColumn get uploadtime => dateTime().nullable()();
   TextColumn get images => text()();
+  IntColumn get hide => integer()();
+  IntColumn get deleted => integer()();
 
   @override
   Set<Column> get primaryKey => {firestoreid};

@@ -25,6 +25,7 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
   @override
   void initState() {
     _imageItem.addAll(jsonDecode(widget.product.images));
+    if (widget.product.hide == 1 || widget.product.deleted == 1) {}
     super.initState();
   }
 
@@ -84,11 +85,9 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
               onTap: () {
                 if (snapshot.data.contains(this.widget.product) == false) {
                   pd.insertProduct(this.widget.product);
-                  incdecProductFavorites(this.widget.product.favorites + 1);
                   showFavoriteDialog();
                 } else {
                   pd.deleteProduct(this.widget.product);
-                  incdecProductFavorites(this.widget.product.favorites - 1);
                 }
               },
               child: Icon(
@@ -250,6 +249,7 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
                           padding: const EdgeInsets.only(right: 2.0),
                         ),
                         Text("${snapshot.data.data()['favorites']}"),
+                        // dtdtdtdtd
                       ],
                     ),
                   ),
@@ -271,6 +271,18 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
       case '새로고침':
         break;
       case '신고하기':
+        break;
+      case '숨김':
+        FirebaseFirestore.instance
+            .collection("products")
+            .doc(widget.product.firestoreid)
+            .update({'hide': true});
+        break;
+      case '삭제':
+        FirebaseFirestore.instance
+            .collection("products")
+            .doc(widget.product.firestoreid)
+            .update({'deleted': true});
         break;
     }
   }
@@ -297,7 +309,10 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
           PopupMenuButton<String>(
             onSelected: handleClick,
             itemBuilder: (BuildContext context) {
-              return {'새로고침', '신고하기'}.map((String choice) {
+              var menuItem = {'새로고침', '신고하기'};
+              if (FirebaseApi.getId() == widget.product.uid)
+                menuItem.addAll({"숨김", "삭제"});
+              return menuItem.map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
                   child: Text(choice),

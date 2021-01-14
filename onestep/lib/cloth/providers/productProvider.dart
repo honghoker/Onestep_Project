@@ -24,6 +24,8 @@ class ProuductProvider with ChangeNotifier {
           title: product['title'],
           category: product['category'],
           price: product['price'],
+          hide: product['hide'] ? 1 : 0,
+          deleted: product['deleted'] ? 1 : 0,
           images: jsonEncode(product['images']),
         );
       }).toList();

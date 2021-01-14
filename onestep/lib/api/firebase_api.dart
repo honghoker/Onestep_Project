@@ -17,12 +17,16 @@ class FirebaseApi {
     if (category == "전체") {
       refProducts = FirebaseFirestore.instance
           .collection('products')
+          .where("deleted", isEqualTo: false)
+          .where("hide", isEqualTo: false)
           .orderBy("uploadtime", descending: true)
           .limit(limit);
     } else {
       refProducts = FirebaseFirestore.instance
           .collection('products')
           .where("category", isEqualTo: category)
+          .where("deleted", isEqualTo: false)
+          .where("hide", isEqualTo: false)
           .orderBy("uploadtime", descending: true)
           .limit(limit);
     }

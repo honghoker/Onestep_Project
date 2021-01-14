@@ -9,15 +9,15 @@ import 'package:onestep/notification/time/chat_time.dart';
 import 'package:onestep/notification/widget/FullmageWidget.dart';
 import 'package:intl/intl.dart';
 
+import 'Controllers/firebaseChatController.dart';
+
 class InChattingRoomPage extends StatelessWidget {
-  final String myUId;
-  final String chattingRoomId;
+  final String myUid;
   final String friendId;
+  final String postId;
 
   InChattingRoomPage(
-      {@required this.myUId,
-      @required this.friendId,
-      @required this.chattingRoomId});
+      {@required this.myUid, @required this.friendId, @required this.postId});
 
   @override
   Widget build(BuildContext context) {
@@ -32,82 +32,95 @@ class InChattingRoomPage extends StatelessWidget {
               //backgroundImage: CachedNetworkImageProvider(),
             ),
           ),
-          _deleteChattingRoom(context),
+          //_deleteChattingRoom(context), //삭제 다시 구현
         ],
-        title: Text(
-          ' $myUId/$chattingRoomId',
-          style: TextStyle(fontSize: 8),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              "myUid : $myUid",
+              style: TextStyle(fontSize: 9),
+            ),
+            Text(
+              "friendId : $friendId",
+              style: TextStyle(fontSize: 9),
+            ),
+            Text(
+              "chatRoomUid : $postId",
+              style: TextStyle(fontSize: 9),
+            ),
+          ],
         ),
       ),
       body: ChatScreen(
-        myUId: myUId,
+        myUid: myUid,
         friendId: friendId,
-        chattingRoomId: chattingRoomId,
+        postId: postId,
       ),
-    );
-  }
-
-  Widget _deleteChattingRoom(var context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: <Widget>[
-        IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: () {
-              try {
-                FirebaseFirestore.instance
-                    .collection("chattingroom")
-                    .doc(chattingRoomId)
-                    .collection('message')
-                    .get()
-                    .then((snapshot) {
-                  for (DocumentSnapshot ds in snapshot.docs) {
-                    ds.reference.delete();
-                  }
-                });
-                FirebaseFirestore.instance
-                    .collection("chattingroom")
-                    .doc(chattingRoomId)
-                    .delete();
-
-                Navigator.of(context).pop();
-                print("삭제 되었습니다." + chattingRoomId);
-              } catch (e) {
-                print(e.message);
-              }
-            }),
-      ],
     );
   }
 }
 
+//  Widget _deleteChattingRoom(var context) {
+//     return Stack(
+//       alignment: Alignment.center,
+//       children: <Widget>[
+//         IconButton(
+//             icon: Icon(Icons.delete),
+//             onPressed: () {
+//               try {
+//                 FirebaseFirestore.instance
+//                     .collection("chattingroom")
+//                     .doc(copy)
+//                     .collection('message')
+//                     .get()
+//                     .then((snapshot) {
+//                   for (DocumentSnapshot ds in snapshot.docs) {
+//                     ds.reference.delete();
+//                   }
+//                 });
+//                 FirebaseFirestore.instance
+//                     .collection("chattingroom")
+//                     .doc(chat)
+//                     .delete();
+
+//                 Navigator.of(context).pop();
+//                 print("삭제 되었습니다." + chattingRoomId);
+//               } catch (e) {
+//                 print(e.message);
+//               }
+//             }),
+//       ],
+//     );
+//   }
+
 class ChatScreen extends StatefulWidget {
-  final String myUId;
+  final String myUid;
   final String friendId;
-  final String chattingRoomId;
+  final String postId;
 
   ChatScreen(
       {Key key,
-      @required this.myUId,
+      @required this.myUid,
       @required this.friendId,
-      @required this.chattingRoomId})
+      @required this.postId})
       : super(key: key);
 
   @override
-  _LastChatState createState() => _LastChatState(
-      myId: myUId, friendId: friendId, chattingRoomId: chattingRoomId);
+  _LastChatState createState() =>
+      _LastChatState(myId: myUid, friendId: friendId, postId: postId);
 }
 
 class _LastChatState extends State<ChatScreen> {
   final String myId; // uid 받음
   final String friendId;
-  final String chattingRoomId;
+  final String postId;
 
   _LastChatState(
       {Key key,
       @required this.myId,
       @required this.friendId,
-      @required this.chattingRoomId});
+      @required this.postId});
 
   final TextEditingController textEditingController = TextEditingController();
   final ScrollController listScrollController = ScrollController();
@@ -123,10 +136,14 @@ class _LastChatState extends State<ChatScreen> {
   String chatId; //내아이디 #미사용
   String senderId; //보내는 내 아이디
   String receiveId; //받는 상대 아이디
+
   //SharedPreferences preferences;
   //String id; //내아이디
   var listMessage;
 
+  //채팅방 생성 판별
+  String chattingRoomId;
+  bool existChattingRoom;
   @override
   void initState() {
     // TODO: implement initState
@@ -138,6 +155,27 @@ class _LastChatState extends State<ChatScreen> {
 
     isDisplaySticker = false;
     isLoading = false;
+    existChattingRoom = false;
+
+    FirebaseFirestore.instance.collection("chattingroom").get().then((value) {
+      value.docChanges.forEach((change) {
+        // print(change.doc.id);
+        // print(change.doc.data()['title']);
+        if (myId == change.doc.data()['cusers'][0] &&
+            friendId == change.doc.data()['cusers'][1] &&
+            postId == change.doc.data()['postId']) {
+          existChattingRoom = true;
+          chattingRoomId = change.doc.id;
+        }
+      });
+
+      if (existChattingRoom == true) {
+        //만약 채팅방이 있으면
+        setState(() {});
+      } else {
+        chattingRoomId = DateTime.now().millisecondsSinceEpoch.toString();
+      }
+    });
 
     chatId = "";
 //    readLocal(); Local DB
@@ -656,7 +694,14 @@ class _LastChatState extends State<ChatScreen> {
                   icon: Icon(Icons.send),
                   color: Colors.lightBlueAccent,
                   onPressed: () {
-                    print("^^^$chatId / myid $myId / fid $friendId");
+                    print("# myid $myId / fid $friendId");
+                    if (existChattingRoom == false) {
+                      //방 만들어진 적이 없으면
+                      FirebaseChatController()
+                          .createProductChatingRoomToFirebaseStorage(
+                              postId, chattingRoomId);
+                      existChattingRoom = true;
+                    }
 
                     onSendMessage(textEditingController.text, 0);
                   }),
@@ -698,7 +743,7 @@ class _LastChatState extends State<ChatScreen> {
 
       Firestore.instance.runTransaction((transaction) async {
         await transaction.set(docRef, {
-          "idFrom": myId, //이거는 내가 보내는거
+          "idFrom": myId,
           "idTo": friendId,
           "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
           "content": contentMsg,

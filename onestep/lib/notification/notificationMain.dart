@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/notification/Controllers/firebaseChatController.dart';
+import 'package:onestep/notification/Controllers/notificationManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'inChattingRoom.dart';
 import 'time/chat_time.dart';
@@ -52,6 +53,7 @@ class _NotificationMainState extends State<NotificationMain> {
     Stream userChatListStream1 = FirebaseFirestore.instance
         .collection('chattingroom')
 //        .where("read_count", isEqualTo: 2)
+        //.where("cusers", arrayContains: "V92paJ9JAOfkT5Yn7euAKiZfpoS2")
         .where("cusers", arrayContains: FirebaseApi.getId())
         .orderBy('timestamp', descending: true)
         //.limit(2)
@@ -124,21 +126,13 @@ class _NotificationMainState extends State<NotificationMain> {
                         ),
                         onTap: () {
                           print("idtest");
-
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => InChattingRoomPage(
-                                        myUId: FirebaseApi.getId() ==
-                                                chatroomData["cusers"][0]
-                                            ? chatroomData["cusers"][0]
-                                            : chatroomData["cusers"][1],
-                                        friendId: FirebaseApi.getId() !=
-                                                chatroomData["cusers"][0]
-                                            ? chatroomData["cusers"][0]
-                                            : chatroomData["cusers"][1],
-                                        chattingRoomId: chatroomData.id,
-                                      )));
+                          //얘는 일단 냅둬얒함
+                          NotificationManager.navigateToChattingRoom(
+                            context,
+                            chatroomData["cusers"][0],
+                            chatroomData["cusers"][1],
+                            chatroomData["postId"],
+                          );
                         },
                       );
                     } else {
@@ -146,13 +140,25 @@ class _NotificationMainState extends State<NotificationMain> {
                       return Container();
                     }
                   }).toList())
-                : Text("null");
+                : Text("채팅없을경우");
           }
         });
     //   } else {
     //     return Container();
     //   }
     // });
+  }
+
+  static void navigateToChattingRoom(
+      var context, String myUid, String friendUid, String chattingRoomid) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => InChattingRoomPage(
+                  myUid: FirebaseApi.getId() == myUid ? myUid : friendUid,
+                  friendId: FirebaseApi.getId() != myUid ? myUid : friendUid,
+                  postId: chattingRoomid,
+                )));
   }
 
   Widget _buildExpandedTitle() {

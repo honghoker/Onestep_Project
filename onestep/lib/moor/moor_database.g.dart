@@ -693,23 +693,217 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
   }
 }
 
+class Search extends DataClass implements Insertable<Search> {
+  final int id;
+  final String title;
+  Search({@required this.id, @required this.title});
+  factory Search.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final intType = db.typeSystem.forDartType<int>();
+    final stringType = db.typeSystem.forDartType<String>();
+    return Search(
+      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      title:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}title']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    if (!nullToAbsent || title != null) {
+      map['title'] = Variable<String>(title);
+    }
+    return map;
+  }
+
+  SearchsCompanion toCompanion(bool nullToAbsent) {
+    return SearchsCompanion(
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      title:
+          title == null && nullToAbsent ? const Value.absent() : Value(title),
+    );
+  }
+
+  factory Search.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return Search(
+      id: serializer.fromJson<int>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'title': serializer.toJson<String>(title),
+    };
+  }
+
+  Search copyWith({int id, String title}) => Search(
+        id: id ?? this.id,
+        title: title ?? this.title,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Search(')
+          ..write('id: $id, ')
+          ..write('title: $title')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(id.hashCode, title.hashCode));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is Search && other.id == this.id && other.title == this.title);
+}
+
+class SearchsCompanion extends UpdateCompanion<Search> {
+  final Value<int> id;
+  final Value<String> title;
+  const SearchsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+  });
+  SearchsCompanion.insert({
+    this.id = const Value.absent(),
+    @required String title,
+  }) : title = Value(title);
+  static Insertable<Search> custom({
+    Expression<int> id,
+    Expression<String> title,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+    });
+  }
+
+  SearchsCompanion copyWith({Value<int> id, Value<String> title}) {
+    return SearchsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SearchsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $SearchsTable(this._db, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  GeneratedIntColumn _id;
+  @override
+  GeneratedIntColumn get id => _id ??= _constructId();
+  GeneratedIntColumn _constructId() {
+    return GeneratedIntColumn('id', $tableName, false,
+        hasAutoIncrement: true, declaredAsPrimaryKey: true);
+  }
+
+  final VerificationMeta _titleMeta = const VerificationMeta('title');
+  GeneratedTextColumn _title;
+  @override
+  GeneratedTextColumn get title => _title ??= _constructTitle();
+  GeneratedTextColumn _constructTitle() {
+    return GeneratedTextColumn(
+      'title',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [id, title];
+  @override
+  $SearchsTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'searchs';
+  @override
+  final String actualTableName = 'searchs';
+  @override
+  VerificationContext validateIntegrity(Insertable<Search> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title'], _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Search map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return Search.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $SearchsTable createAlias(String alias) {
+    return $SearchsTable(_db, alias);
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $ProductsTable _products;
   $ProductsTable get products => _products ??= $ProductsTable(this);
+  $SearchsTable _searchs;
+  $SearchsTable get searchs => _searchs ??= $SearchsTable(this);
   ProductsDao _productsDao;
   ProductsDao get productsDao =>
       _productsDao ??= ProductsDao(this as AppDatabase);
+  SearchsDao _searchsDao;
+  SearchsDao get searchsDao => _searchsDao ??= SearchsDao(this as AppDatabase);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [products];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [products, searchs];
 }
 
 // **************************************************************************
 // DaoGenerator
 // **************************************************************************
 
+mixin _$SearchsDaoMixin on DatabaseAccessor<AppDatabase> {
+  $SearchsTable get searchs => attachedDatabase.searchs;
+}
 mixin _$ProductsDaoMixin on DatabaseAccessor<AppDatabase> {
   $ProductsTable get products => attachedDatabase.products;
 }

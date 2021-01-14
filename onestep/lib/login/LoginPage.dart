@@ -8,6 +8,7 @@ import 'package:onestep/notification/Controllers/loginController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'ProgressWidget.dart';
+import 'joinPage.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key key}) : super(key: key);
@@ -36,6 +37,17 @@ class _LoginScreenState extends State<LoginScreen> {
     this.setState(() {
       isLoggedIn = true;
     });
+
+//        "id": userUid,
+//         "nickname": userName,
+// //        "photoUrl": userImageFile,
+//         "authUniversity": "",
+//         "userLevel": 1, // 0: BAN / 1: GUEST / 2:AUTHENTIFICATION USER
+//         "userScore": 100, //장터 평가, 유저 신고 점수 , 100 이하일 경우 불량 유저
+//         "userUniversity": "", //universityID
+//         "userUniversityEmail": "", //학교인증 이메일
+//         "userEmail": "", //User Email
+//         "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
 
     preferences = await SharedPreferences.getInstance();
     isLoggedIn = await googleSignIn.isSignedIn();
@@ -70,48 +82,57 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [Colors.lightBlueAccent, Colors.white],
-          ),
-        ),
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Onestep project Reboot5',
-              style: TextStyle(
-                  fontSize: 42.0, color: Colors.white, fontFamily: "Signatra"),
+        decoration: BoxDecoration(color: Colors.white
+            // gradient: LinearGradient(
+            //   begin: Alignment.topRight,
+            //   end: Alignment.bottomLeft,
+            //   colors: [Colors.lightBlueAccent, Colors.white],
+            // ),
             ),
-            GestureDetector(
-              onTap: controlSignIn,
-              child: Center(
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      width: 270,
-                      height: 65.0,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage(
-                              "assets/images/google_signin_button.png"),
-                          //fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(1.0),
-                      child: isLoading ? circularProgress() : Container(),
-                    ),
-                  ],
-                ),
+        alignment: Alignment.center,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 130),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                'Onestep',
+                style: TextStyle(
+                    fontSize: 42.0,
+                    color: Colors.black,
+                    fontFamily: "Signatra",
+                    fontWeight: FontWeight.bold),
               ),
-            )
-          ],
+              Padding(
+                padding: const EdgeInsets.only(top: 130),
+                child: GestureDetector(
+                  onTap: controlSignIn,
+                  child: Center(
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          width: 330,
+                          height: 65.0,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage(
+                                  "assets/images/google_signin_button.png"),
+                              //fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(1.0),
+                          child: isLoading ? circularProgress() : Container(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -175,9 +196,13 @@ class _LoginScreenState extends State<LoginScreen> {
       this.setState(() {
         isLoading = false;
       });
+      
+      // 회원가입으로 넘어가는 navigator
+      Navigator.of(context).pushNamed('/JoinPage?UID=${firebaseUser.uid}');
 
-      Navigator.of(context)
-          .pushReplacementNamed('/MainPage?UID=${firebaseUser.uid}');
+      // 찬섭이형 예시 코드 여기 확인
+      // Navigator.of(context)
+      //     .pushReplacementNamed('/MainPage?UID=${firebaseUser.uid}');
 
       Fluttertoast.showToast(msg: 'uid 하단' + currentUser.uid);
     }

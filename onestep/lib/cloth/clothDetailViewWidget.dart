@@ -1,10 +1,13 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
+import 'package:kakao_flutter_sdk/link.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
+import 'package:onestep/login/KakaoShareManager.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
 import 'package:onestep/notification/notificationMain.dart';
@@ -28,7 +31,37 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
   void initState() {
     _imageItem.addAll(jsonDecode(widget.product.images));
     if (widget.product.hide == 1 || widget.product.deleted == 1) {}
+    // dynamic link
+    initDynamicLinks();
     super.initState();
+  }
+  
+  void initDynamicLinks() async {
+    FirebaseDynamicLinks.instance.onLink(
+        onSuccess: (PendingDynamicLinkData dynamicLink) async {
+          final Uri deepLink = dynamicLink?.link;
+        
+          print(deepLink);
+          print(deepLink.path);
+          
+          if (deepLink != null) {
+             // do something
+          }
+        },
+        onError: (OnLinkErrorException e) async {
+          print('onLinkError');
+          print(e.message);
+        }
+    );
+
+    final PendingDynamicLinkData data = await FirebaseDynamicLinks.instance.getInitialLink();
+    final Uri deepLink = data?.link;
+
+    print(deepLink);
+    
+    if (deepLink != null) {
+       // do something
+    }
   }
 
   String getDiffTime(Timestamp uploadtime) {
@@ -306,6 +339,16 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
             icon: new Icon(Icons.share),
             onPressed: () => {
               print("share"),
+              // //kakato test
+              KakaoShareManager().isKakaotalkInstalled().then((installed) {
+                if (installed) {
+                  print("kakao success");
+                  KakaoShareManager().shareMyCode("abcd");
+                } else {
+                  print("kakao error");
+                  // show alert
+                }
+              }),
             },
           ),
           PopupMenuButton<String>(

@@ -11,6 +11,7 @@ import 'appmain/myhomepage.dart';
 import 'cloth/models/category.dart';
 import 'cloth/providers/productProvider.dart';
 
+import 'login/CheckAuth.dart';
 import 'login/LoginPage.dart';
 import 'BoardLib/BoardProvi/boardClass.dart';
 import 'BoardLib/BoardProvi/boardProvider.dart';
@@ -37,6 +38,7 @@ void main() async {
         Provider<User>.value(
           value: _auth.currentUser,
         ),
+        ChangeNotifierProvider<CheckAuth>(create: (_) => CheckAuth()),
       ],
       child: MyApp(),
     ),
@@ -57,6 +59,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(primaryColor: Colors.grey, accentColor: Colors.grey),
       onGenerateRoute: RouteGenerator.generateRoute,
       initialRoute: '/',
       title: '앱메인',

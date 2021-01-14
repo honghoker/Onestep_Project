@@ -6,6 +6,8 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 import 'package:onestep/moor/moor_database.dart';
+import 'package:onestep/notification/Controllers/notificationManager.dart';
+import 'package:onestep/notification/notificationMain.dart';
 import 'package:provider/provider.dart';
 import 'package:onestep/notification/Controllers/firebaseChatController.dart';
 import 'package:onestep/api/firebase_api.dart';
@@ -365,14 +367,21 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
                     onPressed: () {
                       print(
                           "firestoreid = ${widget.product.firestoreid}, title = ${widget.product.title} uid = ${widget.product.uid}");
-                      FirebaseChatController()
-                          .createChatingRoomToFirebaseStorage(
-                        true,
-                        widget.product.firestoreid,
-                        widget.product.title,
+                      // FirebaseChatController()
+                      //     .createChatingRoomToFirebaseStorage(
+                      //   false,
+                      //   widget.product.firestoreid,
+                      //   widget.product.title,
+                      //   FirebaseApi.getId(),
+                      //   widget.product.uid,
+                      // );
+                      NotificationManager.navigateToChattingRoom(
+                        context,
                         FirebaseApi.getId(),
                         widget.product.uid,
+                        widget.product.firestoreid,
                       );
+                      //Navigator.of(context).pop();
                     },
                     color: Colors.pink,
                     textColor: Colors.white,

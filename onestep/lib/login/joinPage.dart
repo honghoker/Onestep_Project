@@ -40,6 +40,8 @@ class _JoinScreenState extends State<JoinScreen> {
     super.initState();
   }
 
+  // 중복확인 firebase db 수정
+  // 지금은 db에 있으면 확인완료 뜸
   authEmailNickNameCheck(String text, int flag) async {
     if (flag == 1) {
       _isEmailChecked = false;
@@ -87,6 +89,7 @@ class _JoinScreenState extends State<JoinScreen> {
     return String.fromCharCodes(checkNumber.cast<int>());
   }
 
+  // mail 수정
   sendMail() async {
     String _username = 'leedool3003@gmail.com';
     String _password = 'alstjsdl421!';

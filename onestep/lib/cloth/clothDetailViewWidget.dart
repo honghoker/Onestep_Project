@@ -339,16 +339,17 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
             icon: new Icon(Icons.share),
             onPressed: () => {
               print("share"),
-              // //kakato test
-              KakaoShareManager().isKakaotalkInstalled().then((installed) {
-                if (installed) {
-                  print("kakao success");
-                  KakaoShareManager().shareMyCode("abcd");
-                } else {
-                  print("kakao error");
-                  // show alert
-                }
-              }),
+              // kakato test
+              // 일단 주석처리 detail 잡아야함
+              // KakaoShareManager().isKakaotalkInstalled().then((installed) {
+              //   if (installed) {
+              //     print("kakao success");
+              //     KakaoShareManager().shareMyCode("abcd");
+              //   } else {
+              //     print("kakao error");
+              //     // show alert
+              //   }
+              // }),
             },
           ),
           PopupMenuButton<String>(

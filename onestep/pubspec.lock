@@ -924,7 +924,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0"
-    version: "0.0.20"
   string_scanner:
     dependency: transitive
     description:

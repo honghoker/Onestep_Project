@@ -21,6 +21,7 @@ class _AuthScreenState extends State<AuthScreen> {
   DateTime sendTime;
   _AuthScreenState(this.checkPassword, this.sendTime);
 
+  // 지금 보니 안써도 될거 같은데 나중에 확인
   Stream<DocumentSnapshot> get _a {
     return FirebaseFirestore.instance
         .collection('users')
@@ -28,6 +29,7 @@ class _AuthScreenState extends State<AuthScreen> {
         .snapshots();
   }
 
+  // db 수정
   void updateTest() {
     FirebaseFirestore.instance
         .collection('users')

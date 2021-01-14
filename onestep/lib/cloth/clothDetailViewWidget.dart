@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
 import 'package:kakao_flutter_sdk/link.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
+import 'package:onestep/login/KakaoShareManager.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
 
@@ -18,74 +20,43 @@ class ClothDetailViewWidget extends StatefulWidget {
   _ClothDetailViewWidgetState createState() => _ClothDetailViewWidgetState();
 }
 
-// kakao test
-class KakaoShareManager {
-  static final KakaoShareManager _manager = KakaoShareManager._internal();
-
-  factory KakaoShareManager() {
-    return _manager;
-  }
-
-  KakaoShareManager._internal() {
-    // 초기화 코드
-    initializeKakaoSDK();
-  }
-
-  void initializeKakaoSDK() {
-    String kakaoAppKey = "c9095cdfce8884adb0b88729a7e95aba";
-    KakaoContext.clientId = kakaoAppKey;
-  }
-
-  Future<bool> isKakaotalkInstalled() async {
-    bool installed = await isKakaoTalkInstalled();
-    return installed;
-  }
-
-  void shareMyCode() async {
-    try {
-      var template = _getTemplate();
-      var uri = await LinkClient.instance.defaultWithTalk(template);
-      await LinkClient.instance.launchKakaoTalk(uri);
-    } catch (error) {
-      print(error.toString());
-    }
-  }
-
-  DefaultTemplate _getTemplate() {
-    String title = "안녕하세여";
-    Uri imageLink = Uri.parse(
-        "http://mud-kage.kakao.co.kr/dn/Q2iNx/btqgeRgV54P/VLdBs9cvyn8BJXB3o7N8UK/kakaolink40_original.png");
-    Link link = Link(
-        webUrl: Uri.parse("https://developers.kakao.com"),
-        mobileWebUrl: Uri.parse("https://developers.kakao.com"));
-
-    Content content = Content(
-      title,
-      imageLink,
-      link,
-    );
-
-    FeedTemplate template = FeedTemplate(content,
-        social: Social(likeCount: 286, commentCount: 45, sharedCount: 845),
-        buttons: [
-          Button("웹으로 보기",
-              Link(webUrl: Uri.parse("https://developers.kakao.com"))),
-          Button("앱으로 보기",
-              Link(webUrl: Uri.parse("https://developers.kakao.com"))),
-        ]);
-
-    return template;
-  }
-}
-
 class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
   List _imageItem = new List();
 
   @override
   void initState() {
     _imageItem.addAll(jsonDecode(widget.product.images));
-
+    // dynamic link
+    initDynamicLinks();
     super.initState();
+  }
+  
+  void initDynamicLinks() async {
+    FirebaseDynamicLinks.instance.onLink(
+        onSuccess: (PendingDynamicLinkData dynamicLink) async {
+          final Uri deepLink = dynamicLink?.link;
+        
+          print(deepLink);
+          print(deepLink.path);
+          
+          if (deepLink != null) {
+             // do something
+          }
+        },
+        onError: (OnLinkErrorException e) async {
+          print('onLinkError');
+          print(e.message);
+        }
+    );
+
+    final PendingDynamicLinkData data = await FirebaseDynamicLinks.instance.getInitialLink();
+    final Uri deepLink = data?.link;
+
+    print(deepLink);
+    
+    if (deepLink != null) {
+       // do something
+    }
   }
 
   String getDiffTime(Timestamp uploadtime) {
@@ -325,7 +296,7 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
               KakaoShareManager().isKakaotalkInstalled().then((installed) {
                 if (installed) {
                   print("kakao success");
-                  KakaoShareManager().shareMyCode();
+                  KakaoShareManager().shareMyCode("abcd");
                 } else {
                   print("kakao error");
                   // show alert

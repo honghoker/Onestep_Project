@@ -11,6 +11,7 @@ import 'appmain/myhomepage.dart';
 import 'cloth/models/category.dart';
 import 'cloth/providers/productProvider.dart';
 
+import 'login/CheckAuth.dart';
 import 'login/LoginPage.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -29,6 +30,7 @@ void main() async {
         Provider<User>.value(
           value: _auth.currentUser,
         ),
+        ChangeNotifierProvider<CheckAuth>(create: (_) => CheckAuth()),
       ],
       child: MyApp(),
     ),

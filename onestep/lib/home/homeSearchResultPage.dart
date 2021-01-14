@@ -35,10 +35,6 @@ class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
         stream: p.watchSearchs(),
         builder: (BuildContext context, AsyncSnapshot<List<Search>> snapshot) {
           if (snapshot.data == null) return new Text(""); // 이거 안넣어주면 오류남
-          // if (snapshot.hasError) {
-          //   print(snapshot.error);
-          //   return new Text('Error: ${snapshot.error}');
-          // }
           SizedBox(
             height: 5,
           );
@@ -118,14 +114,21 @@ class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
                     autofocus: _isSearchMode == true ? true : false,
                     controller: _textController,
                     onSubmitted: (text) {
-                      print("search $text");
-                      search = Search(title: text, id: null);
-                      setState(() {
-                        _isSearchMode = false;
-                        // p.insertSearch(search);
-                        text != "" ? p.insertSearch(search) : null;
-                        // _isAutoFocus = false;
-                      });
+                      // 2글자 제한
+                      if (text.length > 2) {
+                        print("2글자 초과");
+                      } else if (text == "") {
+                        print("공백");
+                      } else {
+                        print("search $text");
+                        search = Search(title: text, id: null);
+                        setState(() {
+                          _isSearchMode = false;
+                          // p.insertSearch(search);
+                          text != "" ? p.insertSearch(search) : null;
+                          // _isAutoFocus = false;
+                        });
+                      }
                     },
                     onChanged: (text) {
                       setState(() {
@@ -190,13 +193,7 @@ class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
             ? TabBarView(
                 children: [
                   Center(
-                    child: FlatButton(
-                      onPressed: () {
-                        // print("myFocusNode");
-                        // myFocusNode.requestFocus();
-                      },
-                      child: Text("장터"),
-                    ),
+                    child: Text("장터", style: TextStyle(color: Colors.black)),
                   ),
                   Center(
                       child: Text(
@@ -206,7 +203,6 @@ class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
                 ],
               )
             : Column(
-                // mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),

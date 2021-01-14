@@ -28,6 +28,7 @@ class _HomeWidgetState extends State<HomeWidget> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text("홈", style: TextStyle(color: Colors.black)),
         actions: <Widget>[
           Row(

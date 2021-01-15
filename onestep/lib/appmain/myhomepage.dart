@@ -33,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
         productProvider: productProvider,
       ),
     ),
-    BoardMain(),
+    Boardmain(),
 //    NotificationMain(),
     ScrollableTabsDemo(),
     MyinfoWidget(),

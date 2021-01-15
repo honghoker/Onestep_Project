@@ -3,6 +3,7 @@ import '../notificationMain copy.dart';
 
 class ScrollableTabsDemo extends StatefulWidget {
   static const String routeName = '/material/scrollable-tabs';
+  @override
   ScrollableTabsDemoState createState() => ScrollableTabsDemoState();
 }
 

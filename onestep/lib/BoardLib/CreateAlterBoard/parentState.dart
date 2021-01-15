@@ -445,17 +445,22 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
                   ),
                 ),
                 Expanded(
-                  child: TextField(
-                      minLines: 2,
-                      maxLines: null,
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical: 20.0, horizontal: 5.0),
-                        border: OutlineInputBorder(),
-                        labelText: "사진${index + 1}의 설명",
-                        hintText: "내용을 입력하세요",
-                      ),
-                      controller: _getTextEditingImageTextField(index)),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    reverse: true,
+                    child: TextField(
+                        keyboardType: TextInputType.multiline,
+                        minLines: 2,
+                        maxLines: null,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 20.0, horizontal: 5.0),
+                          border: OutlineInputBorder(),
+                          labelText: "사진${index + 1}의 설명",
+                          hintText: "내용을 입력하세요",
+                        ),
+                        controller: _getTextEditingImageTextField(index)),
+                  ),
                 )
               ],
             ),

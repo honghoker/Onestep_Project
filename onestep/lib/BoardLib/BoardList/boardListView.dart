@@ -74,7 +74,6 @@ abstract class _BoardListParentState<T extends StatefulWidget>
   @override
   Widget build(BuildContext context) {
     boardDataList = setBoardData();
-
     return boardDataList == null
         ? CupertinoActivityIndicator()
         : Container(
@@ -102,9 +101,8 @@ abstract class _BoardListParentState<T extends StatefulWidget>
               splashColor: Colors.grey,
               //Click Event
               onTap: () {
-                Navigator.of(context).pushNamed(
-                  '/BoardContent?INDEX=$index&BOARD_NAME="current"',
-                );
+                Navigator.of(context).pushNamed('/BoardContent',
+                    arguments: {"BOARD_DATA": boardDataList[index]});
               },
               child: Column(
                 children: <Widget>[
@@ -143,7 +141,7 @@ abstract class _BoardListParentState<T extends StatefulWidget>
         ContentCategory.SMALLTALK.toString().split('.')[1]) {
       category = ContentCategory.SMALLTALK.category;
     } else if (kReleaseMode) {
-      throw new ContentCategoryException(
+      throw new CategoryException(
           "Does not match category. Please Update Enum in parentSate.dart Or If statement in boardListView.dart secondColumnLine");
     }
     return Row(

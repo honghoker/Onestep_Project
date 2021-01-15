@@ -29,9 +29,6 @@ class tempBoardCommentData {
 }
 
 class CommentList {
-  final BuildContext context;
-  CommentList(this.context);
-
   Widget tempCommentContainer() {
     return Container(
         child: Column(

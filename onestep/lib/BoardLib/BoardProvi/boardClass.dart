@@ -20,10 +20,11 @@ class BoardData {
   final int scribeCount;
   final int watchCount;
   final int commentCount;
+  final String boardCategory;
   List imgUriList;
-  List<Asset> imageList;
+  Map<String, dynamic> imageCommentList;
 
-  Future convertImage(List<Asset> _imageArr) async {
+  Future convertImage(var _imageArr) async {
     List _imgUriarr = [];
     for (var imaged in _imageArr) {
       StorageReference storageReference = FirebaseStorage.instance
@@ -47,14 +48,17 @@ class BoardData {
       this.reportCount,
       this.textContent,
       this.uid,
-      this.imageList,
+      this.imageCommentList,
       this.scribeCount,
       this.watchCount,
       this.documentId,
       this.commentCount,
-      this.imgUriList});
+      this.imgUriList,
+      this.boardCategory});
   Future toFireStore(BuildContext context) async {
-    imgUriList = await convertImage(imageList).whenComplete(() => true);
+    imgUriList =
+        await convertImage(imageCommentList["IMAGE"]).whenComplete(() => true);
+    imageCommentList.update("IMAGE", (value) => imgUriList);
     await FirebaseFirestore.instance
         .collection("Board")
         .doc("Board_Free")
@@ -69,11 +73,13 @@ class BoardData {
           "contentCategory": contentCategory.toString(),
           "reportCount": reportCount ?? 0,
           "textContent": textContent ?? "",
-          "imageContent": imgUriList ?? [],
+          "imageCommentList": imageCommentList ?? {},
           "watchCount": watchCount ?? 0,
-          "commentCount": commentCount ?? 0
+          "commentCount": commentCount ?? 0,
+          "boardCategory": boardCategory
         })
         .whenComplete(() => true)
+        .then((value) => true)
         .timeout(
           Duration(seconds: 3),
           onTimeout: () {
@@ -83,7 +89,18 @@ class BoardData {
   }
 
   factory BoardData.fromFireStore(DocumentSnapshot snapshot) {
-    return BoardData();
+    Map _boardData = snapshot.data();
+    return BoardData(
+        title: _boardData["title"],
+        imageCommentList: _boardData["imageCommentList"],
+        contentCategory: _boardData["contentCategory"],
+        favoriteCount: _boardData["favoriteCount"],
+        textContent: _boardData["textContent"],
+        uid: _boardData["uid"],
+        documentId: snapshot.id,
+        commentCount: _boardData["commentCount"],
+        createDate: _boardData["createDate"].toDate(),
+        watchCount: _boardData["watchCount"]);
   }
 }
 
@@ -99,7 +116,7 @@ class FreeBoardList extends BoardData {
       String documentId,
       String textContent,
       int commentCount,
-      List imgUriList})
+      Map<String, dynamic> imageCommentList})
       : super(
             title: title,
             contentCategory: contentCategory,
@@ -110,14 +127,14 @@ class FreeBoardList extends BoardData {
             textContent: textContent,
             watchCount: watchCount,
             commentCount: commentCount,
-            imgUriList: imgUriList);
+            imageCommentList: imageCommentList);
 
   factory FreeBoardList.fromFireStore(DocumentSnapshot snapshot) {
     Map _boardData = snapshot.data();
 
     return FreeBoardList(
         title: _boardData["title"],
-        imgUriList: _boardData["imageContent"],
+        // imageCommentList: _boardData["imageCommentList"],
         contentCategory: _boardData["contentCategory"],
         favoriteCount: _boardData["favoriteCount"],
         textContent: _boardData["textContent"],

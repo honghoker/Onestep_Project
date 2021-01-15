@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:onestep/BoardLib/boardMain.dart';
 import 'package:onestep/BoardLib/mySlideOverDialog/slide_dialog.dart';
 import 'package:onestep/BoardLib/mySlideOverDialog/slide_popup_dialog.dart'
     as slideDialog;
@@ -19,7 +20,7 @@ extension ContentCategoryExtension on ContentCategory {
       case ContentCategory.SMALLTALK:
         return "일상";
       default:
-        return throw ContentCategoryException(
+        return throw CategoryException(
             "Enum Category Error, Please Update Enum ContentCategory in parentState.dart");
     }
   }
@@ -28,7 +29,7 @@ extension ContentCategoryExtension on ContentCategory {
 const int MAX_IMAGE_COUNT = 5;
 
 class CreateBoard extends StatefulWidget {
-  final String currentBoard;
+  final BoardCategory currentBoard;
   CreateBoard({Key key, this.currentBoard}) : super(key: key);
 
   @override
@@ -43,7 +44,7 @@ class _CreateBoardState extends _CreatePageParent<CreateBoard> {
 
   @override
   setBoardData() {
-    currentBoard = widget.currentBoard;
+    boardCategory = widget.currentBoard;
   }
 }
 
@@ -53,24 +54,51 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
   // CustomSlideDialog customSlideDialog;
   ContentCategory _category;
   TextEditingController textEditingControllerContent;
+  TextEditingController textEditingControllerImage1;
+  TextEditingController textEditingControllerImage2;
+  TextEditingController textEditingControllerImage3;
+  TextEditingController textEditingControllerImage4;
+  TextEditingController textEditingControllerImage5;
+
   ScrollController _scrollController;
   BoardData boardData;
-  String currentBoard;
+  BoardCategory boardCategory;
   String _title;
   setBoardData();
-  List<Asset> images = [];
+  List<String> _initCommentList = ['', '', '', '', ''];
+  Map<String, List<dynamic>> imageCommentMap = {"IMAGE": [], "COMMENT": []};
+
+  textEditingInitNDispose(bool isInit) {
+    if (isInit) {
+      textEditingControllerContent = new TextEditingController();
+      textEditingControllerImage1 = new TextEditingController();
+      textEditingControllerImage2 = new TextEditingController();
+      textEditingControllerImage3 = new TextEditingController();
+      textEditingControllerImage4 = new TextEditingController();
+      textEditingControllerImage5 = new TextEditingController();
+    } else {
+      textEditingControllerContent.dispose();
+      textEditingControllerImage1.dispose();
+      textEditingControllerImage2.dispose();
+      textEditingControllerImage3.dispose();
+      textEditingControllerImage4.dispose();
+      textEditingControllerImage5.dispose();
+    }
+  }
 
   @override
   void initState() {
+    imageCommentMap["COMMENT"].addAll(_initCommentList);
     super.initState();
     setBoardData();
     SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
-    textEditingControllerContent = new TextEditingController();
+    textEditingInitNDispose(true);
     _scrollController = new ScrollController();
   }
 
   @override
   void dispose() {
+    textEditingInitNDispose(false);
     _scrollController.dispose();
 
     super.dispose();
@@ -79,6 +107,7 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
 
   @override
   Widget build(BuildContext context) {
+    // _getterSetterImageComment(isMapSet: false);
     return Stack(
       children: <Widget>[
         Scaffold(
@@ -101,7 +130,8 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
                       child: Column(
                         children: <Widget>[
                           firstContainer(),
-                          displayCurrentBoard(boardName: currentBoard),
+                          displayCurrentBoard(
+                              boardName: boardCategory.categoryKR),
                           secondContainer(),
                           thirdContainer(),
                         ],
@@ -221,17 +251,19 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
 
   _saveDataInFirestore() async {
     TipDialogHelper.loading("저장 중입니다. 잠시만 기다려주세요.");
-    await saveData();
+    print(saveData());
     TipDialogHelper.dismiss();
     TipDialogHelper.success("저장 완료!");
   }
 
   Future saveData() async {
+    _getterSetterImageComment(isMapSet: true, isSave: true);
     BoardData _boardData = BoardData(
         title: _title,
-        imageList: images,
+        imageCommentList: imageCommentMap,
         textContent: textEditingControllerContent.text,
-        contentCategory: _category.toString());
+        contentCategory: _category.toString(),
+        boardCategory: boardCategory.categoryEN);
     return await _boardData.toFireStore(context);
     // return Future.delayed(new Duration(seconds: 5));
   }
@@ -285,7 +317,7 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
     if (_title == null || _title == '') {
       if (_category == null) {
         if (content == null || content == '') {
-          if (images.isEmpty) return true;
+          if (imageCommentMap["IMAGE"].isEmpty) return true;
         }
       }
     }
@@ -322,41 +354,80 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
     );
   }
 
-  _imageContainer({Asset imageAsset, int index}) {
-    return Container(
-      padding: EdgeInsets.all(5.0),
-      child: SizedBox(
-        height: 50,
-        width: 50,
-        child: GestureDetector(
-            onTap: () {
-              if (imageAsset == null) checkCamStorePermission(getImage);
-            },
-            child: imageAsset != null
-                ? Container(
+  _imageContainer({int index, Asset imageAsset}) {
+    return imageAsset != null
+        ? Container(
+            padding: EdgeInsets.only(top: 5.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 80,
+                  width: 80,
+                  child: Container(
                     child: PopupMenuButton<int>(
-                        onSelected: (value) {
-                          Asset _undoImage = images[index];
-                          if (value == 0) {
+                        onSelected: (value) async {
+                          bool result = await showDialog(
+                              context: context,
+                              barrierDismissible: true,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('사진 삭제'),
+                                  content: Text("사진 및 설명이 삭제됩니다."),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                      child: Text('삭제'),
+                                      onPressed: () {
+                                        Navigator.pop(context, true);
+                                      },
+                                    ),
+                                    FlatButton(
+                                      child: Text('유지'),
+                                      onPressed: () {
+                                        Navigator.pop(context, false);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              });
+                          if (result) {
+                            _getterSetterImageComment(isMapSet: true);
+                            Asset _undoImage = imageCommentMap["IMAGE"][value];
+                            String _undoComment =
+                                imageCommentMap["COMMENT"][value];
                             setState(() {
-                              images.removeAt(index);
+                              imageCommentMap["IMAGE"].removeAt(value);
+                              imageCommentMap["COMMENT"].removeAt(value);
+                              textEditingControllerImage5..text = '';
+                              imageCommentMap["COMMENT"].add('');
+                              _getterSetterImageComment(isMapSet: false);
+                              // images.removeAt(value);
                             });
                             _scaffoldKey.currentState.showSnackBar(showSnackBar(
                                 textMessage:
-                                    Text("${index + 1}번째 이미지가 삭제되었습니다."),
+                                    Text("${value + 1}번째 이미지가 삭제되었습니다."),
                                 duration: Duration(milliseconds: 1500),
                                 snackBarAction: SnackBarAction(
                                     label: "되돌리기",
                                     onPressed: () {
                                       setState(() {
-                                        images.insert(index, _undoImage);
+                                        // images.insert(index, _undoImage);
+                                        _getterSetterImageComment(
+                                            isMapSet: true);
+                                        imageCommentMap["IMAGE"]
+                                            .insert(value, _undoImage);
+                                        imageCommentMap["COMMENT"]
+                                            .insert(value, _undoComment);
+                                        imageCommentMap["COMMENT"].removeLast();
+                                        _getterSetterImageComment(
+                                            isMapSet: false);
                                       });
                                     })));
                           }
                         },
                         itemBuilder: (context) => [
                               PopupMenuItem(
-                                value: 0,
+                                value: index,
                                 child: Text(
                                   "삭제",
                                   style: TextStyle(
@@ -370,38 +441,157 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
                           asset: imageAsset,
                           height: 200,
                           width: 200,
-                        ))))
-                : Container(
+                        ))),
+                  ),
+                ),
+                Expanded(
+                  child: TextField(
+                      minLines: 2,
+                      maxLines: null,
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 20.0, horizontal: 5.0),
+                        border: OutlineInputBorder(),
+                        labelText: "사진${index + 1}의 설명",
+                        hintText: "내용을 입력하세요",
+                      ),
+                      controller: _getTextEditingImageTextField(index)),
+                )
+              ],
+            ),
+          )
+        : Container(
+            padding: EdgeInsets.all(5.0),
+            child: SizedBox(
+              height: 50,
+              width: 50,
+              child: GestureDetector(
+                  onTap: () async {
+                    if (imageCommentMap["IMAGE"].isNotEmpty) {
+                      bool isInit = await showDialog(
+                        context: context,
+                        barrierDismissible: true,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('사진 작성 중'),
+                            content: Text("작성중인 사진 및 설명이 있습니다. 초기화 하시겠습니까?"),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: Text('초기화'),
+                                onPressed: () {
+                                  Navigator.pop(context, true);
+                                },
+                              ),
+                              FlatButton(
+                                child: Text('유지'),
+                                onPressed: () {
+                                  Navigator.pop(context, false);
+                                },
+                              ),
+                              FlatButton(
+                                child: Text('취소'),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                      if (isInit != null) {
+                        if (isInit) {
+                          setState(() {
+                            imageCommentMap["IMAGE"].clear();
+                            imageCommentMap["COMMENT"].clear();
+                            imageCommentMap["COMMENT"].addAll(_initCommentList);
+                            _getterSetterImageComment(isMapSet: false);
+                          });
+                        }
+                        checkCamStorePermission(getImage);
+                      }
+                    } else
+                      checkCamStorePermission(getImage);
+                  },
+                  child: Container(
                     child: Icon(Icons.add),
                     decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.all(Radius.circular(5.0))),
                   )),
-      ),
-    );
+            ),
+          );
   }
 
   getImage() async {
     List<Asset> resultList = [];
+    if (imageCommentMap["IMAGE"].isNotEmpty) {
+      for (var image in imageCommentMap["IMAGE"]) {
+        resultList.add(image);
+      }
+    }
+
     resultList = await MultiImagePicker.pickImages(
-        maxImages: 5, enableCamera: true, selectedAssets: images);
+        maxImages: 5, enableCamera: true, selectedAssets: resultList);
     setState(() {
-      images = resultList;
+      imageCommentMap.update("IMAGE", (value) => resultList);
     });
   }
 
-  thirdContainer({Widget popUpMenu}) {
-    List<Widget> _containerList = [];
-    for (int i = 0; i < MAX_IMAGE_COUNT; i++) {
-      if (images.isNotEmpty) {
-        if (i < images.length) {
-          _containerList.add(_imageContainer(imageAsset: images[i], index: i));
-          continue;
-        }
+  _getterSetterImageComment({@required bool isMapSet, bool isSave}) {
+    List<String> _tempTextEditing = [];
+    isSave = isSave ?? false;
+    int mapSetLength =
+        !isSave ? MAX_IMAGE_COUNT : imageCommentMap["IMAGE"].length;
+    if (isMapSet) {
+      for (int i = 0; i < mapSetLength; i++) {
+        _tempTextEditing.add(_getTextEditingImageTextField(i).text);
       }
-      _containerList.add(_imageContainer(index: i));
+      imageCommentMap["COMMENT"].clear();
+      imageCommentMap["COMMENT"].addAll(_tempTextEditing);
+    } else {
+      for (int i = 0; i < MAX_IMAGE_COUNT; i++) {
+        _getTextEditingImageTextField(i)..text = imageCommentMap["COMMENT"][i];
+      }
     }
-    return Row(children: _containerList);
+  }
+
+  TextEditingController _getTextEditingImageTextField(
+    int index,
+  ) {
+    switch (index) {
+      case 0:
+        return textEditingControllerImage1;
+
+      case 1:
+        return textEditingControllerImage2;
+      case 2:
+        return textEditingControllerImage3;
+      case 3:
+        return textEditingControllerImage4;
+      case 4:
+        return textEditingControllerImage5;
+    }
+  }
+
+  thirdContainer({Widget popUpMenu}) {
+    List<Widget> _imageWidget = [];
+    List<Widget> _emptyWidget = [];
+    int containImageCount = imageCommentMap["IMAGE"].length;
+    for (int i = 0; i < containImageCount; i++) {
+      _imageWidget.add(
+          _imageContainer(index: i, imageAsset: imageCommentMap["IMAGE"][i]));
+    }
+    for (int i = 0; i < 5 - containImageCount; i++) {
+      _emptyWidget.add(_imageContainer());
+    }
+    return Container(
+      child: Column(
+        children: _imageWidget
+          ..add(Row(
+            children: _emptyWidget,
+          )),
+      ),
+    );
   }
 }
 
@@ -452,6 +642,7 @@ class _CustomSlideDialogState extends SlideParentState<CustomSlideDialog> {
       children: [
         Container(
             child: TextField(
+          maxLength: 30,
           onSubmitted: (value) {
             Navigator.pop(context, {
               "title": _textEditingController.text.trim(),

@@ -440,23 +440,128 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
       },
     );
   }
+  void _testModalBottomSheet(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return Container(
+            height: MediaQuery.of(context).size.height * .30,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              // mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(5, 5, 0, 0),
+                  child: Row(
+                    // mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.clear,
+                          size: 30,
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(125, 0, 0, 0),
+                        child: Center(
+                            child: Container(
+                                child: Text(
+                          "공유하기",
+                          style: TextStyle(fontSize: 15),
+                        ))),
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(
+                  thickness: 2,
+                  color: Colors.grey,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                      child: Column(
+                        children: [
+                          RawMaterialButton(
+                            onPressed: () {
+                              print("kakao");
+                              // KakaoShareManager().shareMyCode("code");
+                              // kakato test
+                              // 일단 주석처리 detail 잡아야함
+                              // KakaoShareManager().isKakaotalkInstalled().then((installed) {
+                              //   if (installed) {
+                              //     print("kakao success");
+                              //     KakaoShareManager().shareMyCode("abcd");
+                              //   } else {
+                              //     print("kakao error");
+                              //     // show alert
+                              //   }
+                              // }),
+                            },
+                            constraints:
+                                BoxConstraints(minHeight: 80, minWidth: 80),
+                            fillColor: Colors.white,
+                            child: IconButton(
+                              icon: Image.asset(
+                                  'assets/images/free-icon-kakao-talk-2111466.png'),
+                              onPressed: () {},
+                            ),
+                            shape: CircleBorder(),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                            child:
+                                Center(child: Container(child: Text("카카오톡"))),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                      child: Column(
+                        children: [
+                          RawMaterialButton(
+                            onPressed: () {
+                              print("URL");
+                              // URL
+                              // KakaoShareManager().getDynamicLink("abcd");
+                            },
+                            constraints:
+                                BoxConstraints(minHeight: 80, minWidth: 80),
+                            fillColor: Colors.white,
+                            child: IconButton(
+                              icon: Image.asset(
+                                  'assets/images/iconfinder_link_hyperlink_5402394.png'),
+                              onPressed: () {},
+                            ),
+                            shape: CircleBorder(),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                            child: Center(child: Container(child: Text("URL"))),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          );
+        });
+  }
 
   Widget shareButton() {
     return new IconButton(
       icon: new Icon(Icons.share),
       onPressed: () => {
         print("share"),
-        // kakato test
-        // 일단 주석처리 detail 잡아야함
-        // KakaoShareManager().isKakaotalkInstalled().then((installed) {
-        //   if (installed) {
-        //     print("kakao success");
-        //     KakaoShareManager().shareMyCode("abcd");
-        //   } else {
-        //     print("kakao error");
-        //     // show alert
-        //   }
-        // }),
+        _testModalBottomSheet(context),
       },
     );
   }

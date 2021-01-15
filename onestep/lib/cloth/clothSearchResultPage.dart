@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
 
-class HomeSearchResultPage extends StatefulWidget {
-
+class ClothSearchResultPage extends StatefulWidget {
   @override
-  _HomeSearchResultPageState createState() => _HomeSearchResultPageState();
+  _ClothSearchResultPageState createState() => _ClothSearchResultPageState();
 }
 
-class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
+class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
   String tempSearchValue = "";
   TextEditingController _textController;
   bool _isSearchMode = true;
@@ -154,7 +153,7 @@ class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
                                 },
                               )
                             : null,
-                        hintText: "장터나 게시판을 검색해보세요!"),
+                        hintText: "장터글을 검색해보세요!"),
                   ),
                 ),
               ),
@@ -171,37 +170,10 @@ class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
               )
             ],
           ),
-          bottom: _isSearchMode == false
-              ? TabBar(
-                  tabs: [
-                    Tab(
-                      child: Text(
-                        "장터",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                    Tab(
-                      child: Text(
-                        "게시판",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                  ],
-                )
-              : null,
         ),
         body: _isSearchMode == false
-            ? TabBarView(
-                children: [
-                  Center(
-                    child: Text("장터", style: TextStyle(color: Colors.black)),
-                  ),
-                  Center(
-                      child: Text(
-                    "게시판",
-                    style: TextStyle(color: Colors.black),
-                  )),
-                ],
+            ? Center(
+                child: Text("장터", style: TextStyle(color: Colors.black)),
               )
             : Column(
                 children: [

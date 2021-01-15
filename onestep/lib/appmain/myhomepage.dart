@@ -3,6 +3,7 @@ import 'package:onestep/cloth/clothWidget.dart';
 import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:onestep/home/homeWidget.dart';
 import 'package:onestep/myinfo/myinfoWidget.dart';
+import 'package:onestep/notification/chatpage/productsChatPage.dart';
 import 'package:onestep/notification/notificationMain.dart';
 import 'package:provider/provider.dart';
 import 'package:onestep/BoardLib/boardMain.dart';
@@ -33,7 +34,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     ),
     BoardMain(),
-    NotificationMain(),
+//    NotificationMain(),
+    ScrollableTabsDemo(),
     MyinfoWidget(),
   ];
 

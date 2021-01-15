@@ -10,7 +10,7 @@ class LoginController {
       FirebaseFirestore.instance.collection("users").doc(userUid).set({
         "id": userUid,
         "nickname": userName,
-//        "photoUrl": userImageFile,
+        "photoUrl": "",
         "authUniversity": "",
         "userLevel": 1, // 0: BAN / 1: GUEST / 2:AUTHENTIFICATION USER
         "userScore": 100, //장터 평가, 유저 신고 점수 , 100 이하일 경우 불량 유저

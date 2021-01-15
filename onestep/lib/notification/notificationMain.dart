@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/notification/Controllers/firebaseChatController.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
+import 'package:onestep/notification/chatpage/productsChatPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'inChattingRoom.dart';
 import 'time/chat_time.dart';
 
+//채팅 1페이지 일 때 원본
 class NotificationMain extends StatefulWidget {
   NotificationMain({Key key}) : super(key: key);
 
@@ -30,7 +31,8 @@ class _NotificationMainState extends State<NotificationMain> {
             _buildChattingRoom(context),
           ],
         ),
-        body: _buildList(),
+        //body: _buildList(),
+        body: ScrollableTabsDemo(),
         backgroundColor: Colors.white);
   }
 
@@ -147,18 +149,6 @@ class _NotificationMainState extends State<NotificationMain> {
     //     return Container();
     //   }
     // });
-  }
-
-  static void navigateToChattingRoom(
-      var context, String myUid, String friendUid, String chattingRoomid) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => InChattingRoomPage(
-                  myUid: FirebaseApi.getId() == myUid ? myUid : friendUid,
-                  friendId: FirebaseApi.getId() != myUid ? myUid : friendUid,
-                  postId: chattingRoomid,
-                )));
   }
 
   Widget _buildExpandedTitle() {

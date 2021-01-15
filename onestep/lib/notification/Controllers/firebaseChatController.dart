@@ -125,6 +125,7 @@ class FirebaseChatController {
     String myUid = FirebaseApi.getId();
     String title;
     String friendUid;
+    String productImageUrl;
     // userImageFile,
     print("##create pro chat");
     try {
@@ -135,6 +136,7 @@ class FirebaseChatController {
           .then((value) {
         title = value["title"];
         friendUid = value["uid"];
+        productImageUrl = value["images"][0];
       }).whenComplete(
         () {
           var nowTime = DateTime.now().millisecondsSinceEpoch.toString();
@@ -147,7 +149,8 @@ class FirebaseChatController {
             "postId": productId,
             "read_count": 0, //sum(is_read)
             "cusers": [myUid, friendUid],
-            //"recent_text": "최근 텍스트 update ",
+            "productImage": productImageUrl,
+            "recent_text": "최근 텍스트 update ",
             "timestamp": nowTime,
           }).whenComplete(() {
             Fluttertoast.showToast(msg: '채팅방을 생성했습니다.');

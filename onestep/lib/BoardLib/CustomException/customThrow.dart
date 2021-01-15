@@ -1,6 +1,6 @@
-class ContentCategoryException implements Exception {
+class CategoryException implements Exception {
   String cause;
-  ContentCategoryException(this.cause) {
+  CategoryException(this.cause) {
     print(cause);
   }
 }

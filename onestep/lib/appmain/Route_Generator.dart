@@ -35,15 +35,15 @@ class RouteGenerator {
     switch (_pageName) {
       case 'MainPage':
         //var arg = preferences.getString('id') ?? '아이디없음';
-        // Navigator.of(context).pushNamed('/MainPage?UID=$arg');
+        // Navigator.of(context).pushNamed('/MainPage?UID=$arg'); 또는
+        // Navigator.of(context).pushNamed('/BoardContent',arguments: {"BOARD_DATA": boardDataList[index]}); 으로 사용
         _pageWidget = MyHomePage();
         break;
 
       case 'BoardContent':
         // Navigator.of(context).pushNamed('/BoardContent?INDEX=$index&BOARD_NAME="current"') -> arguments['INDEX'] = index, arguments['BOARD_NAME'] = "current"
         _pageWidget = BoardContent(
-          index: int.parse(arguments['INDEX']),
-          boardName: arguments["BOARD_NAME"],
+          boardData: arguments["BOARD_DATA"],
         );
         break;
       case 'CreateBoard':

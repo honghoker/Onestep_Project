@@ -4,26 +4,49 @@ import 'package:flutter/rendering.dart';
 import 'package:onestep/BoardLib/secondPageView.dart';
 import 'package:onestep/BoardLib/BoardList/boardListView.dart';
 import 'package:path/path.dart' as p;
+import 'package:onestep/BoardLib/CustomException/customThrow.dart';
 
-// const String page1 = 'Page 1';
-// const String page2 = 'Page 2';
-// const int PERSONALIMPOBOARDIndex = 3;
-// const int TODAYFAVORITEBOARDIndex = 1;
-// const int BOARDPERSONALIMPOIndex = 2;
-// const int LISTBOARDIndex = 0;
+enum BoardCategory { Free }
 
-class BoardMain extends StatefulWidget {
+extension BoardCategoryExtension on BoardCategory {
+  String get categoryEN {
+    switch (this) {
+      case BoardCategory.Free:
+        return "Free";
+
+      default:
+        return throw CategoryException(
+            "Enum Board Category Error, Please Update Enum BoardCategory in Boardmain.dart");
+    }
+  }
+
+  String get categoryKR {
+    switch (this) {
+      case BoardCategory.Free:
+        return "자유게시판";
+
+      default:
+        return throw CategoryException(
+            "Enum Board Category Error, Please Update Enum BoardCategory in Boardmain.dart");
+    }
+  }
+}
+
+class Boardmain extends StatefulWidget {
+  final BoardCategory boardCategory;
+  Boardmain({key, this.boardCategory}) : super(key: key);
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<BoardMain> {
-  String currentBoard = "자유게시판";
+class _MyHomePageState extends State<Boardmain> {
+  // String currentBoard = "자유게시판";
   bool _hideFAB = false;
   double bottomBarHeight = 75;
-
+  BoardCategory _boardCategory;
   @override
   void initState() {
+    _boardCategory = widget.boardCategory ?? BoardCategory.Free;
     print(p.split(''));
     super.initState();
   }
@@ -41,74 +64,69 @@ class _MyHomePageState extends State<BoardMain> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-        length: 3,
-        child: Builder(builder: (BuildContext context) {
-          return Scaffold(
-            body: _boardPageTabBarView(),
-            appBar: PreferredSize(
-                preferredSize: Size.fromHeight(50.0),
-                child: AppBar(
-                  backgroundColor: Colors.white,
-                  bottom: TabBar(
-                    indicator: CircleTabIndicator(
-                        color: Colors.greenAccent, radius: 5),
-                    //  UnderlineTabIndicator(
-                    //     borderSide:
-                    //         BorderSide(width: 2.0, color: Colors.redAccent),
-                    //     insets: EdgeInsets.symmetric(horizontal: 16.0)),
+    return Scaffold(
+      body: FreeBoard(
+        callback: listViewFABCallback,
+      ),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(50.0),
+        child: AppBar(
+          backgroundColor: Colors.white,
 
-                    tabs: _boardPageTabBarDesign(context),
-                  ),
-                )),
-            floatingActionButton: _hideFAB
-                ? Container()
-                : FloatingActionButton(
-                    backgroundColor: Colors.black,
-                    onPressed: () {
-                      Navigator.of(context)
-                          .pushNamed('/CreateBoard?CURRENTBOARD=$currentBoard');
-                    },
-                    child: Icon(Icons.add)),
-          );
-        }));
-  }
-
-  List<Widget> _boardPageTabBarDesign(BuildContext context) {
-    return [
-      _tabBarTextDesign(text: "최신순"),
-      _tabBarTextDesign(text: "추천순"),
-      _tabBarTextDesign(text: "오늘의"),
-    ];
-  }
-
-  _boardPageTabBarView() {
-    return TabBarView(
-      children: <Widget>[
-        FreeBoard(
-          callback: listViewFABCallback,
+          //  UnderlineTabIndicator(
+          //     borderSide:
+          //         BorderSide(width: 2.0, color: Colors.redAccent),
+          //     insets: EdgeInsets.symmetric(horizontal: 16.0)),
         ),
-        FreeBoard(
-          callback: listViewFABCallback,
-        ),
-        Practice(),
-      ],
-    );
-  }
-
-  _tabBarTextDesign({@required String text, var textStyle}) {
-    return Tab(
-      child: Align(
-          alignment: Alignment.center,
-          child: Text(text,
-              style: textStyle ??
-                  TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black))),
+      ),
+      floatingActionButton: _hideFAB
+          ? Container()
+          : FloatingActionButton(
+              backgroundColor: Colors.black,
+              onPressed: () {
+                print(_boardCategory.toString());
+                Navigator.of(context).pushNamed('/CreateBoard',
+                    arguments: {"CURRENTBOARD": _boardCategory});
+              },
+              child: Icon(Icons.add)),
     );
   }
 }
+
+// List<Widget> _boardPageTabBarDesign(BuildContext context) {
+//   return [
+//     _tabBarTextDesign(text: "최신순"),
+//     _tabBarTextDesign(text: "추천순"),
+//     _tabBarTextDesign(text: "오늘의"),
+//   ];
+// }
+
+// _boardPageTabBarView() {
+//   return TabBarView(
+//     children: <Widget>[
+//       FreeBoard(
+//         callback: listViewFABCallback,
+//       ),
+//       FreeBoard(
+//         callback: listViewFABCallback,
+//       ),
+//       Practice(),
+//     ],
+//   );
+// }
+
+// _tabBarTextDesign({@required String text, var textStyle}) {
+//   return Tab(
+//     child: Align(
+//         alignment: Alignment.center,
+//         child: Text(text,
+//             style: textStyle ??
+//                 TextStyle(
+//                     fontSize: 18,
+//                     fontWeight: FontWeight.bold,
+//                     color: Colors.black))),
+//   );
+// }
 
 class Red extends StatefulWidget {
   @override

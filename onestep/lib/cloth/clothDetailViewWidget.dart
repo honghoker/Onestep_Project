@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
@@ -20,8 +21,12 @@ class ClothDetailViewWidget extends StatefulWidget {
   _ClothDetailViewWidgetState createState() => _ClothDetailViewWidgetState();
 }
 
+
+
 class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
   List _imageItem = new List();
+  // sunghun test number
+  int testNumber;
 
   @override
   void initState() {
@@ -31,6 +36,7 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
     initDynamicLinks();
     super.initState();
   }
+  
 
   void initDynamicLinks() async {
     FirebaseDynamicLinks.instance.onLink(
@@ -39,6 +45,15 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
 
       print(deepLink);
       print(deepLink.path);
+
+      if (deepLink != null) {
+        // do something
+      }
+    }, onError: (OnLinkErrorException e) async {
+      print('onLinkError');
+      print(e.message);
+    });
+
 
       if (deepLink != null) {
         // do something
@@ -115,9 +130,11 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
               onTap: () {
                 if (snapshot.data.contains(this.widget.product) == false) {
                   pd.insertProduct(this.widget.product);
+                  // incdecFavoriteViews(testNumber);
                   showFavoriteDialog();
                 } else {
                   pd.deleteProduct(this.widget.product);
+                  // incdecFavoriteViews(testNumber);
                 }
               },
               child: Icon(
@@ -137,6 +154,20 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
         .collection("products")
         .doc(widget.product.firestoreid)
         .get();
+  }
+
+  void incdecFavoriteViews(int favorites) {
+    // 조회수 증가
+    try {
+      FirebaseFirestore.instance
+          .collection("products")
+          .doc(widget.product.firestoreid)
+          .update(
+        {
+          'favroites': favorites,
+        },
+      );
+    } catch (e) {}
   }
 
   void incProductViews(int views) {
@@ -290,6 +321,46 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
                           // dtdtdtdtd
                         ],
                       ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.access_time,
+                          color: Colors.grey,
+                          size: 15,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 2.0),
+                        ),
+                        Text(
+                            "${getDiffTime(snapshot.data.data()['uploadtime'])}"),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                        ),
+                        Icon(
+                          Icons.remove_red_eye,
+                          color: Colors.grey,
+                          size: 15,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 2.0),
+                        ),
+                        Text("${snapshot.data.data()['views']}"),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                        ),
+                        Icon(
+                          Icons.favorite,
+                          color: Colors.grey,
+                          size: 15,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 2.0),
+                        ),
+                        Text("${snapshot.data.data()['favorites']}"),
+                      ],
                     ),
                     Divider(),
                     Padding(
@@ -427,6 +498,118 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
         }).toList();
       },
     );
+  void _testModalBottomSheet(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return Container(
+            height: MediaQuery.of(context).size.height * .30,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              // mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(5, 5, 0, 0),
+                  child: Row(
+                    // mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.clear,
+                          size: 30,
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(125, 0, 0, 0),
+                        child: Center(
+                            child: Container(
+                                child: Text(
+                          "공유하기",
+                          style: TextStyle(fontSize: 15),
+                        ))),
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(
+                  thickness: 2,
+                  color: Colors.grey,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                      child: Column(
+                        children: [
+                          RawMaterialButton(
+                            onPressed: () {
+                              // KakaoShareManager().shareMyCode("code");
+                              // kakato test
+                              // 일단 주석처리 detail 잡아야함
+                              // KakaoShareManager().isKakaotalkInstalled().then((installed) {
+                              //   if (installed) {
+                              //     print("kakao success");
+                              //     KakaoShareManager().shareMyCode("abcd");
+                              //   } else {
+                              //     print("kakao error");
+                              //     // show alert
+                              //   }
+                              // }),
+                            },
+                            constraints:
+                                BoxConstraints(minHeight: 80, minWidth: 80),
+                            fillColor: Colors.white,
+                            child: IconButton(
+                              icon: Image.asset(
+                                  'assets/images/free-icon-kakao-talk-2111466.png'),
+                              onPressed: () {},
+                            ),
+                            shape: CircleBorder(),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                            child:
+                                Center(child: Container(child: Text("카카오톡"))),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                      child: Column(
+                        children: [
+                          RawMaterialButton(
+                            onPressed: () {
+                              // URL
+                              // KakaoShareManager().getDynamicLink("abcd");
+                            },
+                            constraints:
+                                BoxConstraints(minHeight: 80, minWidth: 80),
+                            fillColor: Colors.white,
+                            child: IconButton(
+                              icon: Image.asset(
+                                  'assets/images/iconfinder_link_hyperlink_5402394.png'),
+                              onPressed: () {},
+                            ),
+                            shape: CircleBorder(),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                            child: Center(child: Container(child: Text("URL"))),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          );
+        });
   }
 
   @override
@@ -446,17 +629,7 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
             icon: new Icon(Icons.share),
             onPressed: () => {
               print("share"),
-              // kakato test
-              // 일단 주석처리 detail 잡아야함
-              // KakaoShareManager().isKakaotalkInstalled().then((installed) {
-              //   if (installed) {
-              //     print("kakao success");
-              //     KakaoShareManager().shareMyCode("abcd");
-              //   } else {
-              //     print("kakao error");
-              //     // show alert
-              //   }
-              // }),
+              _testModalBottomSheet(context),
             },
           ),
           popupMenuButton(),

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -207,6 +208,8 @@ class _LastChatState extends State<ChatScreen> {
             children: <Widget>[
               //create List of Message
               //_chattingbuildList(),
+
+              createProductInfomation(),
               createListMessages(),
               (isDisplaySticker ? createStickers() : Container()),
               //Input Controllers
@@ -296,6 +299,69 @@ class _LastChatState extends State<ChatScreen> {
     setState(() {
       isDisplaySticker = !isDisplaySticker;
     });
+  }
+
+  Future getProductInfo() async {
+    return FirebaseFirestore.instance.collection('products').doc(postId).get();
+  }
+
+  FutureBuilder createProductInfomation() {
+    return FutureBuilder(
+      future: getProductInfo(),
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return CircularProgressIndicator();
+          default:
+            if (snapshot.hasData == false) {
+              return CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(fontSize: 15),
+              );
+            } else {
+              return Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 4, 0, 0),
+                    child: Row(
+                      children: <Widget>[
+                        Material(
+                          child: ExtendedImage.network(
+                            snapshot.data['images'][0],
+                            width: 55,
+                            height: 55,
+                            fit: BoxFit.cover,
+                            cache: true,
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(6.0)),
+                          clipBehavior: Clip.hardEdge,
+                        ),
+                        SizedBox(
+                          width: 10,
+                          height: 10,
+                        ),
+                        Column(
+                          children: <Widget>[
+                            Text(snapshot.data['title']),
+                            Text(snapshot.data['price']),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                  Divider(
+                    color: Colors.black,
+                    height: 10,
+                    thickness: 1,
+                  ),
+                ],
+              );
+            }
+        }
+      },
+    );
   }
 
   createListMessages() {
@@ -731,23 +797,40 @@ class _LastChatState extends State<ChatScreen> {
       textEditingController.clear();
 
       //기존
-      var docRef2 = Firestore.instance
-          .collection("chattinglist")
-          .document(DateTime.now().millisecondsSinceEpoch.toString());
 
-      var docRef = Firestore.instance
+      var docRef = FirebaseFirestore.instance
           .collection("chattingroom")
           .doc(chattingRoomId) //채팅룸 입력
           .collection("message")
-          .document(DateTime.now().millisecondsSinceEpoch.toString());
+          .doc(DateTime.now().millisecondsSinceEpoch.toString());
 
-      Firestore.instance.runTransaction((transaction) async {
+      var docRef2 = FirebaseFirestore.instance
+          .collection("chattingroom")
+          .doc(chattingRoomId);
+
+      FirebaseFirestore.instance.runTransaction((transaction) async {
         await transaction.set(docRef, {
           "idFrom": myId,
           "idTo": friendId,
           "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
           "content": contentMsg,
           "type": type,
+        });
+      });
+
+      switch (type) {
+        case 1:
+          contentMsg = "사진을 보냈습니다.";
+          break;
+        case 2:
+          contentMsg = "이모티콘을 보냈습니다.";
+          break;
+      }
+
+      FirebaseFirestore.instance.runTransaction((transaction) async {
+        await transaction.update(docRef2, {
+          "recent_text": contentMsg,
+          "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
         });
       });
       listScrollController.animateTo(0.0,

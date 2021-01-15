@@ -38,6 +38,7 @@ dependencies:
   firebase_auth: ^0.18.2
   google_sign_in: ^4.5.5
   http: ^0.12.2
+  extended_image: ^1.5.0
   ##### HEP #####
   moor: ^3.4.0
   moor_flutter: ^3.1.0         # moor database

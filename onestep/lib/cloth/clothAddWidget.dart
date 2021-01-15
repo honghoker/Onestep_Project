@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,7 +7,6 @@ import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:random_string/random_string.dart';
 import 'package:onestep/PermissionLib/customPermisson.dart';

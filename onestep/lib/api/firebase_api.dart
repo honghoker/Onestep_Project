@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 class FirebaseApi {
   static String getId() {
     final FirebaseAuth _auth = FirebaseAuth.instance;
+    print(_auth.currentUser.uid + "uid 출력");
     return _auth.currentUser.uid;
   }
 
@@ -17,12 +18,16 @@ class FirebaseApi {
     if (category == "전체") {
       refProducts = FirebaseFirestore.instance
           .collection('products')
+          .where("deleted", isEqualTo: false)
+          .where("hide", isEqualTo: false)
           .orderBy("uploadtime", descending: true)
           .limit(limit);
     } else {
       refProducts = FirebaseFirestore.instance
           .collection('products')
           .where("category", isEqualTo: category)
+          .where("deleted", isEqualTo: false)
+          .where("hide", isEqualTo: false)
           .orderBy("uploadtime", descending: true)
           .limit(limit);
     }

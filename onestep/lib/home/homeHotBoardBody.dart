@@ -8,6 +8,7 @@ class HomeHotBoardBody extends StatefulWidget {
 }
 
 class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -18,6 +19,7 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
         borderRadius: BorderRadius.all(Radius.circular(9.0)),
         border: Border.all(width: 1.0, color: Colors.black.withOpacity(0.2)),
       ),
+      
       child: Padding(
         padding: const EdgeInsets.all(17.0),
         child: Column(
@@ -29,6 +31,7 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
                 Container(
                   margin: new EdgeInsets.only(bottom: 15),
                   child: new Text(
+                    // "${(20 / 350) * (MediaQuery.of(context).size.height)}",
                     "Hot 게시물",
                     style: new TextStyle(fontSize: 20),
                   ),
@@ -57,7 +60,7 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom:5.0),
+                  padding: const EdgeInsets.only(bottom: 5.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
@@ -99,7 +102,7 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
                 ),
               ],
             ),
-               Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
@@ -109,7 +112,7 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom:5.0),
+                  padding: const EdgeInsets.only(bottom: 5.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
@@ -150,7 +153,8 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
                   ),
                 ),
               ],
-            ),   Column(
+            ),
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
@@ -160,7 +164,7 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom:5.0),
+                  padding: const EdgeInsets.only(bottom: 5.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
@@ -201,7 +205,8 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
                   ),
                 ),
               ],
-            ),   Column(
+            ),
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
@@ -211,7 +216,7 @@ class _HomeHotBoardBodyState extends State<HomeHotBoardBody> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom:5.0),
+                  padding: const EdgeInsets.only(bottom: 5.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[

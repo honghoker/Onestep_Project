@@ -1,13 +1,14 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 import 'package:onestep/moor/moor_database.dart';
+import 'package:onestep/notification/Controllers/notificationManager.dart';
 import 'package:provider/provider.dart';
-import 'package:onestep/notification/Controllers/firebaseChatController.dart';
 import 'package:onestep/api/firebase_api.dart';
 
 class ClothDetailViewWidget extends StatefulWidget {
@@ -25,7 +26,37 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
   @override
   void initState() {
     _imageItem.addAll(jsonDecode(widget.product.images));
+    if (widget.product.hide == 1 || widget.product.deleted == 1) {}
+    // dynamic link
+    initDynamicLinks();
     super.initState();
+  }
+
+  void initDynamicLinks() async {
+    FirebaseDynamicLinks.instance.onLink(
+        onSuccess: (PendingDynamicLinkData dynamicLink) async {
+      final Uri deepLink = dynamicLink?.link;
+
+      print(deepLink);
+      print(deepLink.path);
+
+      if (deepLink != null) {
+        // do something
+      }
+    }, onError: (OnLinkErrorException e) async {
+      print('onLinkError');
+      print(e.message);
+    });
+
+    final PendingDynamicLinkData data =
+        await FirebaseDynamicLinks.instance.getInitialLink();
+    final Uri deepLink = data?.link;
+
+    print(deepLink);
+
+    if (deepLink != null) {
+      // do something
+    }
   }
 
   String getDiffTime(Timestamp uploadtime) {
@@ -132,144 +163,133 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
             return new Text("");
           default:
             incProductViews(snapshot.data.data()['views'] + 1);
-            return LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-                return SingleChildScrollView(
-                  child: ConstrainedBox(
-                    constraints: constraints.copyWith(
-                      minHeight: constraints.maxHeight,
-                      maxHeight: double.infinity,
+
+            return SingleChildScrollView(
+              child: Column(
+                // mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    color: Color(0xFFDF0F4),
+                    height: 430,
+                    child: Swiper(
+                      onTap: (index) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ImageFullViewerWidget(
+                                galleryItems: _imageItem,
+                                index: index,
+                              ),
+                            ));
+                      },
+                      pagination: SwiperPagination(
+                        alignment: Alignment.bottomCenter,
+                        builder: DotSwiperPaginationBuilder(
+                          activeColor: Colors.pink,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      itemCount: _imageItem.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Image.network(
+                          _imageItem[index],
+                          fit: BoxFit.cover,
+                        );
+                      },
                     ),
-                    child: IntrinsicHeight(
-                      child: Column(
-                        // mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Container(
-                            color: Color(0xFFDF0F4),
-                            height: 430,
-                            child: Swiper(
-                              onTap: (index) {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          ImageFullViewerWidget(
-                                        galleryItems: _imageItem,
-                                        index: index,
-                                      ),
-                                    ));
-                              },
-                              pagination: SwiperPagination(
-                                alignment: Alignment.bottomCenter,
-                                builder: DotSwiperPaginationBuilder(
-                                  activeColor: Colors.pink,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              itemCount: _imageItem.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return Image.network(
-                                  _imageItem[index],
-                                  fit: BoxFit.cover,
-                                );
-                              },
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Text(
-                              "${snapshot.data.data()['price']}원",
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF333333),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Text(
-                              "${snapshot.data.data()['title']}",
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF333333),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Row(
-                              children: <Widget>[
-                                Icon(
-                                  Icons.local_offer,
-                                  color: Colors.grey,
-                                  size: 17,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 2.0),
-                                ),
-                                Text("${snapshot.data.data()['category']}"),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Row(
-                              children: <Widget>[
-                                Icon(
-                                  Icons.access_time,
-                                  color: Colors.grey,
-                                  size: 15,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 2.0),
-                                ),
-                                Text(
-                                    "${getDiffTime(snapshot.data.data()['uploadtime'])}"),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                ),
-                                Icon(
-                                  Icons.remove_red_eye,
-                                  color: Colors.grey,
-                                  size: 15,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 2.0),
-                                ),
-                                Text("${snapshot.data.data()['views']}"),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                ),
-                                Icon(
-                                  Icons.favorite,
-                                  color: Colors.grey,
-                                  size: 15,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 2.0),
-                                ),
-                                Text("22"),
-                              ],
-                            ),
-                          ),
-                          Divider(),
-                          Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Text("${snapshot.data.data()['explain']}"),
-                          ),
-                        ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Text(
+                      "${snapshot.data.data()['price']}원",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF333333),
                       ),
                     ),
                   ),
-                );
-              },
+                  Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Text(
+                      "${snapshot.data.data()['title']}",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF333333),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.local_offer,
+                          color: Colors.grey,
+                          size: 17,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 2.0),
+                        ),
+                        Text("${snapshot.data.data()['category']}"),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.access_time,
+                          color: Colors.grey,
+                          size: 15,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 2.0),
+                        ),
+                        Text(
+                            "${getDiffTime(snapshot.data.data()['uploadtime'])}"),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                        ),
+                        Icon(
+                          Icons.remove_red_eye,
+                          color: Colors.grey,
+                          size: 15,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 2.0),
+                        ),
+                        Text("${snapshot.data.data()['views']}"),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                        ),
+                        Icon(
+                          Icons.favorite,
+                          color: Colors.grey,
+                          size: 15,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 2.0),
+                        ),
+                        Text("${snapshot.data.data()['favorites']}"),
+                        // dtdtdtdtd
+                      ],
+                    ),
+                  ),
+                  Divider(),
+                  Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Text("${snapshot.data.data()['explain']}"),
+                  ),
+                ],
+              ),
             );
         }
       },
@@ -281,6 +301,18 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
       case '새로고침':
         break;
       case '신고하기':
+        break;
+      case '숨김':
+        FirebaseFirestore.instance
+            .collection("products")
+            .doc(widget.product.firestoreid)
+            .update({'hide': true});
+        break;
+      case '삭제':
+        FirebaseFirestore.instance
+            .collection("products")
+            .doc(widget.product.firestoreid)
+            .update({'deleted': true});
         break;
     }
   }
@@ -302,12 +334,26 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
             icon: new Icon(Icons.share),
             onPressed: () => {
               print("share"),
+              // kakato test
+              // 일단 주석처리 detail 잡아야함
+              // KakaoShareManager().isKakaotalkInstalled().then((installed) {
+              //   if (installed) {
+              //     print("kakao success");
+              //     KakaoShareManager().shareMyCode("abcd");
+              //   } else {
+              //     print("kakao error");
+              //     // show alert
+              //   }
+              // }),
             },
           ),
           PopupMenuButton<String>(
             onSelected: handleClick,
             itemBuilder: (BuildContext context) {
-              return {'새로고침', '신고하기'}.map((String choice) {
+              var menuItem = {'새로고침', '신고하기'};
+              if (FirebaseApi.getId() == widget.product.uid)
+                menuItem.addAll({"숨김", "삭제"});
+              return menuItem.map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
                   child: Text(choice),
@@ -365,14 +411,21 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
                     onPressed: () {
                       print(
                           "firestoreid = ${widget.product.firestoreid}, title = ${widget.product.title} uid = ${widget.product.uid}");
-                      FirebaseChatController()
-                          .createChatingRoomToFirebaseStorage(
-                        true,
-                        widget.product.firestoreid,
-                        widget.product.title,
+                      // FirebaseChatController()
+                      //     .createChatingRoomToFirebaseStorage(
+                      //   false,
+                      //   widget.product.firestoreid,
+                      //   widget.product.title,
+                      //   FirebaseApi.getId(),
+                      //   widget.product.uid,
+                      // );
+                      NotificationManager.navigateToChattingRoom(
+                        context,
                         FirebaseApi.getId(),
                         widget.product.uid,
+                        widget.product.firestoreid,
                       );
+                      //Navigator.of(context).pop();
                     },
                     color: Colors.pink,
                     textColor: Colors.white,

@@ -15,8 +15,11 @@ class Product extends DataClass implements Insertable<Product> {
   final String price;
   final String explain;
   final int views;
+  final int favorites;
   final DateTime uploadtime;
   final String images;
+  final int hide;
+  final int deleted;
   Product(
       {@required this.title,
       @required this.firestoreid,
@@ -25,8 +28,11 @@ class Product extends DataClass implements Insertable<Product> {
       @required this.price,
       this.explain,
       this.views,
+      this.favorites,
       this.uploadtime,
-      @required this.images});
+      @required this.images,
+      @required this.hide,
+      @required this.deleted});
   factory Product.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -46,10 +52,15 @@ class Product extends DataClass implements Insertable<Product> {
       explain:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}explain']),
       views: intType.mapFromDatabaseResponse(data['${effectivePrefix}views']),
+      favorites:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}favorites']),
       uploadtime: dateTimeType
           .mapFromDatabaseResponse(data['${effectivePrefix}uploadtime']),
       images:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}images']),
+      hide: intType.mapFromDatabaseResponse(data['${effectivePrefix}hide']),
+      deleted:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}deleted']),
     );
   }
   @override
@@ -76,11 +87,20 @@ class Product extends DataClass implements Insertable<Product> {
     if (!nullToAbsent || views != null) {
       map['views'] = Variable<int>(views);
     }
+    if (!nullToAbsent || favorites != null) {
+      map['favorites'] = Variable<int>(favorites);
+    }
     if (!nullToAbsent || uploadtime != null) {
       map['uploadtime'] = Variable<DateTime>(uploadtime);
     }
     if (!nullToAbsent || images != null) {
       map['images'] = Variable<String>(images);
+    }
+    if (!nullToAbsent || hide != null) {
+      map['hide'] = Variable<int>(hide);
+    }
+    if (!nullToAbsent || deleted != null) {
+      map['deleted'] = Variable<int>(deleted);
     }
     return map;
   }
@@ -103,11 +123,18 @@ class Product extends DataClass implements Insertable<Product> {
           : Value(explain),
       views:
           views == null && nullToAbsent ? const Value.absent() : Value(views),
+      favorites: favorites == null && nullToAbsent
+          ? const Value.absent()
+          : Value(favorites),
       uploadtime: uploadtime == null && nullToAbsent
           ? const Value.absent()
           : Value(uploadtime),
       images:
           images == null && nullToAbsent ? const Value.absent() : Value(images),
+      hide: hide == null && nullToAbsent ? const Value.absent() : Value(hide),
+      deleted: deleted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deleted),
     );
   }
 
@@ -122,8 +149,11 @@ class Product extends DataClass implements Insertable<Product> {
       price: serializer.fromJson<String>(json['price']),
       explain: serializer.fromJson<String>(json['explain']),
       views: serializer.fromJson<int>(json['views']),
+      favorites: serializer.fromJson<int>(json['favorites']),
       uploadtime: serializer.fromJson<DateTime>(json['uploadtime']),
       images: serializer.fromJson<String>(json['images']),
+      hide: serializer.fromJson<int>(json['hide']),
+      deleted: serializer.fromJson<int>(json['deleted']),
     );
   }
   @override
@@ -137,8 +167,11 @@ class Product extends DataClass implements Insertable<Product> {
       'price': serializer.toJson<String>(price),
       'explain': serializer.toJson<String>(explain),
       'views': serializer.toJson<int>(views),
+      'favorites': serializer.toJson<int>(favorites),
       'uploadtime': serializer.toJson<DateTime>(uploadtime),
       'images': serializer.toJson<String>(images),
+      'hide': serializer.toJson<int>(hide),
+      'deleted': serializer.toJson<int>(deleted),
     };
   }
 
@@ -150,8 +183,11 @@ class Product extends DataClass implements Insertable<Product> {
           String price,
           String explain,
           int views,
+          int favorites,
           DateTime uploadtime,
-          String images}) =>
+          String images,
+          int hide,
+          int deleted}) =>
       Product(
         title: title ?? this.title,
         firestoreid: firestoreid ?? this.firestoreid,
@@ -160,8 +196,11 @@ class Product extends DataClass implements Insertable<Product> {
         price: price ?? this.price,
         explain: explain ?? this.explain,
         views: views ?? this.views,
+        favorites: favorites ?? this.favorites,
         uploadtime: uploadtime ?? this.uploadtime,
         images: images ?? this.images,
+        hide: hide ?? this.hide,
+        deleted: deleted ?? this.deleted,
       );
   @override
   String toString() {
@@ -173,8 +212,11 @@ class Product extends DataClass implements Insertable<Product> {
           ..write('price: $price, ')
           ..write('explain: $explain, ')
           ..write('views: $views, ')
+          ..write('favorites: $favorites, ')
           ..write('uploadtime: $uploadtime, ')
-          ..write('images: $images')
+          ..write('images: $images, ')
+          ..write('hide: $hide, ')
+          ..write('deleted: $deleted')
           ..write(')'))
         .toString();
   }
@@ -195,7 +237,13 @@ class Product extends DataClass implements Insertable<Product> {
                           $mrjc(
                               views.hashCode,
                               $mrjc(
-                                  uploadtime.hashCode, images.hashCode)))))))));
+                                  favorites.hashCode,
+                                  $mrjc(
+                                      uploadtime.hashCode,
+                                      $mrjc(
+                                          images.hashCode,
+                                          $mrjc(hide.hashCode,
+                                              deleted.hashCode))))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -207,8 +255,11 @@ class Product extends DataClass implements Insertable<Product> {
           other.price == this.price &&
           other.explain == this.explain &&
           other.views == this.views &&
+          other.favorites == this.favorites &&
           other.uploadtime == this.uploadtime &&
-          other.images == this.images);
+          other.images == this.images &&
+          other.hide == this.hide &&
+          other.deleted == this.deleted);
 }
 
 class ProductsCompanion extends UpdateCompanion<Product> {
@@ -219,8 +270,11 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<String> price;
   final Value<String> explain;
   final Value<int> views;
+  final Value<int> favorites;
   final Value<DateTime> uploadtime;
   final Value<String> images;
+  final Value<int> hide;
+  final Value<int> deleted;
   const ProductsCompanion({
     this.title = const Value.absent(),
     this.firestoreid = const Value.absent(),
@@ -229,8 +283,11 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.price = const Value.absent(),
     this.explain = const Value.absent(),
     this.views = const Value.absent(),
+    this.favorites = const Value.absent(),
     this.uploadtime = const Value.absent(),
     this.images = const Value.absent(),
+    this.hide = const Value.absent(),
+    this.deleted = const Value.absent(),
   });
   ProductsCompanion.insert({
     @required String title,
@@ -240,14 +297,19 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     @required String price,
     this.explain = const Value.absent(),
     this.views = const Value.absent(),
+    this.favorites = const Value.absent(),
     this.uploadtime = const Value.absent(),
     @required String images,
+    @required int hide,
+    @required int deleted,
   })  : title = Value(title),
         firestoreid = Value(firestoreid),
         uid = Value(uid),
         category = Value(category),
         price = Value(price),
-        images = Value(images);
+        images = Value(images),
+        hide = Value(hide),
+        deleted = Value(deleted);
   static Insertable<Product> custom({
     Expression<String> title,
     Expression<String> firestoreid,
@@ -256,8 +318,11 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     Expression<String> price,
     Expression<String> explain,
     Expression<int> views,
+    Expression<int> favorites,
     Expression<DateTime> uploadtime,
     Expression<String> images,
+    Expression<int> hide,
+    Expression<int> deleted,
   }) {
     return RawValuesInsertable({
       if (title != null) 'title': title,
@@ -267,8 +332,11 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       if (price != null) 'price': price,
       if (explain != null) 'explain': explain,
       if (views != null) 'views': views,
+      if (favorites != null) 'favorites': favorites,
       if (uploadtime != null) 'uploadtime': uploadtime,
       if (images != null) 'images': images,
+      if (hide != null) 'hide': hide,
+      if (deleted != null) 'deleted': deleted,
     });
   }
 
@@ -280,8 +348,11 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       Value<String> price,
       Value<String> explain,
       Value<int> views,
+      Value<int> favorites,
       Value<DateTime> uploadtime,
-      Value<String> images}) {
+      Value<String> images,
+      Value<int> hide,
+      Value<int> deleted}) {
     return ProductsCompanion(
       title: title ?? this.title,
       firestoreid: firestoreid ?? this.firestoreid,
@@ -290,8 +361,11 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       price: price ?? this.price,
       explain: explain ?? this.explain,
       views: views ?? this.views,
+      favorites: favorites ?? this.favorites,
       uploadtime: uploadtime ?? this.uploadtime,
       images: images ?? this.images,
+      hide: hide ?? this.hide,
+      deleted: deleted ?? this.deleted,
     );
   }
 
@@ -319,11 +393,20 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     if (views.present) {
       map['views'] = Variable<int>(views.value);
     }
+    if (favorites.present) {
+      map['favorites'] = Variable<int>(favorites.value);
+    }
     if (uploadtime.present) {
       map['uploadtime'] = Variable<DateTime>(uploadtime.value);
     }
     if (images.present) {
       map['images'] = Variable<String>(images.value);
+    }
+    if (hide.present) {
+      map['hide'] = Variable<int>(hide.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<int>(deleted.value);
     }
     return map;
   }
@@ -338,8 +421,11 @@ class ProductsCompanion extends UpdateCompanion<Product> {
           ..write('price: $price, ')
           ..write('explain: $explain, ')
           ..write('views: $views, ')
+          ..write('favorites: $favorites, ')
           ..write('uploadtime: $uploadtime, ')
-          ..write('images: $images')
+          ..write('images: $images, ')
+          ..write('hide: $hide, ')
+          ..write('deleted: $deleted')
           ..write(')'))
         .toString();
   }
@@ -435,6 +521,18 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     );
   }
 
+  final VerificationMeta _favoritesMeta = const VerificationMeta('favorites');
+  GeneratedIntColumn _favorites;
+  @override
+  GeneratedIntColumn get favorites => _favorites ??= _constructFavorites();
+  GeneratedIntColumn _constructFavorites() {
+    return GeneratedIntColumn(
+      'favorites',
+      $tableName,
+      true,
+    );
+  }
+
   final VerificationMeta _uploadtimeMeta = const VerificationMeta('uploadtime');
   GeneratedDateTimeColumn _uploadtime;
   @override
@@ -460,6 +558,30 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     );
   }
 
+  final VerificationMeta _hideMeta = const VerificationMeta('hide');
+  GeneratedIntColumn _hide;
+  @override
+  GeneratedIntColumn get hide => _hide ??= _constructHide();
+  GeneratedIntColumn _constructHide() {
+    return GeneratedIntColumn(
+      'hide',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _deletedMeta = const VerificationMeta('deleted');
+  GeneratedIntColumn _deleted;
+  @override
+  GeneratedIntColumn get deleted => _deleted ??= _constructDeleted();
+  GeneratedIntColumn _constructDeleted() {
+    return GeneratedIntColumn(
+      'deleted',
+      $tableName,
+      false,
+    );
+  }
+
   @override
   List<GeneratedColumn> get $columns => [
         title,
@@ -469,8 +591,11 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
         price,
         explain,
         views,
+        favorites,
         uploadtime,
-        images
+        images,
+        hide,
+        deleted
       ];
   @override
   $ProductsTable get asDslTable => this;
@@ -523,6 +648,10 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
       context.handle(
           _viewsMeta, views.isAcceptableOrUnknown(data['views'], _viewsMeta));
     }
+    if (data.containsKey('favorites')) {
+      context.handle(_favoritesMeta,
+          favorites.isAcceptableOrUnknown(data['favorites'], _favoritesMeta));
+    }
     if (data.containsKey('uploadtime')) {
       context.handle(
           _uploadtimeMeta,
@@ -534,6 +663,18 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
           images.isAcceptableOrUnknown(data['images'], _imagesMeta));
     } else if (isInserting) {
       context.missing(_imagesMeta);
+    }
+    if (data.containsKey('hide')) {
+      context.handle(
+          _hideMeta, hide.isAcceptableOrUnknown(data['hide'], _hideMeta));
+    } else if (isInserting) {
+      context.missing(_hideMeta);
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(_deletedMeta,
+          deleted.isAcceptableOrUnknown(data['deleted'], _deletedMeta));
+    } else if (isInserting) {
+      context.missing(_deletedMeta);
     }
     return context;
   }
@@ -552,23 +693,217 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
   }
 }
 
+class Search extends DataClass implements Insertable<Search> {
+  final int id;
+  final String title;
+  Search({@required this.id, @required this.title});
+  factory Search.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final intType = db.typeSystem.forDartType<int>();
+    final stringType = db.typeSystem.forDartType<String>();
+    return Search(
+      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      title:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}title']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    if (!nullToAbsent || title != null) {
+      map['title'] = Variable<String>(title);
+    }
+    return map;
+  }
+
+  SearchsCompanion toCompanion(bool nullToAbsent) {
+    return SearchsCompanion(
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      title:
+          title == null && nullToAbsent ? const Value.absent() : Value(title),
+    );
+  }
+
+  factory Search.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return Search(
+      id: serializer.fromJson<int>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'title': serializer.toJson<String>(title),
+    };
+  }
+
+  Search copyWith({int id, String title}) => Search(
+        id: id ?? this.id,
+        title: title ?? this.title,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Search(')
+          ..write('id: $id, ')
+          ..write('title: $title')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(id.hashCode, title.hashCode));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is Search && other.id == this.id && other.title == this.title);
+}
+
+class SearchsCompanion extends UpdateCompanion<Search> {
+  final Value<int> id;
+  final Value<String> title;
+  const SearchsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+  });
+  SearchsCompanion.insert({
+    this.id = const Value.absent(),
+    @required String title,
+  }) : title = Value(title);
+  static Insertable<Search> custom({
+    Expression<int> id,
+    Expression<String> title,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+    });
+  }
+
+  SearchsCompanion copyWith({Value<int> id, Value<String> title}) {
+    return SearchsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SearchsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $SearchsTable(this._db, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  GeneratedIntColumn _id;
+  @override
+  GeneratedIntColumn get id => _id ??= _constructId();
+  GeneratedIntColumn _constructId() {
+    return GeneratedIntColumn('id', $tableName, false,
+        hasAutoIncrement: true, declaredAsPrimaryKey: true);
+  }
+
+  final VerificationMeta _titleMeta = const VerificationMeta('title');
+  GeneratedTextColumn _title;
+  @override
+  GeneratedTextColumn get title => _title ??= _constructTitle();
+  GeneratedTextColumn _constructTitle() {
+    return GeneratedTextColumn(
+      'title',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [id, title];
+  @override
+  $SearchsTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'searchs';
+  @override
+  final String actualTableName = 'searchs';
+  @override
+  VerificationContext validateIntegrity(Insertable<Search> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title'], _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Search map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return Search.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $SearchsTable createAlias(String alias) {
+    return $SearchsTable(_db, alias);
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $ProductsTable _products;
   $ProductsTable get products => _products ??= $ProductsTable(this);
+  $SearchsTable _searchs;
+  $SearchsTable get searchs => _searchs ??= $SearchsTable(this);
   ProductsDao _productsDao;
   ProductsDao get productsDao =>
       _productsDao ??= ProductsDao(this as AppDatabase);
+  SearchsDao _searchsDao;
+  SearchsDao get searchsDao => _searchsDao ??= SearchsDao(this as AppDatabase);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [products];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [products, searchs];
 }
 
 // **************************************************************************
 // DaoGenerator
 // **************************************************************************
 
+mixin _$SearchsDaoMixin on DatabaseAccessor<AppDatabase> {
+  $SearchsTable get searchs => attachedDatabase.searchs;
+}
 mixin _$ProductsDaoMixin on DatabaseAccessor<AppDatabase> {
   $ProductsTable get products => attachedDatabase.products;
 }

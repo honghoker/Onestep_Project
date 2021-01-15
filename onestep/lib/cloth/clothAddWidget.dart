@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
@@ -172,7 +173,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
     );
   }
 
-  Future<void> uploadPost() async {
+  Future<void> uploadProduct() async {
     if (_titleTextEditingController.text.trim() == "") {
       _scaffoldKey.currentState
           .showSnackBar(SnackBar(content: Text("제목을 입력해주세요.")));
@@ -189,16 +190,8 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
       _scaffoldKey.currentState
           .showSnackBar(SnackBar(content: Text("물품을 등록하려면 두장 이상의 사진이 필요합니다.")));
     } else {
-      // ProgressDialog _pr;
-      // _pr = ProgressDialog(context,
-      //     type: ProgressDialogType.Normal, isDismissible: true, showLogs: true);
-
-      // _pr.style(
-      //   message: '저장 중 입니다',
-      // );
-
-      // await _pr.show();
-
+      var yyDialog = progressDialogBody();
+      yyDialog.show();
       List _imgUriarr = [];
 
       for (var imaged in _imageList) {
@@ -219,17 +212,73 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
         'category': _selectedCategoryItem,
         'explain': _explainTextEditingController.text,
         'images': _imgUriarr,
+        'favorites': 0,
+        'hide': false,
+        'deleted': false,
         'views': 0,
         'uploadtime': DateTime.now(),
       }).whenComplete(() {
         if (Navigator.canPop(context)) {
-          // await _pr.hide();
+          yyDialog.dismiss();
           Navigator.pop(context, "OK");
         } else {
           SystemNavigator.pop();
         }
       });
     }
+  }
+
+  YYDialog progressDialogBody() {
+    return YYDialog().build(context)
+      ..width = 200
+      ..borderRadius = 4.0
+      ..barrierDismissible = false
+      ..circularProgress(
+        padding: EdgeInsets.all(24.0),
+        valueColor: Colors.orange[500],
+      )
+      ..text(
+        padding: EdgeInsets.fromLTRB(18.0, 0.0, 18.0, 12.0),
+        text: "저장 중",
+        alignment: Alignment.center,
+        color: Colors.orange[500],
+        fontSize: 14.0,
+      );
+  }
+
+  YYDialog uploadProductDialog() {
+    return YYDialog().build(context)
+      ..width = 220
+      ..borderRadius = 4.0
+      ..text(
+        padding: EdgeInsets.all(25.0),
+        alignment: Alignment.center,
+        text: "물품을 등록할까요?",
+        color: Colors.black,
+        fontSize: 14.0,
+        fontWeight: FontWeight.w500,
+      )
+      ..divider()
+      ..doubleButton(
+        padding: EdgeInsets.only(top: 10.0),
+        gravity: Gravity.center,
+        withDivider: true,
+        text1: "확인",
+        color1: Colors.redAccent,
+        fontSize1: 14.0,
+        fontWeight1: FontWeight.bold,
+        onTap1: () {
+          return true;
+        },
+        text2: "취소",
+        color2: Colors.redAccent,
+        fontSize2: 14.0,
+        fontWeight2: FontWeight.bold,
+        onTap2: () {
+          return false;
+        },
+      )
+      ..show();
   }
 
   @override
@@ -249,7 +298,10 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
           new IconButton(
             icon: new Icon(Icons.check),
             onPressed: () => {
-              uploadPost(),
+              uploadProductDialog(),
+              // {
+              // uploadProduct(),
+              // },
             },
           ),
         ],

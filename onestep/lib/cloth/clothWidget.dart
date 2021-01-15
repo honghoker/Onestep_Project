@@ -3,7 +3,6 @@ import 'package:onestep/cloth/clothAddWidget.dart';
 import 'package:onestep/cloth/clothSearchResultPage.dart';
 import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:onestep/favorite/favoriteWidget.dart';
-import 'package:onestep/home/homeSearchResultPage.dart';
 import 'package:provider/provider.dart';
 import 'package:unicorndial/unicorndial.dart';
 
@@ -188,6 +187,7 @@ class _ClothWidgetState extends State<ClothWidget> {
 
     return Scaffold(
       resizeToAvoidBottomPadding: false,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
           '장터',

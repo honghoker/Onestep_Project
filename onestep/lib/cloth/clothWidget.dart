@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:onestep/cloth/clothAddWidget.dart';
 import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:onestep/favorite/favoriteWidget.dart';

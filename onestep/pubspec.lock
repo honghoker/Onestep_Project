@@ -22,6 +22,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.0"
+  archive:
+    dependency: transitive
+    description:
+      name: archive
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.13"
   args:
     dependency: transitive
     description:
@@ -119,7 +126,7 @@ packages:
       name: cached_network_image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.3.3"
+    version: "2.5.0"
   characters:
     dependency: transitive
     description:
@@ -225,6 +232,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.10"
+  extended_image:
+    dependency: "direct main"
+    description:
+      name: extended_image
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.5.0"
+  extended_image_library:
+    dependency: transitive
+    description:
+      name: extended_image_library
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.1"
   fab_circular_menu:
     dependency: "direct dev"
     description:
@@ -348,7 +369,14 @@ packages:
       name: flutter_cache_manager
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "2.1.0"
+  flutter_custom_dialog:
+    dependency: "direct main"
+    description:
+      name: flutter_custom_dialog
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.20"
   flutter_page_indicator:
     dependency: transitive
     description:
@@ -443,6 +471,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.12.2"
+  http_client_helper:
+    dependency: transitive
+    description:
+      name: http_client_helper
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.1"
   http_multi_server:
     dependency: transitive
     description:
@@ -457,6 +492,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.1.4"
+  image:
+    dependency: transitive
+    description:
+      name: image
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.19"
   image_picker:
     dependency: "direct main"
     description:
@@ -709,6 +751,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
+  petitparser:
+    dependency: transitive
+    description:
+      name: petitparser
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.1.0"
   photo_view:
     dependency: "direct main"
     description:
@@ -1043,6 +1092,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.0"
+  xml:
+    dependency: transitive
+    description:
+      name: xml
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.5.1"
   yaml:
     dependency: transitive
     description:

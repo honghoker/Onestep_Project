@@ -34,7 +34,6 @@ dependencies:
   image_picker: ^0.6.7+7
   fluttertoast: ^7.1.1
   shared_preferences: ^0.5.12 #id pw save
-  cached_network_image: ^2.3.2+1
   intl: ^0.16.1
   firebase_auth: ^0.18.2
   google_sign_in: ^4.5.5
@@ -54,6 +53,9 @@ dependencies:
   kakao_flutter_sdk: ^0.5.2    # KAKAO
   mailer: ^3.2.1
   firebase_dynamic_links: ^0.6.2
+  cached_network_image: ^2.5.0
+  extended_image: ^1.5.0
+  flutter_custom_dialog: ^1.0.20
 
 dev_dependencies:
   flutter_test:

@@ -5,14 +5,10 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
-import 'package:kakao_flutter_sdk/link.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
-import 'package:onestep/login/KakaoShareManager.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
-import 'package:onestep/notification/notificationMain.dart';
 import 'package:provider/provider.dart';
-import 'package:onestep/notification/Controllers/firebaseChatController.dart';
 import 'package:onestep/api/firebase_api.dart';
 
 class ClothDetailViewWidget extends StatefulWidget {
@@ -35,32 +31,31 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
     initDynamicLinks();
     super.initState();
   }
-  
+
   void initDynamicLinks() async {
     FirebaseDynamicLinks.instance.onLink(
         onSuccess: (PendingDynamicLinkData dynamicLink) async {
-          final Uri deepLink = dynamicLink?.link;
-        
-          print(deepLink);
-          print(deepLink.path);
-          
-          if (deepLink != null) {
-             // do something
-          }
-        },
-        onError: (OnLinkErrorException e) async {
-          print('onLinkError');
-          print(e.message);
-        }
-    );
+      final Uri deepLink = dynamicLink?.link;
 
-    final PendingDynamicLinkData data = await FirebaseDynamicLinks.instance.getInitialLink();
+      print(deepLink);
+      print(deepLink.path);
+
+      if (deepLink != null) {
+        // do something
+      }
+    }, onError: (OnLinkErrorException e) async {
+      print('onLinkError');
+      print(e.message);
+    });
+
+    final PendingDynamicLinkData data =
+        await FirebaseDynamicLinks.instance.getInitialLink();
     final Uri deepLink = data?.link;
 
     print(deepLink);
-    
+
     if (deepLink != null) {
-       // do something
+      // do something
     }
   }
 

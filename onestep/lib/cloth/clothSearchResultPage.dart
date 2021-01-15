@@ -68,6 +68,7 @@ class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
                     ),
                     onTap: () {
                       print("searchClick");
+                      FocusScope.of(context).unfocus();
                       setState(() {
                         _isSearchMode = false;
                         _textController.text = snapshot
@@ -153,7 +154,7 @@ class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
                                 },
                               )
                             : null,
-                        hintText: "장터글을 검색해보세요!"),
+                        hintText: "장터나 게시판을 검색해보세요!"),
                   ),
                 ),
               ),

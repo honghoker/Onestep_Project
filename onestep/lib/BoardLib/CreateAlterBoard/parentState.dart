@@ -509,8 +509,9 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
                         }
                         checkCamStorePermission(getImage);
                       }
-                    } else
+                    } else {
                       checkCamStorePermission(getImage);
+                    }
                   },
                   child: Container(
                     child: Icon(Icons.add),

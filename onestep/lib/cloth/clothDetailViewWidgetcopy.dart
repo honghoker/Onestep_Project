@@ -11,17 +11,19 @@ import 'package:onestep/notification/Controllers/notificationManager.dart';
 import 'package:provider/provider.dart';
 import 'package:onestep/api/firebase_api.dart';
 
-class ClothDetailViewWidget extends StatefulWidget {
+class ClothDetailViewWidgetcopy extends StatefulWidget {
   final Product product;
 
-  const ClothDetailViewWidget({Key key, this.product}) : super(key: key);
+  const ClothDetailViewWidgetcopy({Key key, this.product}) : super(key: key);
 
   @override
-  _ClothDetailViewWidgetState createState() => _ClothDetailViewWidgetState();
+  _ClothDetailViewWidgetcopyState createState() =>
+      _ClothDetailViewWidgetcopyState();
 }
 
-class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
+class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
   List _imageItem = new List();
+  TextEditingController _textcontroller;
 
   @override
   void initState() {
@@ -113,11 +115,18 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
           default:
             return GestureDetector(
               onTap: () {
+                int favorites = int.tryParse(_textcontroller.text);
                 if (snapshot.data.contains(this.widget.product) == false) {
                   pd.insertProduct(this.widget.product);
                   showFavoriteDialog();
+                  favorites++;
+                  _textcontroller.text = (favorites).toString();
+                  incdecProductViews(favorites);
                 } else {
                   pd.deleteProduct(this.widget.product);
+                  favorites--;
+                  _textcontroller.text = (favorites).toString();
+                  incdecProductViews(favorites);
                 }
               },
               child: Icon(
@@ -153,155 +162,158 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
     } catch (e) {}
   }
 
-  Widget renderBody() {
-    return FutureBuilder(
-      future: getProduct(),
-      builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return new Text("");
-          default:
-            if (snapshot.data.data()['deleted'] ||
-                snapshot.data.data()['hide']) {
-              return Container(
-                child: Center(
-                  child: Text("없는 상품이에요."),
-                ),
-              );
-            } else {
-              incProductViews(snapshot.data.data()['views'] + 1);
+  void incdecProductViews(int favorites) {
+    // 조회수 증가
+    try {
+      FirebaseFirestore.instance
+          .collection("products")
+          .doc(widget.product.firestoreid)
+          .update(
+        {
+          'favorites': favorites,
+        },
+      );
+    } catch (e) {}
+  }
 
-              return SingleChildScrollView(
-                child: Column(
-                  // mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      color: Color(0xFFDF0F4),
-                      height: 430,
-                      child: Swiper(
-                        onTap: (index) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ImageFullViewerWidget(
-                                  galleryItems: _imageItem,
-                                  index: index,
-                                ),
-                              ));
-                        },
-                        pagination: SwiperPagination(
-                          alignment: Alignment.bottomCenter,
-                          builder: DotSwiperPaginationBuilder(
-                            activeColor: Colors.pink,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        itemCount: _imageItem.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Image.network(
-                            _imageItem[index],
-                            fit: BoxFit.cover,
-                          );
-                        },
+  Widget renderBody(AsyncSnapshot<DocumentSnapshot> snapshot) {
+    return SingleChildScrollView(
+      child: Column(
+        // mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Container(
+            color: Color(0xFFDF0F4),
+            height: 430,
+            child: Swiper(
+              onTap: (index) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ImageFullViewerWidget(
+                        galleryItems: _imageItem,
+                        index: index,
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Text(
-                        "${snapshot.data.data()['price']}원",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF333333),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Text(
-                        "${snapshot.data.data()['title']}",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF333333),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.local_offer,
-                            color: Colors.grey,
-                            size: 17,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 2.0),
-                          ),
-                          Text("${snapshot.data.data()['category']}"),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.access_time,
-                            color: Colors.grey,
-                            size: 15,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 2.0),
-                          ),
-                          Text(
-                              "${getDiffTime(snapshot.data.data()['uploadtime'])}"),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                          ),
-                          Icon(
-                            Icons.remove_red_eye,
-                            color: Colors.grey,
-                            size: 15,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 2.0),
-                          ),
-                          Text("${snapshot.data.data()['views']}"),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                          ),
-                          Icon(
-                            Icons.favorite,
-                            color: Colors.grey,
-                            size: 15,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 2.0),
-                          ),
-                          Text("${snapshot.data.data()['favorites']}"),
-                          // dtdtdtdtd
-                        ],
-                      ),
-                    ),
-                    Divider(),
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Text("${snapshot.data.data()['explain']}"),
-                    ),
-                  ],
+                    ));
+              },
+              pagination: SwiperPagination(
+                alignment: Alignment.bottomCenter,
+                builder: DotSwiperPaginationBuilder(
+                  activeColor: Colors.pink,
+                  color: Colors.grey,
                 ),
-              );
-            }
-        }
-      },
+              ),
+              itemCount: _imageItem.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Image.network(
+                  _imageItem[index],
+                  fit: BoxFit.cover,
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Text(
+              "${snapshot.data.data()['price']}원",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF333333),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Text(
+              "${snapshot.data.data()['title']}",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF333333),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Row(
+              children: <Widget>[
+                Icon(
+                  Icons.local_offer,
+                  color: Colors.grey,
+                  size: 17,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 2.0),
+                ),
+                Text("${snapshot.data.data()['category']}"),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Row(
+              children: <Widget>[
+                Icon(
+                  Icons.access_time,
+                  color: Colors.grey,
+                  size: 15,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 2.0),
+                ),
+                Text("${getDiffTime(snapshot.data.data()['uploadtime'])}"),
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                ),
+                Icon(
+                  Icons.remove_red_eye,
+                  color: Colors.grey,
+                  size: 15,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 2.0),
+                ),
+                Text("${snapshot.data.data()['views']}"),
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                ),
+                Icon(
+                  Icons.favorite,
+                  color: Colors.grey,
+                  size: 15,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 2.0),
+                ),
+                Container(
+                  width: 30,
+                  child: TextField(
+                    controller: _textcontroller,
+                    enableInteractiveSelection: false,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+
+                // Text("${snapshot.data.data()['favorites']}"),
+                // dtdtdtdtd
+              ],
+            ),
+          ),
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Text("${snapshot.data.data()['explain']}"),
+          ),
+        ],
+      ),
     );
   }
 
@@ -429,41 +441,67 @@ class _ClothDetailViewWidgetState extends State<ClothDetailViewWidget> {
     );
   }
 
+  Widget shareButton() {
+    return new IconButton(
+      icon: new Icon(Icons.share),
+      onPressed: () => {
+        print("share"),
+        // kakato test
+        // 일단 주석처리 detail 잡아야함
+        // KakaoShareManager().isKakaotalkInstalled().then((installed) {
+        //   if (installed) {
+        //     print("kakao success");
+        //     KakaoShareManager().shareMyCode("abcd");
+        //   } else {
+        //     print("kakao error");
+        //     // show alert
+        //   }
+        // }),
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: Colors.black,
-        ),
-        title: Text(
-          '상세보기',
-          style: TextStyle(color: Colors.black),
-        ),
-        backgroundColor: Colors.white,
-        actions: <Widget>[
-          new IconButton(
-            icon: new Icon(Icons.share),
-            onPressed: () => {
-              print("share"),
-              // kakato test
-              // 일단 주석처리 detail 잡아야함
-              // KakaoShareManager().isKakaotalkInstalled().then((installed) {
-              //   if (installed) {
-              //     print("kakao success");
-              //     KakaoShareManager().shareMyCode("abcd");
-              //   } else {
-              //     print("kakao error");
-              //     // show alert
-              //   }
-              // }),
-            },
-          ),
-          popupMenuButton(),
-        ],
-      ),
-      body: renderBody(),
-      bottomNavigationBar: bottomNavigator(),
-    );
+    return FutureBuilder(
+        future: getProduct(),
+        builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return new Text("");
+            default:
+              if (snapshot.data.data()['deleted'] ||
+                  snapshot.data.data()['hide']) {
+                return Container(
+                  child: Center(
+                    child: Text("없는 상품이에요."),
+                  ),
+                );
+              } else {
+                _textcontroller = TextEditingController(
+                    text: snapshot.data.data()['favorites'].toString());
+                incProductViews(snapshot.data.data()['views'] + 1);
+                return Scaffold(
+                  appBar: AppBar(
+                    iconTheme: IconThemeData(
+                      color: Colors.black,
+                    ),
+                    title: Text(
+                      '상세보기',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    backgroundColor: Colors.white,
+                    actions: <Widget>[
+                      shareButton(),
+                      popupMenuButton(),
+                    ],
+                  ),
+                  body: renderBody(snapshot),
+                  bottomNavigationBar: bottomNavigator(),
+                );
+              }
+          }
+        });
   }
 }

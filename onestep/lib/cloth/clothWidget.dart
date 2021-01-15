@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:onestep/cloth/clothAddWidget.dart';
 import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:onestep/favorite/favoriteWidget.dart';
@@ -110,7 +109,9 @@ class _ClothWidgetState extends State<ClothWidget> {
       physics: NeverScrollableScrollPhysics(),
       padding: EdgeInsets.symmetric(horizontal: 15),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        childAspectRatio: (itemWidth / itemHeight),
+        childAspectRatio: itemWidth > itemHeight
+            ? (itemHeight / itemWidth)
+            : (itemWidth / itemHeight),
         crossAxisCount: 3,
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
@@ -137,7 +138,7 @@ class _ClothWidgetState extends State<ClothWidget> {
   @override
   Widget build(BuildContext context) {
     var _size = MediaQuery.of(context).size;
-    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 1.9;
+    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.0;
     final double _itemWidth = _size.width / 2;
 
     final floatingButtons = List<UnicornButton>();
@@ -148,12 +149,11 @@ class _ClothWidgetState extends State<ClothWidget> {
         labelText: "위로",
         currentButton: FloatingActionButton(
           onPressed: () {
-            print('ScrollTop');
             _scrollController.position
                 .moveTo(0.5, duration: Duration(milliseconds: 500));
           },
           heroTag: "ScrollTop",
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.white,
           mini: true,
           child: Icon(Icons.keyboard_arrow_up),
         ),
@@ -165,7 +165,7 @@ class _ClothWidgetState extends State<ClothWidget> {
         labelText: "물품 등록",
         currentButton: FloatingActionButton(
           heroTag: "clothAdd",
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.white,
           mini: true,
           child: Icon(Icons.shopping_bag),
           onPressed: () async {
@@ -246,7 +246,7 @@ class _ClothWidgetState extends State<ClothWidget> {
       ),
       floatingActionButton: UnicornDialer(
         backgroundColor: Colors.black38,
-        parentButtonBackground: Colors.black,
+        parentButtonBackground: Colors.white,
         orientation: UnicornOrientation.VERTICAL,
         parentButton: Icon(
           Icons.add,
@@ -254,25 +254,6 @@ class _ClothWidgetState extends State<ClothWidget> {
         ),
         childButtons: floatingButtons,
       ),
-
-      // floatingActionButton: FloatingActionButton(
-      // onPressed: () async {
-      //   Navigator.push(
-      //     context,
-      //     MaterialPageRoute(builder: (context) => ClothAddWidget()),
-      //   ).then((value) {
-      //     setState(() {
-      //       widget.productProvider
-      //           .fetchProducts(_category.getCategoryItems()[_headerindex]);
-      //     });
-      //   });
-      // },
-      //   child: Icon(
-      //     Icons.add,
-      //     color: Colors.black,
-      //   ),
-      //   backgroundColor: Colors.white,
-      // ),
     );
   }
 }

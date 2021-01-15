@@ -12,6 +12,8 @@ class Products extends Table {
   IntColumn get views => integer().nullable()();
   IntColumn get favorites => integer().nullable()();
   DateTimeColumn get uploadtime => dateTime().nullable()();
+  DateTimeColumn get updatetime => dateTime().nullable()();
+  DateTimeColumn get bumptime => dateTime().nullable()();
   TextColumn get images => text()();
   IntColumn get hide => integer()();
   IntColumn get deleted => integer()();
@@ -19,7 +21,8 @@ class Products extends Table {
   @override
   Set<Column> get primaryKey => {firestoreid};
 }
-class Searchs extends Table{
+
+class Searchs extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text()();
 
@@ -45,9 +48,9 @@ class ProductsDao extends DatabaseAccessor<AppDatabase>
 
   deleteAllProduct() => delete(products).go();
 }
+
 @UseDao(tables: [Searchs])
-class SearchsDao extends DatabaseAccessor<AppDatabase>
-    with _$SearchsDaoMixin {
+class SearchsDao extends DatabaseAccessor<AppDatabase> with _$SearchsDaoMixin {
   SearchsDao(AppDatabase db) : super(db);
 
   Future<List<Search>> getAllSearchs() => select(searchs).get();
@@ -59,7 +62,7 @@ class SearchsDao extends DatabaseAccessor<AppDatabase>
   deleteAllSearch() => delete(searchs).go();
 }
 
-@UseMoor(tables: [Products,Searchs], daos: [ProductsDao,SearchsDao])
+@UseMoor(tables: [Products, Searchs], daos: [ProductsDao, SearchsDao])
 class AppDatabase extends _$AppDatabase {
   AppDatabase()
       : super(FlutterQueryExecutor.inDatabaseFolder(

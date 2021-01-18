@@ -3,7 +3,6 @@ import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
 
 class HomeSearchResultPage extends StatefulWidget {
-
   @override
   _HomeSearchResultPageState createState() => _HomeSearchResultPageState();
 }
@@ -193,14 +192,23 @@ class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
         body: _isSearchMode == false
             ? TabBarView(
                 children: [
-                  Center(
-                    child: Text("장터", style: TextStyle(color: Colors.black)),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("장터", style: TextStyle(color: Colors.black)),
+                      Text("${_textController.text}"),
+                    ],
                   ),
-                  Center(
-                      child: Text(
-                    "게시판",
-                    style: TextStyle(color: Colors.black),
-                  )),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "게시판",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      Text("${_textController.text}"),
+                    ],
+                  ),
                 ],
               )
             : Column(

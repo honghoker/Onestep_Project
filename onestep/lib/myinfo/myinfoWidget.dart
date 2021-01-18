@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onestep/myinfo/myinfoMyWrite.dart';
 
 class MyinfoWidget extends StatefulWidget {
   @override
@@ -92,12 +93,15 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("???"),
+                    Text("내가 쓴 글"),
                     Padding(
                       padding: const EdgeInsets.only(right: 35.0),
                       child: IconButton(
                         icon: Icon(Icons.keyboard_arrow_right),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => MyinfoMyWrite()));
+                        },
                       ),
                     ),
                   ],

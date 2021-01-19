@@ -58,7 +58,8 @@ class _Board extends State<BoardContent>
                     //Date Container
                     setDateNVisitor(boardData.createDate, boardData.watchCount),
                     // FutureBuilder(future:,builder: builder,AsyncSnapshot snapshot){}
-                    imageContent()
+                    // imageContent()
+                    setBoardContent()
                   ]))),
         ),
         TipDialogContainer(

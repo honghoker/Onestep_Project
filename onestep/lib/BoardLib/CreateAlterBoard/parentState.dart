@@ -265,7 +265,7 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
         imageCommentList: imageCommentMap,
         textContent: textEditingControllerContent.text,
         contentCategory: _category.toString(),
-        boardCategory: boardCategory.categoryEN);
+        boardCategory: boardCategory.categoryKR);
     return await _boardData.toFireStore(context);
     // return Future.delayed(new Duration(seconds: 5));
   }

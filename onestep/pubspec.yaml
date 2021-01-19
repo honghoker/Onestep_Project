@@ -54,7 +54,7 @@ dependencies:
   mailer: ^3.2.1
   firebase_dynamic_links: ^0.6.2
   cached_network_image: ^2.5.0
-  extended_image: ^1.5.0
+  # extended_image: ^1.5.0
   flutter_custom_dialog: ^1.0.20
 
 dev_dependencies:
@@ -76,6 +76,7 @@ dev_dependencies:
   badges: ^1.1.3
   like_button: ^1.0.3
   page_indicator: ^0.3.0
+  firebase_messaging: ^7.0.3
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

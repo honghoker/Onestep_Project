@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:extended_image/extended_image.dart';
+// import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:moor_flutter/moor_flutter.dart' as mf;
 import 'package:onestep/cloth/clothDetailViewWidget.dart';
@@ -112,17 +112,17 @@ class _ClothItemState extends State<ClothItem> {
                   fit: StackFit.passthrough,
                   children: <Widget>[
                     Center(child: CircularProgressIndicator()),
-                    ExtendedImage.network(
-                      img[0],
-                      // width: ScreenUtil.instance.setWidth(400),
-                      // height: ScreenUtil.instance.setWidth(400),
-                      fit: BoxFit.cover,
-                      cache: true,
-                      border: Border.all(color: Colors.red, width: 1.0),
-                      // shape: boxShape,
-                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                      //cancelToken: cancellationToken,
-                    ),
+                    // ExtendedImage.network(
+                    //   img[0],
+                    //   // width: ScreenUtil.instance.setWidth(400),
+                    //   // height: ScreenUtil.instance.setWidth(400),
+                    //   fit: BoxFit.cover,
+                    //   cache: true,
+                    //   border: Border.all(color: Colors.red, width: 1.0),
+                    //   // shape: boxShape,
+                    //   borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                    //   //cancelToken: cancellationToken,
+                    // ),
                     // FadeInImage(
                     //   placeholder: MemoryImage(
                     //     kTransparentImage,

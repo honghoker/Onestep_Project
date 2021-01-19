@@ -250,10 +250,12 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
   }
 
   _saveDataInFirestore() async {
-    TipDialogHelper.loading("저장 중입니다. 잠시만 기다려주세요.");
-    print(saveData());
+    TipDialogHelper.loading("저장 중입니다.\n 잠시만 기다려주세요.");
+    await saveData();
     TipDialogHelper.dismiss();
     TipDialogHelper.success("저장 완료!");
+    await Future.delayed(Duration(seconds: 3));
+    Navigator.pop(context, true);
   }
 
   Future saveData() async {
@@ -583,7 +585,11 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
     List<Widget> _imageWidget = [];
     List<Widget> _emptyWidget = [];
     int containImageCount = imageCommentMap["IMAGE"].length;
+
     for (int i = 0; i < containImageCount; i++) {
+      if (imageCommentMap["IMAGE"][i].runtimeType == String) {
+        continue;
+      }
       _imageWidget.add(
           _imageContainer(index: i, imageAsset: imageCommentMap["IMAGE"][i]));
     }

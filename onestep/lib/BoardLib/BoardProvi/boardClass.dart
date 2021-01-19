@@ -80,7 +80,8 @@ class BoardData {
           "imageCommentList": imageCommentList ?? {},
           "watchCount": watchCount ?? 0,
           "commentCount": commentCount ?? 0,
-          "boardCategory": boardCategory
+          "boardCategory": boardCategory,
+          "boardId": boardId
         })
         .whenComplete(() => true)
         .then((value) => true)

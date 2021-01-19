@@ -22,6 +22,7 @@ class BoardData {
   final int commentCount;
   final String boardCategory;
   final String boardName;
+  final String boardId;
   Function completeImageUploadCallback;
   List imgUriList;
   Map<String, dynamic> imageCommentList;
@@ -41,24 +42,24 @@ class BoardData {
     return _imgUriarr;
   }
 
-  BoardData({
-    this.contentCategory,
-    this.boardName,
-    this.createDate,
-    this.favoriteCount,
-    this.title,
-    this.userId,
-    this.reportCount,
-    this.textContent,
-    this.uid,
-    this.imageCommentList,
-    this.scribeCount,
-    this.watchCount,
-    this.documentId,
-    this.commentCount,
-    this.imgUriList,
-    this.boardCategory,
-  });
+  BoardData(
+      {this.contentCategory,
+      this.boardName,
+      this.createDate,
+      this.favoriteCount,
+      this.title,
+      this.userId,
+      this.reportCount,
+      this.textContent,
+      this.uid,
+      this.imageCommentList,
+      this.scribeCount,
+      this.watchCount,
+      this.documentId,
+      this.commentCount,
+      this.imgUriList,
+      this.boardCategory,
+      this.boardId});
   Future toFireStore(BuildContext context) async {
     imgUriList = await convertImage(imageCommentList["IMAGE"]);
     imageCommentList.update("IMAGE", (value) => imgUriList);

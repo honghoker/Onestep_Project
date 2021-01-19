@@ -12,7 +12,7 @@ extension BoardCategoryExtension on BoardCategory {
   String get categoryEN {
     switch (this) {
       case BoardCategory.Free:
-        return "Free";
+        return "Board_Free";
 
       default:
         return throw CategoryException(

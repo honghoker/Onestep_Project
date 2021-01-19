@@ -1,5 +1,5 @@
 import 'dart:convert';
-// import 'package:extended_image/extended_image.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:moor_flutter/moor_flutter.dart' as mf;
 import 'package:onestep/cloth/clothDetailViewWidgetcopy.dart';

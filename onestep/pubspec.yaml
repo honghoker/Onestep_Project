@@ -54,7 +54,7 @@ dependencies:
   mailer: ^3.2.1
   firebase_dynamic_links: ^0.6.2
   cached_network_image: ^2.5.0
-  # extended_image: ^1.5.0
+  extended_image: ^1.5.0
   flutter_custom_dialog: ^1.0.20
   share: ^0.6.5+4
   async: ^2.3.0

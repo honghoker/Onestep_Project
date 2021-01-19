@@ -46,8 +46,8 @@ class _JoinScreenState extends State<JoinScreen> {
     if (flag == 1) {
       _isEmailChecked = false;
       QuerySnapshot ref = await FirebaseFirestore.instance
-          .collection('sunghunTest')
-          .where("email", isEqualTo: text)
+          .collection('users')
+          .where("urserEmail", isEqualTo: text)
           .get();
 
       List<QueryDocumentSnapshot> docRef = ref.docs;
@@ -59,7 +59,7 @@ class _JoinScreenState extends State<JoinScreen> {
     } else {
       _isNickNameChecked = false;
       QuerySnapshot ref = await FirebaseFirestore.instance
-          .collection('sunghunTest')
+          .collection('users')
           .where("nickname", isEqualTo: text)
           .get();
 
@@ -69,6 +69,13 @@ class _JoinScreenState extends State<JoinScreen> {
         _isNickNameChecked = docRef.isNotEmpty;
       });
     }
+  }
+
+  void updateUser(String email, String nickName) {
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc("$currentUserId")
+        .update({"userEmail": email, "nickName": nickName});
   }
 
   Future getRandomNumber() async {
@@ -91,6 +98,7 @@ class _JoinScreenState extends State<JoinScreen> {
 
   // mail 수정
   sendMail() async {
+    // 공용 mail 만들어야함
     String _username = 'leedool3003@gmail.com';
     String _password = 'alstjsdl421!';
 
@@ -251,6 +259,7 @@ class _JoinScreenState extends State<JoinScreen> {
                                     MaterialPageRoute(
                                         builder: (BuildContext context) =>
                                             AuthScreen(
+                                              currentUserId,
                                                 checkPassword,
                                                 DateTime.now()
                                                     .add(Duration(hours: 9)))));
@@ -270,6 +279,8 @@ class _JoinScreenState extends State<JoinScreen> {
                         if (_isEmailChecked == true &&
                             _isNickNameChecked == true) {
                           print("성공");
+                          updateUser(
+                              emailController.text, nicknameController.text);
                           Navigator.of(context).pushReplacementNamed(
                               '/MainPage?UID=$currentUserId');
                         } else {

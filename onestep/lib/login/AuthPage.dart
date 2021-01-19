@@ -8,33 +8,36 @@ import 'package:onestep/login/CheckAuth.dart';
 import 'package:provider/provider.dart';
 
 class AuthScreen extends StatefulWidget {
+  String currentUserId;
   String checkPassword;
   DateTime sendTime;
-  AuthScreen(this.checkPassword, this.sendTime);
+  AuthScreen(this.currentUserId, this.checkPassword, this.sendTime);
 
   @override
-  _AuthScreenState createState() => _AuthScreenState(checkPassword, sendTime);
+  _AuthScreenState createState() =>
+      _AuthScreenState(currentUserId, checkPassword, sendTime);
 }
 
 class _AuthScreenState extends State<AuthScreen> {
   String checkPassword;
+  String currentUserId;
   DateTime sendTime;
-  _AuthScreenState(this.checkPassword, this.sendTime);
+  _AuthScreenState(this.currentUserId, this.checkPassword, this.sendTime);
 
   // 지금 보니 안써도 될거 같은데 나중에 확인
   Stream<DocumentSnapshot> get _a {
     return FirebaseFirestore.instance
         .collection('users')
-        .doc('ArHG0v9iqfWrz4tG5bfnh3Sxj8q2')
+        .doc("$currentUserId")
         .snapshots();
   }
 
   // db 수정
-  void updateTest() {
+  void updateAuth() {
     FirebaseFirestore.instance
         .collection('users')
-        .doc('ArHG0v9iqfWrz4tG5bfnh3Sxj8q2')
-        .update({"authTest": true});
+        .doc("$currentUserId")
+        .update({"authUniversity": true});
   }
 
   Future getRandomNumber() async {
@@ -106,7 +109,7 @@ class _AuthScreenState extends State<AuthScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20,20,0,0),
+                  padding: const EdgeInsets.fromLTRB(20, 20, 0, 0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -168,12 +171,14 @@ class _AuthScreenState extends State<AuthScreen> {
                           child: RaisedButton(
                             onPressed: () {
                               // 5분 안에 인증해야함
-                              if (DateTime.now().add(Duration(hours: 9)).isBefore(
-                                      sendTime.add(Duration(minutes: 5))) &&
+                              if (DateTime.now()
+                                      .add(Duration(hours: 9))
+                                      .isBefore(
+                                          sendTime.add(Duration(minutes: 5))) &&
                                   checkPassword == myController.text) {
                                 print("성공");
                                 // checkAuth.successAuth();
-                                // updateTest();
+                                // updateAuth();
                                 // Navigator.of(context).pop();
                               } else {
                                 print("실패");

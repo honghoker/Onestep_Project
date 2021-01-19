@@ -28,7 +28,7 @@ class _Board extends State<BoardContent>
   //index is not null and must have to get index
 
   // ScrollController _scrollController;
-  // Map<String,dynamic>
+  Map<String, dynamic> _imageMap = {};
   @override
   void initState() {
     super.initState();
@@ -58,8 +58,8 @@ class _Board extends State<BoardContent>
                     //Date Container
                     setDateNVisitor(boardData.createDate, boardData.watchCount),
                     // FutureBuilder(future:,builder: builder,AsyncSnapshot snapshot){}
-                    // imageContent()
-                    setBoardContent()
+                    imageContent()
+                    // setBoardContent()
                   ]))),
         ),
         TipDialogContainer(
@@ -79,14 +79,15 @@ class _Board extends State<BoardContent>
 
   _getImageContent() async {
     final FirebaseFirestore _db = FirebaseFirestore.instance;
+
     return _db
         .collection("Board")
-        .doc("Board_Free")
-        .collection("Board_Free")
-        .orderBy("createDate", descending: true)
+        .doc(boardData.boardId.toString())
+        .collection(boardData.boardId.toString())
         .snapshots()
-        .map((list) =>
-            list.docs.map((doc) => FreeBoardList.fromFireStore(doc)).toList());
+        .map((list) => list.docs
+            .map((doc) => ImageContentComment.fromFireStore(doc))
+            .toList());
   }
 
   Widget imageContent() {
@@ -102,6 +103,7 @@ class _Board extends State<BoardContent>
               return Center(
                   child: Column(children: [
                 Text("데이터 불러오기에 실패하였습니다. 네트워크 연결상태를 확인하여 주십시오."),
+                Text("${snapshot.hasError}"),
                 IconButton(
                   icon: Icon(Icons.refresh),
                   onPressed: () {
@@ -110,7 +112,8 @@ class _Board extends State<BoardContent>
                 )
               ]));
             } else {
-              return Container(child: Text("Hi"));
+              return Container(
+                  child: Text(_getImageContent != null ? "Hi" : "hello"));
             }
         }
       },

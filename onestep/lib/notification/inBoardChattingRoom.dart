@@ -450,6 +450,10 @@ class _LastChatState extends State<ChatScreen> {
               document["type"] == 0
                   //Text Msg
                   ? Container(
+                      constraints: BoxConstraints(
+                        maxWidth: 180.0,
+                        minWidth: 40.0,
+                      ),
                       child: Text(
                         document["content"],
                         style: TextStyle(
@@ -458,7 +462,7 @@ class _LastChatState extends State<ChatScreen> {
                         ),
                       ),
                       padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-                      width: 150.0,
+                      //width: 150.0,
                       decoration: BoxDecoration(
                           color: Colors.lightBlueAccent,
                           borderRadius: BorderRadius.circular(8.0)),
@@ -582,13 +586,17 @@ class _LastChatState extends State<ChatScreen> {
                 document["type"] == 0
                     //Text Msg
                     ? Container(
+                        constraints: BoxConstraints(
+                          maxWidth: 180.0,
+                          minWidth: 40.0,
+                        ),
                         child: Text(
                           document["content"],
                           style: TextStyle(
                               color: Colors.black, fontWeight: FontWeight.w400),
                         ),
                         padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-                        width: 150.0,
+                        //width: 150.0,
                         decoration: BoxDecoration(
                             color: Colors.grey[200],
                             borderRadius: BorderRadius.circular(8.0)),
@@ -733,9 +741,8 @@ class _LastChatState extends State<ChatScreen> {
                     if (existChattingRoom == false) {
                       //방 만들어진 적이 없으면
                       FirebaseChatController()
-                          .createBoardChatingRoomToFirebaseStorage("Board_Free",
-                              "IcjvDyXsYE901Ti1hCaY", "1610879839584");
-                      print("# myid $myId / fid $friendId");
+                          .createBoardChatingRoomToFirebaseStorage(
+                              boardId, postId, chattingRoomId);
                       existChattingRoom = true;
                     }
 

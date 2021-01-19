@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:like_button/like_button.dart';
 import 'package:meta/meta.dart';
+import 'package:onestep/api/firebase_api.dart';
+import 'package:onestep/notification/Controllers/notificationManager.dart';
 import 'commentInBoardContent.dart';
 import 'package:flutter/animation.dart';
 import 'package:tip_dialog/tip_dialog.dart';
@@ -291,7 +293,13 @@ class _Board extends State<BoardContent>
                     size: 30,
                   ),
                   onPressed: () {
-                    //boardData; FreeBoardList.fromFireStore in boardClass.dart
+                    NotificationManager.navigateToBoardChattingRoom(
+                      context,
+                      FirebaseApi.getId(),
+                      boardData.userId,
+                      boardData.boardId, //게시판id
+                      boardData.documentId, //게시글id
+                    );
                   }),
             ),
 

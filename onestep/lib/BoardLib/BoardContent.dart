@@ -28,7 +28,7 @@ class _Board extends State<BoardContent>
   //index is not null and must have to get index
 
   // ScrollController _scrollController;
-
+  // Map<String,dynamic>
   @override
   void initState() {
     super.initState();
@@ -44,32 +44,75 @@ class _Board extends State<BoardContent>
     return Scaffold(
         body: SafeArea(
       child: Stack(children: <Widget>[
-        _boardContent(context),
+        Container(
+          //Dynamic height Size
+          height: MediaQuery.of(context).size.height,
+          // alignment: AlignmentA,
+          child: SingleChildScrollView(
+              // controller: _scrollController,
+              child: Container(
+                  height: MediaQuery.of(context).size.height,
+                  child: Column(children: <Widget>[
+                    //Title Container
+                    setTitle(boardData.title),
+                    //Date Container
+                    setDateNVisitor(boardData.createDate, boardData.watchCount),
+                    // FutureBuilder(future:,builder: builder,AsyncSnapshot snapshot){}
+                    imageContent()
+                  ]))),
+        ),
         TipDialogContainer(
           duration: const Duration(milliseconds: 400),
           maskAlpha: 0,
         )
       ]),
     ));
+
+    // if (snapshot.connectionState == ConnectionState.none) {
+    //   return Center(
+    //       child: Text("데이터 불러오기에 실패하였습니다. 네트워크 연결상태를 확인하여 주십시오."));
+    // } else if (snapshot.hasData) {
+    //   return Center(child: Text("데이터가 없습니다."));
+    // }
   }
 
-  Widget _boardContent(BuildContext context) {
-    return Container(
-      //Dynamic height Size
-      height: MediaQuery.of(context).size.height,
-      // alignment: AlignmentA,
-      child: SingleChildScrollView(
-          // controller: _scrollController,
-          child: Container(
-              height: MediaQuery.of(context).size.height,
-              child: Column(children: <Widget>[
-                //Title Container
-                _setTitle(boardData.title),
-                //Date Container
-                _setDateNVisitor(boardData.createDate, boardData.watchCount),
-                // FutureBuilder(future:,builder: builder,AsyncSnapshot snapshot){}
-                _setBoardContent(),
-              ]))),
+  _getImageContent() async {
+    final FirebaseFirestore _db = FirebaseFirestore.instance;
+    return _db
+        .collection("Board")
+        .doc("Board_Free")
+        .collection("Board_Free")
+        .orderBy("createDate", descending: true)
+        .snapshots()
+        .map((list) =>
+            list.docs.map((doc) => FreeBoardList.fromFireStore(doc)).toList());
+  }
+
+  Widget imageContent() {
+    return FutureBuilder(
+      future: _getImageContent(),
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+          case ConnectionState.none:
+            return CupertinoActivityIndicator();
+          default:
+            if (snapshot.hasError) {
+              return Center(
+                  child: Column(children: [
+                Text("데이터 불러오기에 실패하였습니다. 네트워크 연결상태를 확인하여 주십시오."),
+                IconButton(
+                  icon: Icon(Icons.refresh),
+                  onPressed: () {
+                    setState(() {});
+                  },
+                )
+              ]));
+            } else {
+              return Container(child: Text("Hi"));
+            }
+        }
+      },
     );
   }
 
@@ -77,7 +120,7 @@ class _Board extends State<BoardContent>
     // DocumentSnapshot documentSnapshot = await doc_
   }
 
-  Widget _setTitle(String title) {
+  Widget setTitle(String title) {
     return Container(
       width: double.infinity,
       child: Container(
@@ -96,7 +139,7 @@ class _Board extends State<BoardContent>
     );
   }
 
-  Widget _setDateNVisitor(DateTime createTime, int watch) {
+  Widget setDateNVisitor(DateTime createTime, int watch) {
     String _dateTime =
         createTime.add(Duration(hours: 9)).toString().split('.')[0];
     return Container(
@@ -143,7 +186,7 @@ class _Board extends State<BoardContent>
     );
   }
 
-  Widget _setBoardContent() {
+  Widget setBoardContent() {
     return Flexible(
       child: Column(
         children: <Widget>[

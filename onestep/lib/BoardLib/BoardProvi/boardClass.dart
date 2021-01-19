@@ -21,6 +21,8 @@ class BoardData {
   final int watchCount;
   final int commentCount;
   final String boardCategory;
+  final String boardName;
+  Function completeImageUploadCallback;
   List imgUriList;
   Map<String, dynamic> imageCommentList;
 
@@ -39,30 +41,31 @@ class BoardData {
     return _imgUriarr;
   }
 
-  BoardData(
-      {this.contentCategory,
-      this.createDate,
-      this.favoriteCount,
-      this.title,
-      this.userId,
-      this.reportCount,
-      this.textContent,
-      this.uid,
-      this.imageCommentList,
-      this.scribeCount,
-      this.watchCount,
-      this.documentId,
-      this.commentCount,
-      this.imgUriList,
-      this.boardCategory});
+  BoardData({
+    this.contentCategory,
+    this.boardName,
+    this.createDate,
+    this.favoriteCount,
+    this.title,
+    this.userId,
+    this.reportCount,
+    this.textContent,
+    this.uid,
+    this.imageCommentList,
+    this.scribeCount,
+    this.watchCount,
+    this.documentId,
+    this.commentCount,
+    this.imgUriList,
+    this.boardCategory,
+  });
   Future toFireStore(BuildContext context) async {
-    imgUriList =
-        await convertImage(imageCommentList["IMAGE"]).whenComplete(() => true);
+    imgUriList = await convertImage(imageCommentList["IMAGE"]);
     imageCommentList.update("IMAGE", (value) => imgUriList);
     await FirebaseFirestore.instance
         .collection("Board")
         .doc("Board_Free")
-        .collection("Board_Free_BoardId")
+        .collection("Board_Free")
         .add({
           "uid": await FirebaseApi.getId(),
           "createDate": Timestamp.fromDate(DateTime.now()),
@@ -143,5 +146,15 @@ class FreeBoardList extends BoardData {
         commentCount: _boardData["commentCount"],
         createDate: _boardData["createDate"].toDate(),
         watchCount: _boardData["watchCount"]);
+  }
+}
+
+class ImageContentComment extends BoardData {
+  ImageContentComment({Map<String, dynamic> imageCommentList})
+      : super(imageCommentList: imageCommentList);
+  factory ImageContentComment.fromFireStore(DocumentSnapshot snapshot) {
+    Map _contentData = snapshot.data();
+    return ImageContentComment(
+        imageCommentList: _contentData["imageCommentList"]);
   }
 }

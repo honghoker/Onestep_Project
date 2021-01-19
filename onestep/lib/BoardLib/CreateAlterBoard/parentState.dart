@@ -250,10 +250,12 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
   }
 
   _saveDataInFirestore() async {
-    TipDialogHelper.loading("저장 중입니다. 잠시만 기다려주세요.");
-    print(saveData());
+    TipDialogHelper.loading("저장 중입니다.\n 잠시만 기다려주세요.");
+    await saveData();
     TipDialogHelper.dismiss();
     TipDialogHelper.success("저장 완료!");
+    await Future.delayed(Duration(seconds: 3));
+    Navigator.pop(context, true);
   }
 
   Future saveData() async {
@@ -263,7 +265,7 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
         imageCommentList: imageCommentMap,
         textContent: textEditingControllerContent.text,
         contentCategory: _category.toString(),
-        boardCategory: boardCategory.categoryEN);
+        boardCategory: boardCategory.categoryKR);
     return await _boardData.toFireStore(context);
     // return Future.delayed(new Duration(seconds: 5));
   }
@@ -445,17 +447,22 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
                   ),
                 ),
                 Expanded(
-                  child: TextField(
-                      minLines: 2,
-                      maxLines: null,
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical: 20.0, horizontal: 5.0),
-                        border: OutlineInputBorder(),
-                        labelText: "사진${index + 1}의 설명",
-                        hintText: "내용을 입력하세요",
-                      ),
-                      controller: _getTextEditingImageTextField(index)),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    reverse: true,
+                    child: TextField(
+                        keyboardType: TextInputType.multiline,
+                        minLines: 2,
+                        maxLines: null,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 20.0, horizontal: 5.0),
+                          border: OutlineInputBorder(),
+                          labelText: "사진${index + 1}의 설명",
+                          hintText: "내용을 입력하세요",
+                        ),
+                        controller: _getTextEditingImageTextField(index)),
+                  ),
                 )
               ],
             ),
@@ -509,8 +516,9 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
                         }
                         checkCamStorePermission(getImage);
                       }
-                    } else
+                    } else {
                       checkCamStorePermission(getImage);
+                    }
                   },
                   child: Container(
                     child: Icon(Icons.add),
@@ -577,7 +585,11 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
     List<Widget> _imageWidget = [];
     List<Widget> _emptyWidget = [];
     int containImageCount = imageCommentMap["IMAGE"].length;
+
     for (int i = 0; i < containImageCount; i++) {
+      if (imageCommentMap["IMAGE"][i].runtimeType == String) {
+        continue;
+      }
       _imageWidget.add(
           _imageContainer(index: i, imageAsset: imageCommentMap["IMAGE"][i]));
     }

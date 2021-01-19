@@ -15,8 +15,6 @@ import 'login/CheckAuth.dart';
 import 'login/LoginPage.dart';
 import 'BoardLib/BoardProvi/boardClass.dart';
 import 'BoardLib/BoardProvi/boardProvider.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'dart:async';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 

@@ -760,6 +760,7 @@ class _LastChatState extends State<ChatScreen> {
                   icon: Icon(Icons.send),
                   color: Colors.lightBlueAccent,
                   onPressed: () {
+                    print("# myid $myId / fid $friendId");
                     if (existChattingRoom == false) {
                       //방 만들어진 적이 없으면
                       FirebaseChatController()

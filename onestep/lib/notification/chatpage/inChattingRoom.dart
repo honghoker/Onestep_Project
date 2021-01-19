@@ -161,11 +161,15 @@ class _LastChatState extends State<ChatScreen> {
       value.docChanges.forEach((change) {
         // print(change.doc.id);
         // print(change.doc.data()['title']);
-        if (myId == change.doc.data()['cusers'][0] &&
-            friendId == change.doc.data()['cusers'][1] &&
-            postId == change.doc.data()['postId']) {
+        if ((myId == change.doc.data()['cusers'][0] &&
+                friendId == change.doc.data()['cusers'][1] &&
+                postId == change.doc.data()['postId']) ||
+            (myId == change.doc.data()['cusers'][1] &&
+                friendId == change.doc.data()['cusers'][0] &&
+                postId == change.doc.data()['postId'])) {
           existChattingRoom = true;
           chattingRoomId = change.doc.id;
+          print("###채팅방 들어가면 뜨는 채팅방 id : $chattingRoomId");
         }
       });
 

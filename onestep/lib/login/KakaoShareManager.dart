@@ -3,6 +3,7 @@
 // ios 따로 추가해야함
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:kakao_flutter_sdk/all.dart';
+import 'package:share/share.dart';
 
 class KakaoShareManager {
   static final KakaoShareManager _manager = KakaoShareManager._internal();
@@ -68,10 +69,20 @@ class KakaoShareManager {
     void shareMyCode(String code) async {
     try {
       var dynamicLink = await _getDynamicLink(code);
-      print(dynamicLink);
-      var template = _getTemplate(dynamicLink,code);
-      var uri = await LinkClient.instance.defaultWithTalk(template);
-      await LinkClient.instance.launchKakaoTalk(uri);
+      print("dynamicLink = $dynamicLink");
+      // var template = _getTemplate(dynamicLink,code);
+      // var uri = await LinkClient.instance.defaultWithTalk(template);
+      // await LinkClient.instance.launchKakaoTalk(uri);
+    } catch (error) {
+      print(error.toString());
+    }
+  }
+
+  void getDynamicLink(String code) async {
+    try {
+      var dynamicLink = await _getDynamicLink(code);
+      print("dynamicLink = $dynamicLink");
+      Share.share("더보기 test $dynamicLink");
     } catch (error) {
       print(error.toString());
     }

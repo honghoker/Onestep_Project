@@ -1,13 +1,12 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:random_string/random_string.dart';
 import 'package:onestep/PermissionLib/customPermisson.dart';
@@ -186,9 +185,9 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
     } else if (_explainTextEditingController.text.trim() == "") {
       _scaffoldKey.currentState
           .showSnackBar(SnackBar(content: Text("설명을 입력해주세요.")));
-    } else if (_imageList.length < 2) {
+    } else if (_imageList.length < 1) {
       _scaffoldKey.currentState
-          .showSnackBar(SnackBar(content: Text("물품을 등록하려면 두장 이상의 사진이 필요합니다.")));
+          .showSnackBar(SnackBar(content: Text("물품을 등록하려면 한장 이상의 사진이 필요합니다.")));
     } else {
       var yyDialog = progressDialogBody();
       yyDialog.show();
@@ -217,6 +216,8 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
         'deleted': false,
         'views': 0,
         'uploadtime': DateTime.now(),
+        'updatetime': DateTime.now(),
+        'bumptime': DateTime.now(),
       }).whenComplete(() {
         if (Navigator.canPop(context)) {
           yyDialog.dismiss();
@@ -224,6 +225,10 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
         } else {
           SystemNavigator.pop();
         }
+      }).catchError((value) {
+        print(value);
+        _scaffoldKey.currentState.showSnackBar(
+            SnackBar(content: Text("물품을 등록하려면 두장 이상의 사진이 필요합니다.")));
       });
     }
   }
@@ -246,39 +251,90 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
       );
   }
 
-  YYDialog uploadProductDialog() {
-    return YYDialog().build(context)
-      ..width = 220
-      ..borderRadius = 4.0
-      ..text(
-        padding: EdgeInsets.all(25.0),
-        alignment: Alignment.center,
-        text: "물품을 등록할까요?",
-        color: Colors.black,
-        fontSize: 14.0,
-        fontWeight: FontWeight.w500,
-      )
-      ..divider()
-      ..doubleButton(
-        padding: EdgeInsets.only(top: 10.0),
-        gravity: Gravity.center,
-        withDivider: true,
-        text1: "확인",
-        color1: Colors.redAccent,
-        fontSize1: 14.0,
-        fontWeight1: FontWeight.bold,
-        onTap1: () {
-          return true;
-        },
-        text2: "취소",
-        color2: Colors.redAccent,
-        fontSize2: 14.0,
-        fontWeight2: FontWeight.bold,
-        onTap2: () {
-          return false;
-        },
-      )
-      ..show();
+  void uploadProductDialog() async {
+    showDialog(
+      context: context,
+      // barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          // insetPadding: EdgeInsets.symmetric(horizontal: 90, vertical: 100),
+          title: Text(
+            '물품을 등록할까요?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.black,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: Text(
+                '확인',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+            ),
+            CupertinoDialogAction(
+              child: Text(
+                '취소',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+            ),
+          ],
+        );
+      },
+    ).then((value) {
+      if (value == true) {
+        uploadProduct();
+      }
+    });
+    // await YYDialog().build(context)
+    //   ..width = 220
+    //   ..borderRadius = 4.0
+    //   ..text(
+    //     padding: EdgeInsets.all(25.0),
+    //     alignment: Alignment.center,
+    //     text: "물품을 등록할까요?",
+    //     color: Colors.black,
+    //     fontSize: 14.0,
+    //     fontWeight: FontWeight.w500,
+    //   )
+    //   ..divider()
+    //   ..doubleButton(
+    //     padding: EdgeInsets.only(top: 10.0),
+    //     gravity: Gravity.center,
+    //     withDivider: true,
+    //     text1: "확인",
+    //     color1: Colors.redAccent,
+    //     fontSize1: 14.0,
+    //     fontWeight1: FontWeight.bold,
+    //     onTap1: () {
+    //       return false;
+    //     },
+    //     text2: "취소",
+    //     color2: Colors.redAccent,
+    //     fontSize2: 14.0,
+    //     fontWeight2: FontWeight.bold,
+    //     onTap2: () {
+    //       return true;
+    //     },
+    //   )
+    //   ..show();
   }
 
   @override
@@ -296,14 +352,10 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
         ),
         actions: <Widget>[
           new IconButton(
-            icon: new Icon(Icons.check),
-            onPressed: () => {
-              uploadProductDialog(),
-              // {
-              // uploadProduct(),
-              // },
-            },
-          ),
+              icon: new Icon(Icons.check),
+              onPressed: () => {
+                    uploadProductDialog(),
+                  }),
         ],
       ),
       body: SingleChildScrollView(

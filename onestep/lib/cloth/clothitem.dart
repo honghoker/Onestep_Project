@@ -2,10 +2,9 @@ import 'dart:convert';
 // import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:moor_flutter/moor_flutter.dart' as mf;
-import 'package:onestep/cloth/clothDetailViewWidget.dart';
+import 'package:onestep/cloth/clothDetailViewWidgetcopy.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class ClothItem extends StatefulWidget {
   final Product product;
@@ -92,14 +91,13 @@ class _ClothItemState extends State<ClothItem> {
   Widget build(BuildContext context) {
     double coverSize = 110;
     var img = jsonDecode(widget.product.images);
-
     return GestureDetector(
       onTap: () {
         Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  ClothDetailViewWidget(product: widget.product),
+                  ClothDetailViewWidgetcopy(product: widget.product),
             ));
       },
       child: Container(
@@ -112,17 +110,18 @@ class _ClothItemState extends State<ClothItem> {
                   fit: StackFit.passthrough,
                   children: <Widget>[
                     Center(child: CircularProgressIndicator()),
-                    // ExtendedImage.network(
-                    //   img[0],
-                    //   // width: ScreenUtil.instance.setWidth(400),
-                    //   // height: ScreenUtil.instance.setWidth(400),
-                    //   fit: BoxFit.cover,
-                    //   cache: true,
-                    //   border: Border.all(color: Colors.red, width: 1.0),
-                    //   // shape: boxShape,
-                    //   borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                    //   //cancelToken: cancellationToken,
-                    // ),
+                    ExtendedImage.network(
+                      img[0],
+
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      fit: BoxFit.cover,
+                      cache: true,
+                      // border: Border.all(color: Colors.red, width: 1.0),
+                      // shape: boxShape,
+                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                      //cancelToken: cancellationToken,
+                    ),
                     // FadeInImage(
                     //   placeholder: MemoryImage(
                     //     kTransparentImage,

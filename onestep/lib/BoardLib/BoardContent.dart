@@ -215,7 +215,7 @@ class _Board extends State<BoardContent>
                     ),
                   ),
                   _setScrapAndFavoriteButton(),
-                  Container(child: CommentList().tempCommentContainer())
+                  // Container(child: CommentList().tempCommentContainer())
                   // .commentContainer())
                 ],
               ),

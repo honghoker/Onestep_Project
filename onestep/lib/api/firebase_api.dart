@@ -20,7 +20,7 @@ class FirebaseApi {
           .collection('products')
           .where("deleted", isEqualTo: false)
           .where("hide", isEqualTo: false)
-          .orderBy("uploadtime", descending: true)
+          .orderBy("bumptime", descending: true)
           .limit(limit);
     } else {
       refProducts = FirebaseFirestore.instance
@@ -28,7 +28,7 @@ class FirebaseApi {
           .where("category", isEqualTo: category)
           .where("deleted", isEqualTo: false)
           .where("hide", isEqualTo: false)
-          .orderBy("uploadtime", descending: true)
+          .orderBy("bumptime", descending: true)
           .limit(limit);
     }
 

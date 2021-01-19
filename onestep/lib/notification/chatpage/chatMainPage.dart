@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import '../notificationMain copy.dart';
+import 'package:onestep/notification/chatpage/productChatPage.dart';
 
-class ScrollableTabsDemo extends StatefulWidget {
+import 'boardChatPage.dart';
+
+class ChatMainPage extends StatefulWidget {
   static const String routeName = '/material/scrollable-tabs';
   @override
-  ScrollableTabsDemoState createState() => ScrollableTabsDemoState();
+  ChatMainPageState createState() => ChatMainPageState();
 }
 
 class _Page {
@@ -22,7 +24,7 @@ const List<_Page> _allPages = <_Page>[
   // _Page(icon: Icons.check_circle, text: 'SUCCESS'),
 ];
 
-class ScrollableTabsDemoState extends State<ScrollableTabsDemo>
+class ChatMainPageState extends State<ChatMainPage>
     with SingleTickerProviderStateMixin {
   TabController _controller;
   @override
@@ -76,8 +78,8 @@ class ScrollableTabsDemoState extends State<ScrollableTabsDemo>
               itemBuilder: (context, position) {
                 return Container(
                     child: (position == 0 && page.text == '장터게시판')
-                        ? NotificationMain2()
-                        : Center(child: Text(position.toString())));
+                        ? ProductChatPage()
+                        : BoardChatPage());
               },
               itemCount: 1,
               // onPageChanged: (page) {

@@ -1,25 +1,20 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/notification/Controllers/firebaseChatController.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'time/chat_time.dart';
+import 'package:onestep/notification/time/chat_time.dart';
 
-class NotificationMain2 extends StatefulWidget {
-  NotificationMain2({Key key}) : super(key: key);
+class ProductChatPage extends StatefulWidget {
+  ProductChatPage({Key key}) : super(key: key);
 
   @override
-  _NotificationMainState2 createState() => _NotificationMainState2();
+  _ProductChatPageState createState() => _ProductChatPageState();
 }
 
-class _NotificationMainState2 extends State<NotificationMain2> {
-  SharedPreferences preferences;
-  _NotificationMainState2({Key key});
-
-  final _firestore = FirebaseFirestore.instance;
+class _ProductChatPageState extends State<ProductChatPage> {
+  _ProductChatPageState();
 
   @override
   build(BuildContext context) {

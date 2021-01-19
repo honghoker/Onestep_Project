@@ -105,7 +105,9 @@ class BoardData {
         documentId: snapshot.id,
         commentCount: _boardData["commentCount"],
         createDate: _boardData["createDate"].toDate(),
-        watchCount: _boardData["watchCount"]);
+        watchCount: _boardData["watchCount"],
+        boardId: _boardData["boardId"],
+        boardCategory: _boardData["boardCategory"]);
   }
 }
 

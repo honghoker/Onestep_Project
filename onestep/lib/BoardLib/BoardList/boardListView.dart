@@ -20,7 +20,7 @@ class FreeBoard extends StatefulWidget {
 
 class _FreeBoardState extends _BoardListParentState<FreeBoard> {
   @override
-  setBoardData() => Provider.of<List<FreeBoardList>>(context, listen: true);
+  setBoardData() => Provider.of<List<FreeBoardList>>(context, listen: false);
 
   @override
   setFabCallBack() {
@@ -33,16 +33,11 @@ abstract class _BoardListParentState<T extends StatefulWidget>
   setFabCallBack();
   setBoardData();
   Function fabCallback;
-  // BuildContext context;
-  // GeneralBoard(BuildContext context);
-  // GeneralBoard({@required this.context}) : assert(context != null);
   ScrollController _scrollController;
   bool isScrollDirectionUp;
   List<FreeBoardList> boardDataList;
   @override
   void initState() {
-    setFabCallBack();
-
     isScrollDirectionUp = true;
     _scrollController = new ScrollController();
     _scrollController.addListener(() {
@@ -71,22 +66,67 @@ abstract class _BoardListParentState<T extends StatefulWidget>
     super.dispose();
   }
 
+  _getData() async {
+    boardDataList = Provider.of<List<FreeBoardList>>(context);
+    return boardDataList;
+  }
+
   @override
   Widget build(BuildContext context) {
-    boardDataList = setBoardData();
-    return boardDataList == null
-        ? CupertinoActivityIndicator()
-        : Container(
-            child: ListView.builder(
-                controller: _scrollController,
-                //PageStorageKey is Keepping ListView scroll position when switching pageview
-                key: PageStorageKey<String>("value"),
-                //Bottom Padding
-                padding: const EdgeInsets.only(
-                    bottom: kFloatingActionButtonMargin + 60),
-                itemCount: boardDataList.length,
-                itemBuilder: (context, index) =>
-                    _buildListCard(context, index)));
+    return FutureBuilder(
+        future: _getData(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+            case ConnectionState.waiting:
+              return Center(child: CupertinoActivityIndicator());
+            default:
+              if (snapshot.hasError) {
+                return Center(
+                    child: Column(children: [
+                  Text("데이터 불러오기에 실패하였습니다. 네트워크 연결상태를 확인하여 주십시오."),
+                  IconButton(
+                    icon: Icon(Icons.refresh),
+                    onPressed: () {
+                      setState(() {});
+                    },
+                  )
+                ]));
+              } else if (!snapshot.hasData) {
+                return Center(child: CupertinoActivityIndicator());
+              } else {
+                if (boardDataList.length == 0) {
+                  return Center(child: Text("새 게시글로 시작해보세요!"));
+                } else {
+                  return Container(
+                      child: ListView.builder(
+                          controller: _scrollController,
+                          //PageStorageKey is Keepping ListView scroll position when switching pageview
+                          key: PageStorageKey<String>("value"),
+                          //Bottom Padding
+                          padding: const EdgeInsets.only(
+                              bottom: kFloatingActionButtonMargin + 60),
+                          itemCount: boardDataList.length,
+                          itemBuilder: (context, index) =>
+                              _buildListCard(context, index)));
+                }
+              }
+          }
+        });
+    // boardDataList = setBoardData();
+    // return boardDataList == null
+    //     ? CupertinoActivityIndicator()
+    //     : Container(
+    //         child: ListView.builder(
+    //             controller: _scrollController,
+    //             //PageStorageKey is Keepping ListView scroll position when switching pageview
+    //             key: PageStorageKey<String>("value"),
+    //             //Bottom Padding
+    //             padding: const EdgeInsets.only(
+    //                 bottom: kFloatingActionButtonMargin + 60),
+    //             itemCount: boardDataList.length,
+    //             itemBuilder: (context, index) =>
+    //                 _buildListCard(context, index)));
   }
 
   Widget _buildListCard(BuildContext context, int index) {

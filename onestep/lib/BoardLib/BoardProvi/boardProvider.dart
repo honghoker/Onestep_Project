@@ -8,7 +8,7 @@ class BoardProvider {
     return _db
         .collection("Board")
         .doc("Board_Free")
-        .collection("Board_Free_BoardId")
+        .collection("Board_Free")
         .orderBy("createDate", descending: true)
         .snapshots()
         .map((list) =>

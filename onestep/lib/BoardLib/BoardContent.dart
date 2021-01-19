@@ -77,9 +77,11 @@ class _Board extends State<BoardContent>
     // }
   }
 
-  _getImageContent() async {
+  Future<List<dynamic>> _getImageContent() async {
     final FirebaseFirestore _db = FirebaseFirestore.instance;
-
+    QuerySnapshot querySnapshot = await _db
+        .collection(boardData.boardId.toString())
+        .doc(boardData.boardId.toString());
     return _db
         .collection("Board")
         .doc(boardData.boardId.toString())
@@ -102,8 +104,7 @@ class _Board extends State<BoardContent>
             if (snapshot.hasError) {
               return Center(
                   child: Column(children: [
-                Text("데이터 불러오기에 실패하였습니다. 네트워크 연결상태를 확인하여 주십시오."),
-                Text("${snapshot.hasError}"),
+                Text("데이터 불러오기에 실패하였습니다.\n 네트워크 연결상태를 확인하여 주십시오."),
                 IconButton(
                   icon: Icon(Icons.refresh),
                   onPressed: () {

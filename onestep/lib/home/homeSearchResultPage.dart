@@ -115,8 +115,8 @@ class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
                     controller: _textController,
                     onSubmitted: (text) {
                       // 2글자 제한
-                      if (text.length > 2) {
-                        print("2글자 초과");
+                      if (text.length <= 2) {
+                        print("2글자 이하");
                       } else if (text == "") {
                         print("공백");
                       } else {

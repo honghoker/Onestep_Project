@@ -22,7 +22,22 @@ class _AuthScreenState extends State<AuthScreen> {
   String checkPassword;
   String currentUserId;
   DateTime sendTime;
+  bool _isEmailChecked = false;
+  bool _isEmailUnderLine = true;
+  String tempEmail = "";
+  bool _isAuthNumber = true;
+
   _AuthScreenState(this.currentUserId, this.checkPassword, this.sendTime);
+
+  TextEditingController emailController;
+
+  @override
+  void initState() {
+    super.initState();
+    emailController = TextEditingController(text: tempEmail);
+    emailController.selection = TextSelection.fromPosition(
+        TextPosition(offset: emailController.text.length));
+  }
 
   // 지금 보니 안써도 될거 같은데 나중에 확인
   Stream<DocumentSnapshot> get _a {
@@ -93,109 +108,211 @@ class _AuthScreenState extends State<AuthScreen> {
     // connection.close();
   }
 
+  authEmailNickNameCheck(String text) async {
+    _isEmailChecked = false;
+    if (text.contains("@stu.kmu.ac.kr")) {
+      setState(() {
+        _isEmailChecked = true;
+        _isEmailUnderLine = true;
+      });
+    } else {
+      setState(() {
+        _isEmailUnderLine = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     CheckAuth checkAuth = Provider.of<CheckAuth>(context);
-    final myController = TextEditingController();
+    final _myController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text("학교인증"),
       ),
-      body: StreamBuilder<DocumentSnapshot>(
-          stream: _a,
-          builder: (context, snapshot) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 0, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        child: Text(
-                          "OneStep 과 함께",
-                          style: TextStyle(fontSize: 30),
-                        ),
-                      ),
-                      Container(
-                        child: Text(
-                          "즐거운 대학생활을",
-                          style: TextStyle(fontSize: 30),
-                        ),
-                      ),
-                      Container(
-                        child: Text(
-                          "지금 바로 RUN",
-                          style: TextStyle(fontSize: 30),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 30),
-                  child: Center(
+      body: SingleChildScrollView(
+        child: StreamBuilder<DocumentSnapshot>(
+            stream: _a,
+            builder: (context, snapshot) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 0, 0),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          width: 300,
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 5),
-                            child: TextField(
-                              controller: myController,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 50, 0, 0),
-                          child: Container(
-                            width: 300,
-                            child: RaisedButton(
-                              onPressed: () async {
-                                checkPassword = await getRandomNumber();
-                                setState(() {
-                                  // sendMail();
-                                  sendTime =
-                                      DateTime.now().add(Duration(hours: 9));
-                                });
-                              },
-                              child: Text("재전송"),
-                            ),
+                          child: Text(
+                            "OneStep 과 함께",
+                            style: TextStyle(fontSize: 30),
                           ),
                         ),
                         Container(
-                          width: 300,
-                          child: RaisedButton(
-                            onPressed: () {
-                              // 5분 안에 인증해야함
-                              if (DateTime.now()
-                                      .add(Duration(hours: 9))
-                                      .isBefore(
-                                          sendTime.add(Duration(minutes: 5))) &&
-                                  checkPassword == myController.text) {
-                                print("성공");
-                                // checkAuth.successAuth();
-                                // updateAuth();
-                                // Navigator.of(context).pop();
-                              } else {
-                                print("실패");
-                                // print("${snapshot.data.data()['authTest']}");
-                                // Navigator.of(context).pop();
-                              }
-                            },
-                            child: Text("인증"),
+                          child: Text(
+                            "즐거운 대학생활을",
+                            style: TextStyle(fontSize: 30),
+                          ),
+                        ),
+                        Container(
+                          child: Text(
+                            "지금 바로 RUN",
+                            style: TextStyle(fontSize: 30),
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-              ],
-            );
-          }),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 40),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            child: Text("학교 off365 email을 적어주세요"),
+                          ),
+                          Container(
+                            child: Text("ex) 학번@stu.kmu.ac.kr"),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Container(
+                              width: 300,
+                              child: TextField(
+                                controller: emailController,
+                                onChanged: (text) {
+                                  tempEmail = text;
+                                },
+                                decoration: InputDecoration(
+                                  hintText: "이메일",
+                                  enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: _isEmailUnderLine == true
+                                              ? Colors.grey
+                                              : Colors.red)),
+                                  focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: _isEmailUnderLine == true
+                                              ? Colors.grey
+                                              : Colors.red)),
+                                  suffix: _isEmailChecked
+                                      ? GestureDetector(
+                                          child: Text("확인완료"),
+                                          onTap: () {
+                                            authEmailNickNameCheck(
+                                                emailController.text);
+                                          },
+                                        )
+                                      : GestureDetector(
+                                          child: Text("중복확인"),
+                                          onTap: () {
+                                            authEmailNickNameCheck(
+                                                emailController.text);
+                                          },
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Offstage(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 15, 50, 0),
+                              child: Text(
+                                "이메일 형식이 잘못되었거나 중복입니다.",
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                            offstage: _isEmailUnderLine == true ? true : false,
+                          ),
+                          Container(
+                            width: 300,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: TextField(
+                                controller: _myController,
+                                decoration: InputDecoration(
+                                  hintText: "인증번호",
+                                  enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: _isAuthNumber == true
+                                              ? Colors.grey
+                                              : Colors.red)),
+                                  focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: _isAuthNumber == true
+                                              ? Colors.grey
+                                              : Colors.red)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Offstage(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 15, 150, 0),
+                              child: Text(
+                                "잘못된 인증번호입니다.",
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                            offstage: _isAuthNumber == true ? true : false,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 25, 0, 0),
+                            child: Container(
+                              width: 300,
+                              child: RaisedButton(
+                                onPressed: () async {
+                                  checkPassword = await getRandomNumber();
+                                  setState(() {
+                                    // sendMail();
+                                    sendTime =
+                                        DateTime.now().add(Duration(hours: 9));
+                                  });
+                                },
+                                child: Text("재전송"),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: 300,
+                            child: RaisedButton(
+                              onPressed: () {
+                                // 5분 안에 인증해야함
+                                if (DateTime.now()
+                                        .add(Duration(hours: 9))
+                                        .isBefore(sendTime
+                                            .add(Duration(minutes: 5))) &&
+                                    checkPassword == _myController.text) {
+                                  print("성공");
+                                  // checkAuth.successAuth();
+                                  // updateAuth();
+                                  // Navigator.of(context).pop();
+                                } else {
+                                  print("실패");
+                                  setState(() {
+                                    _isAuthNumber = false;
+                                  });
+                                  // print("${snapshot.data.data()['authTest']}");
+                                  // Navigator.of(context).pop();
+                                }
+                              },
+                              child: Text("인증"),
+                            ),
+                          ),
+
+                          // Container(
+                          //   child: Text(""),
+                          // )
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }),
+      ),
     );
   }
 }

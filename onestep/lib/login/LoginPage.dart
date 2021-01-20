@@ -52,7 +52,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (isLoggedIn) {
       var arg = firebaseAuth.currentUser.uid;
 //      var arg = preferences.getString('id') ?? '아이디없음';
-      Navigator.of(context).pushReplacementNamed('/MainPage?UID=$arg');
+
+      // 로그인 성공
+      // Navigator.of(context).pushReplacementNamed('/MainPage?UID=$arg');
+
+      // 회원가입으로
+      Navigator.of(context).pushNamed('/JoinPage?UID=$arg');
 
       // Navigator.push(
       //     context,
@@ -196,11 +201,11 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       // 회원가입으로 넘어가는 navigator
-      // Navigator.of(context).pushNamed('/JoinPage?UID=${firebaseUser.uid}');
+      Navigator.of(context).pushNamed('/JoinPage?UID=${firebaseUser.uid}');
 
       // 찬섭이형 예시 코드 여기 확인
-      Navigator.of(context)
-          .pushReplacementNamed('/MainPage?UID=${firebaseUser.uid}');
+      // Navigator.of(context)
+      //     .pushReplacementNamed('/MainPage?UID=${firebaseUser.uid}');
 
       Fluttertoast.showToast(msg: 'uid 하단' + currentUser.uid);
     }

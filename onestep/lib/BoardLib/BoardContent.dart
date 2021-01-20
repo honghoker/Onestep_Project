@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class _Board extends State<BoardContent>
   Animation _favoriteAnimation;
   //index is not null and must have to get index
 
-  // ScrollController _scrollController;
+  ScrollController _scrollController;
   Map<String, dynamic> _imageMap = {};
   @override
   void initState() {
@@ -36,7 +37,7 @@ class _Board extends State<BoardContent>
     // _settingFavoriteAnimation();
 
     _onFavoriteClicked = false;
-    // _scrollController = ScrollController();
+    _scrollController = ScrollController();
   }
 
   @override
@@ -44,54 +45,49 @@ class _Board extends State<BoardContent>
     return Scaffold(
         body: SafeArea(
       child: Stack(children: <Widget>[
-        Container(
-          //Dynamic height Size
-          height: MediaQuery.of(context).size.height,
-          // alignment: AlignmentA,
-          child: SingleChildScrollView(
-              // controller: _scrollController,
-              child: Container(
-                  height: MediaQuery.of(context).size.height,
-                  child: Column(children: <Widget>[
-                    //Title Container
-                    setTitle(boardData.title),
-                    //Date Container
-                    setDateNVisitor(boardData.createDate, boardData.watchCount),
-                    // FutureBuilder(future:,builder: builder,AsyncSnapshot snapshot){}
-                    imageContent()
-                    // setBoardContent()
-                  ]))),
-        ),
+        // Container(
+        //   //Dynamic height Size
+        //   height: MediaQuery.of(context).size.height,
+        //   // alignment: AlignmentA,
+        //   child:
+        SingleChildScrollView(
+            controller: _scrollController,
+            // child: Expanded(
+            // height: MediaQuery.of(context).size.height,
+            child: Column(children: <Widget>[
+              // Title Container
+              setTitle(boardData.title),
+              //Date Container
+              setDateNVisitor(boardData.createDate, boardData.watchCount),
+              // FutureBuilder(future:,builder: builder,AsyncSnapshot snapshot){}
+              imageContent()
+              // setBoardContent()
+            ])),
+        // ),
+        // ),
         TipDialogContainer(
           duration: const Duration(milliseconds: 400),
           maskAlpha: 0,
         )
       ]),
     ));
-
-    // if (snapshot.connectionState == ConnectionState.none) {
-    //   return Center(
-    //       child: Text("데이터 불러오기에 실패하였습니다. 네트워크 연결상태를 확인하여 주십시오."));
-    // } else if (snapshot.hasData) {
-    //   return Center(child: Text("데이터가 없습니다."));
-    // }
   }
 
-  Future<List<dynamic>> _getImageContent() async {
+  test() {}
+
+  Future _getImageContent() async {
     final FirebaseFirestore _db = FirebaseFirestore.instance;
-    QuerySnapshot querySnapshot = await _db
-        .collection(boardData.boardId.toString())
-        .doc(boardData.boardId.toString());
+    String collectionId = boardData.boardId.toString();
+    String documentId = boardData.documentId.toString();
     return _db
         .collection("Board")
-        .doc(boardData.boardId.toString())
-        .collection(boardData.boardId.toString())
-        .snapshots()
-        .map((list) => list.docs
-            .map((doc) => ImageContentComment.fromFireStore(doc))
-            .toList());
+        .doc(collectionId)
+        .collection(collectionId)
+        .doc(documentId)
+        .get();
   }
 
+// Future<DocumentSnapshot> _temp = await FirebaseFirestore.instance.collection(boardData.boardId.toString()).doc(boardData.documentId.toString()).get();
   Widget imageContent() {
     return FutureBuilder(
       future: _getImageContent(),
@@ -112,13 +108,37 @@ class _Board extends State<BoardContent>
                   },
                 )
               ]));
-            } else {
-              return Container(
-                  child: Text(_getImageContent != null ? "Hi" : "hello"));
+            } else if (snapshot.hasData) {
+              // print(snapshot.data.exists);
+              return _setImageContent(snapshot.data);
             }
+          // print(snapshot.data.exists);
+
         }
       },
     );
+  }
+
+  _setImageContent(DocumentSnapshot snapshot) {
+    _imageMap = snapshot.data()["imageCommentList"];
+    Widget _imageCommentColumn;
+    List<dynamic> _commentList = _imageMap["COMMENT"];
+    List<dynamic> _imageURi = _imageMap["IMAGE"];
+    List<dynamic> _imageWidgetList = [];
+
+    List<Widget> _imageContainer = [];
+    _imageURi.forEach((element) async {
+      _imageContainer.add(GestureDetector(
+          child: Container(
+        padding: EdgeInsets.all(10.0),
+        child: CachedNetworkImage(
+          imageUrl: element.toString(),
+          placeholder: (context, url) => CupertinoActivityIndicator(),
+          errorWidget: (context, url, error) => Icon(Icons.error),
+        ),
+      )));
+    });
+    return Column(children: _imageContainer);
   }
 
   getBoardData() async {

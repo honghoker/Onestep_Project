@@ -117,8 +117,8 @@ class _ProductChatPageState extends State<ProductChatPage> {
                       //여기 사이에 들어가야 함.
                     } // if 종료
                     else {
-                      print("##반환없음");
-                      return Container();
+                      print("###장터 채팅없음");
+                      return Text("채팅방이 없음");
                     }
                   }).toList())
                 : Text("채팅없음");

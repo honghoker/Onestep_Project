@@ -55,6 +55,10 @@ class _BoardChatPageState extends State<BoardChatPage> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: <Widget>[
+                              Text(chatroomData.data()["boardtype"]),
+                              SizedBox(
+                                width: 5,
+                              ),
                               Text(chatroomData.data()["title"]),
                               SizedBox(width: 10, height: 10),
                               Spacer(),
@@ -86,7 +90,7 @@ class _BoardChatPageState extends State<BoardChatPage> {
                     } // if 종료
                     else {
                       print("##반환없음");
-                      return Text("오류");
+                      return Container();
                     }
                   }).toList())
                 : Text("채팅없음");

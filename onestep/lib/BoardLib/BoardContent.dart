@@ -297,7 +297,23 @@ class _Board extends State<BoardContent>
                     size: 30,
                   ),
                   onPressed: () {
-                    //boardData; FreeBoardList.fromFireStore in boardClass.dart
+                    print("###dt");
+                    print("###" +
+                        FirebaseApi.getId() +
+                        "###" +
+                        boardData.uid.toString() +
+                        "###" +
+                        boardData.boardId.toString() +
+                        "###" +
+                        boardData.documentId.toString());
+
+                    NotificationManager.navigateToBoardChattingRoom(
+                      context,
+                      FirebaseApi.getId(),
+                      boardData.uid,
+                      boardData.boardId, //게시판id
+                      boardData.documentId, //게시글id
+                    );
                   }),
             ),
 

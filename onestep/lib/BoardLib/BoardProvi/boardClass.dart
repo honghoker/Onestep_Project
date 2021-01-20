@@ -7,7 +7,6 @@ import 'package:onestep/api/firebase_api.dart';
 import 'package:random_string/random_string.dart';
 
 class BoardData {
-  final String userId;
   var createDate;
   var alterDate;
   String documentId;
@@ -48,7 +47,6 @@ class BoardData {
       this.createDate,
       this.favoriteCount,
       this.title,
-      this.userId,
       this.reportCount,
       this.textContent,
       this.uid,

@@ -59,8 +59,8 @@ class _Board extends State<BoardContent>
               //Date Container
               setDateNVisitor(boardData.createDate, boardData.watchCount),
               // FutureBuilder(future:,builder: builder,AsyncSnapshot snapshot){}
-              imageContent()
-              // setBoardContent()
+              imageContent(),
+              setBoardContent()
             ])),
         // ),
         // ),
@@ -193,42 +193,43 @@ class _Board extends State<BoardContent>
   }
 
   Widget setBoardContent() {
-    return Flexible(
-      child: Column(
-        children: <Widget>[
-          Flexible(
-            child: Container(
-                child: SingleChildScrollView(
+    return _setScrapAndFavoriteButton();
+    // return Flexible(
+    //   child: Column(
+    //     children: <Widget>[
+    //       Flexible(
+    //         child: Container(
+    //             child: SingleChildScrollView(
 
-                    // controller: controller,
-                    // scrollDirection: Axis.vertical,
-                    child: Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  GestureDetector(
-                    onDoubleTap: () async => _setPopUpFavoriteIcon(),
-                    // _showFavoriteAlertDialog(context);
-                    // _favoriteConfirmAnimation(context);
+    //                 // controller: controller,
+    //                 // scrollDirection: Axis.vertical,
+    //                 child: Container(
+    //           child: Column(
+    //             crossAxisAlignment: CrossAxisAlignment.stretch,
+    //             children: <Widget>[
+    //               GestureDetector(
+    //                 onDoubleTap: () async => _setPopUpFavoriteIcon(),
+    //                 // _showFavoriteAlertDialog(context);
+    //                 // _favoriteConfirmAnimation(context);
 
-                    child: Container(
-                      decoration: BoxDecoration(
-                          border: Border(
-                              bottom:
-                                  BorderSide(color: Colors.grey, width: 5.0))),
-                      child: Text('s'),
-                    ),
-                  ),
-                  _setScrapAndFavoriteButton(),
-                  // Container(child: CommentList().tempCommentContainer())
-                  // .commentContainer())
-                ],
-              ),
-            ))),
-          ),
-        ],
-      ),
-    );
+    //                 child: Container(
+    //                   decoration: BoxDecoration(
+    //                       border: Border(
+    //                           bottom:
+    //                               BorderSide(color: Colors.grey, width: 5.0))),
+    //                   child: Text('s'),
+    //                 ),
+    //               ),
+    //               _setScrapAndFavoriteButton(),
+    //               // Container(child: CommentList().tempCommentContainer())
+    //               // .commentContainer())
+    //             ],
+    //           ),
+    //         ))),
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
 
   // _scrollPosition(bool isLiked) async {

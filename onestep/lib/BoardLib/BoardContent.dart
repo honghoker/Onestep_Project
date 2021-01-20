@@ -5,10 +5,13 @@ import 'package:flutter/rendering.dart';
 import 'package:like_button/like_button.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
-import 'package:flutter/animation.dart';
+
 import 'package:tip_dialog/tip_dialog.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardClass.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:onestep/cloth/imageFullViewerWIdget.dart';
+import 'package:image/image.dart';
+import 'package:flutter/animation.dart';
 
 class BoardContent extends StatefulWidget {
   final BoardData boardData;
@@ -25,11 +28,12 @@ class _Board extends State<BoardContent>
   var _onFavoriteClicked;
   //If clicked favorite button, activate this animation
   AnimationController _favoriteAnimationController;
-  Animation _favoriteAnimation;
+  // Animation _favoriteAnimation;
   //index is not null and must have to get index
 
   ScrollController _scrollController;
   Map<String, dynamic> _imageMap = {};
+  List<dynamic> _imageList = [];
   @override
   void initState() {
     super.initState();
@@ -82,15 +86,14 @@ class _Board extends State<BoardContent>
 
   _getImageContent() async {
     final FirebaseFirestore _db = FirebaseFirestore.instance;
-
+    String _boardID = boardData.boardId.toString();
+    String _documentID = boardData.documentId.toString();
     return _db
         .collection("Board")
-        .doc(boardData.boardId.toString())
-        .collection(boardData.boardId.toString())
-        .snapshots()
-        .map((list) => list.docs
-            .map((doc) => ImageContentComment.fromFireStore(doc))
-            .toList());
+        .doc(_boardID)
+        .collection(_boardID)
+        .doc(_documentID)
+        .get();
   }
 
   Widget imageContent() {
@@ -122,7 +125,7 @@ class _Board extends State<BoardContent>
     );
   }
 
-  _setImageContent(DocumentSnapshot snapshot) async {
+  _setImageContent(DocumentSnapshot snapshot) {
     _imageMap = snapshot.data()["imageCommentList"];
     Widget _imageCommentColumn;
     List<dynamic> _commentList = _imageMap["COMMENT"];
@@ -132,24 +135,36 @@ class _Board extends State<BoardContent>
     List<Widget> _imageContainer = [];
 
     _imageURi.asMap().forEach((index, element) async {
-      print(element);
-      // imageList.add(await Image.network(element));
+      _imageList.add(
+        CachedNetworkImage(
+          imageUrl: element.toString(),
+          placeholder: (context, url) => CupertinoActivityIndicator(),
+          errorWidget: (context, url, error) => Icon(Icons.error),
+        ),
+      );
       _imageContainer.add(GestureDetector(
           onTap: () {
             print('$index');
-            // Navigator.pushNamed(context, '/ImageFullViewer',
-            //     arguments: {"INDEX": index, "IMAGES": []});
+            Navigator.of(context).pushNamed('/CustomFullViewer',
+                arguments: {"INDEX": index, "IMAGES": _imageURi});
           },
           child: Container(
-            padding: EdgeInsets.all(10.0),
-            child: CachedNetworkImage(
-              imageUrl: element.toString(),
-              placeholder: (context, url) => CupertinoActivityIndicator(),
-              errorWidget: (context, url, error) => Icon(Icons.error),
-            ),
-          )));
+              padding: EdgeInsets.all(10.0), child: _imageList[index])));
     });
-    return Column(children: _imageContainer);
+    return Column(
+      children: _imageContainer,
+    );
+
+    // return Column(children: [
+    //   GestureDetector(
+    //       onTap: () {
+    //         Navigator.pushNamed(context, '/ImageFullViewer',
+    //             arguments: {"INDEX": 0, "IMAGES": _imageList});
+    //       },
+    //       child: Container(
+    //         child: _imageList[0],
+    //       ))
+    // ]);
   }
 
   getBoardData() async {

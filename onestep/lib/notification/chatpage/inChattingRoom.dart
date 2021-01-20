@@ -815,23 +815,24 @@ class _LastChatState extends State<ChatScreen> {
           "content": contentMsg,
           "type": type,
         });
-      });
+      }).whenComplete(() {
+        switch (type) {
+          case 1:
+            contentMsg = "사진을 보냈습니다.";
+            break;
+          case 2:
+            contentMsg = "이모티콘을 보냈습니다.";
+            break;
+        }
 
-      switch (type) {
-        case 1:
-          contentMsg = "사진을 보냈습니다.";
-          break;
-        case 2:
-          contentMsg = "이모티콘을 보냈습니다.";
-          break;
-      }
-
-      FirebaseFirestore.instance.runTransaction((transaction) async {
-        await transaction.update(docRef2, {
-          "recent_text": contentMsg,
-          "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+        FirebaseFirestore.instance.runTransaction((transaction) async {
+          await transaction.update(docRef2, {
+            "recent_text": contentMsg,
+            "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+          });
         });
       });
+
       listScrollController.animateTo(0.0,
           duration: Duration(microseconds: 300), curve: Curves.easeOut);
     } //if

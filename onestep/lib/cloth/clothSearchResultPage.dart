@@ -6,15 +6,13 @@ import 'package:provider/provider.dart';
 import 'clothitem.dart';
 
 class ClothSearchResultPage extends StatefulWidget {
-  final ProuductProvider productProvider;
-
-  const ClothSearchResultPage({Key key, this.productProvider})
-      : super(key: key);
+  const ClothSearchResultPage({Key key}) : super(key: key);
   @override
   _ClothSearchResultPageState createState() => _ClothSearchResultPageState();
 }
 
 class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
+  ProuductProvider _productProvider;
   String tempSearchValue = "";
   TextEditingController _textController;
   bool _isSearchMode = true;
@@ -117,18 +115,17 @@ class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
                 controller: _textController,
                 onSubmitted: (text) {
                   // 2글자 제한
-                  if (text.length > 2) {
-                    print("2글자 초과");
-                  } else if (text == "") {
-                    print("공백");
-                  } else {
-                    print("search $text");
+                  if (text.trim().length >= 2) {
+                    print(text);
+                    _productProvider.searchProducts(text);
                     search = Search(title: text, id: null);
                     setState(() {
                       _isSearchMode = false;
                       if (text.trim().toString() != "") p.insertSearch(search);
                       // _isAutoFocus = false;
                     });
+                  } else {
+                    print("2글자 미만 제한 예외처리");
                   }
                 },
                 onChanged: (text) {
@@ -188,7 +185,7 @@ class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
         crossAxisSpacing: 10,
       ),
       children: [
-        ...widget.productProvider.products
+        ..._productProvider.products
             .map(
               (product) => ClothItem(
                 product: product,

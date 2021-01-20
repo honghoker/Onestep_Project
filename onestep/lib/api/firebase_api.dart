@@ -42,29 +42,18 @@ class FirebaseApi {
   static Future<QuerySnapshot> getSearchProducts(
     // 장터 상품 검색
     int limit,
-    String search,
-    String category, {
+    String search, {
     DocumentSnapshot startAfter,
   }) async {
     var refProducts;
-    if (category == "전체") {
-      refProducts = FirebaseFirestore.instance
-          .collection('products')
-          .where("title", isEqualTo: search)
-          .where("deleted", isEqualTo: false)
-          .where("hide", isEqualTo: false)
-          .orderBy("bumptime", descending: true)
-          .limit(limit);
-    } else {
-      refProducts = FirebaseFirestore.instance
-          .collection('products')
-          .where("title", isEqualTo: search)
-          .where("category", isEqualTo: category)
-          .where("deleted", isEqualTo: false)
-          .where("hide", isEqualTo: false)
-          .orderBy("bumptime", descending: true)
-          .limit(limit);
-    }
+    refProducts = FirebaseFirestore.instance
+        .collection('products')
+        // .where("title", isGreaterThanOrEqualTo: search)
+        // .where("title", isLessThanOrEqualTo: search + '\uf8ff')
+        .where("deleted", isEqualTo: false)
+        .where("hide", isEqualTo: false)
+        .orderBy("bumptime", descending: true)
+        .limit(limit);
 
     if (startAfter == null) {
       return refProducts.get();

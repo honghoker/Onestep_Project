@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
-import 'package:onestep/notification/chatpage/inBoardChattingRoom.dart';
-import 'package:onestep/notification/chatpage/inChattingRoom.dart';
+
+import '../inBoardChattingRoom.dart';
+import '../inChattingRoom.dart';
 
 class NotificationManager {
   static void navigateToChattingRoom(

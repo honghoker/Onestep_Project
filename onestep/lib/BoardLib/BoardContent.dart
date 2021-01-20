@@ -79,19 +79,17 @@ class _Board extends State<BoardContent>
     // }
   }
 
-  Future<List<dynamic>> _getImageContent() async {
+  _getImageContent() async {
     final FirebaseFirestore _db = FirebaseFirestore.instance;
-    // QuerySnapshot querySnapshot = await _db
-    //     .collection(boardData.boardId.toString())
-    //     .doc(boardData.boardId.toString());
-    // return await _db
-    //     .collection("Board")
-    //     .doc(boardData.boardId.toString())
-    //     .collection(boardData.boardId.toString())
-    //     .snapshots()
-    //     .map((list) => list.docs
-    //         .map((doc) => ImageContentComment.fromFireStore(doc))
-    //         .toList());
+
+    return _db
+        .collection("Board")
+        .doc(boardData.boardId.toString())
+        .collection(boardData.boardId.toString())
+        .snapshots()
+        .map((list) => list.docs
+            .map((doc) => ImageContentComment.fromFireStore(doc))
+            .toList());
   }
 
   Widget imageContent() {
@@ -106,7 +104,8 @@ class _Board extends State<BoardContent>
             if (snapshot.hasError) {
               return Center(
                   child: Column(children: [
-                Text("데이터 불러오기에 실패하였습니다.\n 네트워크 연결상태를 확인하여 주십시오."),
+                Text("데이터 불러오기에 실패하였습니다. 네트워크 연결상태를 확인하여 주십시오."),
+                Text("${snapshot.hasError}"),
                 IconButton(
                   icon: Icon(Icons.refresh),
                   onPressed: () {

@@ -6,6 +6,7 @@ import '../BoardLib/CreateAlterBoard/parentState.dart';
 import '../BoardLib/boardContent.dart';
 import 'package:path/path.dart' as p;
 import 'package:onestep/appmain/myhomepage.dart';
+import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 
 class RouteGenerator {
   static bool _isIOS =
@@ -53,6 +54,12 @@ class RouteGenerator {
         break;
       case 'JoinPage':
         _pageWidget = JoinScreen(currentUserId: arguments['UID']);
+        break;
+      case 'ImageFullViewr':
+        _pageWidget = ImageFullViewerWidget(
+          index: arguments["INDEX"],
+          galleryItems: ["IMAGES"],
+        );
         break;
     }
     return _isIOS

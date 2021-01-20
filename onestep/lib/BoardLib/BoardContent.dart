@@ -11,6 +11,7 @@ import 'commentInBoardContent.dart';
 import 'package:flutter/animation.dart';
 import 'package:tip_dialog/tip_dialog.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardClass.dart';
+import 'package:onestep/cloth/clothDetailViewWidget.dart';
 
 class BoardContent extends StatefulWidget {
   final BoardData boardData;
@@ -127,18 +128,22 @@ class _Board extends State<BoardContent>
     List<dynamic> _commentList = _imageMap["COMMENT"];
     List<dynamic> _imageURi = _imageMap["IMAGE"];
     List<dynamic> _imageWidgetList = [];
-
+    // _imageURi.forEach((element) {})
     List<Widget> _imageContainer = [];
-    _imageURi.forEach((element) async {
+    _imageURi.asMap().forEach((index, element) async {
       _imageContainer.add(GestureDetector(
+          onTap: () {
+            print('$index');
+            // Navigator.pushNamed(context, '/ImageFullViewer',arguments: {["IMAGES"]:});
+          },
           child: Container(
-        padding: EdgeInsets.all(10.0),
-        child: CachedNetworkImage(
-          imageUrl: element.toString(),
-          placeholder: (context, url) => CupertinoActivityIndicator(),
-          errorWidget: (context, url, error) => Icon(Icons.error),
-        ),
-      )));
+            padding: EdgeInsets.all(10.0),
+            child: CachedNetworkImage(
+              imageUrl: element.toString(),
+              placeholder: (context, url) => CupertinoActivityIndicator(),
+              errorWidget: (context, url, error) => Icon(Icons.error),
+            ),
+          )));
     });
     return Column(children: _imageContainer);
   }

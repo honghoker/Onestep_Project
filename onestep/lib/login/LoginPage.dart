@@ -3,12 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:onestep/appmain/myhomepage.dart';
+import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/notification/Controllers/loginController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'ProgressWidget.dart';
-import 'joinPage.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key key}) : super(key: key);
@@ -20,7 +19,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final GoogleSignIn googleSignIn = GoogleSignIn();
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  SharedPreferences preferences;
+  //SharedPreferences preferences;
 
   bool isLoggedIn = false;
   bool isLoading = false;
@@ -49,10 +48,11 @@ class _LoginScreenState extends State<LoginScreen> {
 //         "userEmail": "", //User Email
 //         "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
 
-    preferences = await SharedPreferences.getInstance();
+    //preferences = await SharedPreferences.getInstance();
     isLoggedIn = await googleSignIn.isSignedIn();
     if (isLoggedIn) {
-      var arg = preferences.getString('id') ?? '아이디없음';
+      //var arg = preferences.getString('id') ?? '아이디없음';
+      var arg = FirebaseApi.getId();
       Navigator.of(context).pushReplacementNamed('/MainPage?UID=$arg');
 
       // Navigator.push(
@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
       throw UnimplementedError();
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<Null> controlSignIn() async {
-    preferences = await SharedPreferences.getInstance();
+    //preferences = await SharedPreferences.getInstance();
     this.setState(() {
       isLoading = true;
     });
@@ -184,19 +184,19 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         //Write data to Local
         currentUser = firebaseUser;
-        await preferences.setString("id", documentSnapshots[0]["id"]);
-        await preferences.setString(
-            "nickname", documentSnapshots[0]["nickname"]);
-        await preferences.setString(
-            "photoUrl", documentSnapshots[0]["photoUrl"]);
-        await preferences.setString("aboutMe", documentSnapshots[0]["aboutMe"]);
+        // await preferences.setString("id", documentSnapshots[0]["id"]);
+        // await preferences.setString(
+        //     "nickname", documentSnapshots[0]["nickname"]);
+        // await preferences.setString(
+        //     "photoUrl", documentSnapshots[0]["photoUrl"]);
+        // await preferences.setString("aboutMe", documentSnapshots[0]["aboutMe"]);
       }
       Fluttertoast.showToast(msg: "로그인 완료");
 
       this.setState(() {
         isLoading = false;
       });
-      
+
       // 회원가입으로 넘어가는 navigator
       // Navigator.of(context).pushNamed('/JoinPage?UID=${firebaseUser.uid}');
 

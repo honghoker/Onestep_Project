@@ -820,30 +820,31 @@ class _LastChatState extends State<ChatScreen> {
           .doc(chattingRoomId);
 
       FirebaseFirestore.instance.runTransaction((transaction) async {
-        await transaction.set(docRef, {
+        transaction.set(docRef, {
           "idFrom": myId,
           "idTo": friendId,
           "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
           "content": contentMsg,
           "type": type,
         });
-      });
-
-      switch (type) {
-        case 1:
-          contentMsg = "사진을 보냈습니다.";
-          break;
-        case 2:
-          contentMsg = "이모티콘을 보냈습니다.";
-          break;
-      }
-
-      FirebaseFirestore.instance.runTransaction((transaction) async {
-        await transaction.update(docRef2, {
-          "recent_text": contentMsg,
-          "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+      }).whenComplete(() {
+        switch (type) {
+          case 1:
+            contentMsg = "사진을 보냈습니다.";
+            break;
+          case 2:
+            contentMsg = "이모티콘을 보냈습니다.";
+            break;
+        }
+        //채팅리스트 갱신
+        FirebaseFirestore.instance.runTransaction((transaction) async {
+          await transaction.update(docRef2, {
+            "recent_text": contentMsg,
+            "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+          });
         });
       });
+
       listScrollController.animateTo(0.0,
           duration: Duration(microseconds: 300), curve: Curves.easeOut);
     } //if

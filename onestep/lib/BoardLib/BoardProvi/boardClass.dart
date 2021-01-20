@@ -123,8 +123,7 @@ class FreeBoardList extends BoardData {
       String documentId,
       String textContent,
       int commentCount,
-      Map<String, dynamic> imageCommentList,
-      String boardId})
+      Map<String, dynamic> imageCommentList})
       : super(
             title: title,
             contentCategory: contentCategory,
@@ -135,8 +134,7 @@ class FreeBoardList extends BoardData {
             textContent: textContent,
             watchCount: watchCount,
             commentCount: commentCount,
-            imageCommentList: imageCommentList,
-            boardId: boardId);
+            imageCommentList: imageCommentList);
 
   factory FreeBoardList.fromFireStore(DocumentSnapshot snapshot) {
     Map _boardData = snapshot.data();
@@ -151,8 +149,7 @@ class FreeBoardList extends BoardData {
         documentId: snapshot.id,
         commentCount: _boardData["commentCount"],
         createDate: _boardData["createDate"].toDate(),
-        watchCount: _boardData["watchCount"],
-        boardId: _boardData["boardId"]);
+        watchCount: _boardData["watchCount"]);
   }
 }
 

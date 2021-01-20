@@ -19,6 +19,7 @@ class _ImageFullViewerWidegtState extends State<ImageFullViewerWidget> {
 
   @override
   void initState() {
+    print("hi");
     currentIndex = widget.index;
     super.initState();
   }

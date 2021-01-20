@@ -55,7 +55,7 @@ class RouteGenerator {
       case 'JoinPage':
         _pageWidget = JoinScreen(currentUserId: arguments['UID']);
         break;
-      case 'ImageFullViewr':
+      case 'ImageFullViewer':
         _pageWidget = ImageFullViewerWidget(
           index: arguments["INDEX"],
           galleryItems: ["IMAGES"],

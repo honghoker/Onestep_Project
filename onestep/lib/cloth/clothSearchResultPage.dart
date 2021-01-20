@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:onestep/cloth/providers/productProvider.dart';
+import 'package:onestep/cloth/providers/productSearchProvider.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
 
 import 'clothitem.dart';
 
 class ClothSearchResultPage extends StatefulWidget {
-  const ClothSearchResultPage({Key key}) : super(key: key);
+  final ProuductSearchProvider prouductSearchProvider;
+
+  const ClothSearchResultPage({
+    Key key,
+    this.prouductSearchProvider,
+  }) : super(key: key);
   @override
   _ClothSearchResultPageState createState() => _ClothSearchResultPageState();
 }
 
 class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
-  ProuductProvider _productProvider;
   String tempSearchValue = "";
   TextEditingController _textController;
   bool _isSearchMode = true;
@@ -117,7 +121,7 @@ class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
                   // 2글자 제한
                   if (text.trim().length >= 2) {
                     print(text);
-                    _productProvider.searchProducts(text);
+                    widget.prouductSearchProvider.searchProducts(text);
                     search = Search(title: text, id: null);
                     setState(() {
                       _isSearchMode = false;
@@ -185,7 +189,7 @@ class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
         crossAxisSpacing: 10,
       ),
       children: [
-        ..._productProvider.products
+        ...widget.prouductSearchProvider.products
             .map(
               (product) => ClothItem(
                 product: product,

@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'appmain/myhomepage.dart';
 import 'cloth/models/category.dart';
 import 'cloth/providers/productProvider.dart';
+import 'cloth/providers/productSearchProvider.dart';
 
 import 'login/CheckAuth.dart';
 import 'login/LoginPage.dart';
@@ -29,6 +30,8 @@ void main() async {
         Provider<AppDatabase>.value(value: AppDatabase()),
         ChangeNotifierProvider<ProuductProvider>.value(
             value: new ProuductProvider()),
+        ChangeNotifierProvider<ProuductSearchProvider>.value(
+            value: new ProuductSearchProvider()),
         StreamProvider<List<FreeBoardList>>.value(
             value: _boardDB.getFreeBoard(),
             catchError: (context, error) {

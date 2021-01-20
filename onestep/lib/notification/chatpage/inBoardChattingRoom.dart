@@ -124,8 +124,7 @@ class _LastChatState extends State<ChatScreen> {
   bool existChattingRoom;
   @override
   void initState() {
-    // TODO: implement initState
-
+    print("###보드채팅실행");
     super.initState();
     focusNode.addListener(() {
       onFocusChange();
@@ -142,19 +141,25 @@ class _LastChatState extends State<ChatScreen> {
       value.docChanges.forEach((change) {
         // print(change.doc.id);
         // print(change.doc.data()['title']);
-        if (myId == change.doc.data()['cusers'][0] &&
-            friendId == change.doc.data()['cusers'][1] &&
-            postId == change.doc.data()['postId']) {
+        if ((myId == change.doc.data()['cusers'][0] &&
+                friendId == change.doc.data()['cusers'][1] &&
+                postId == change.doc.data()['postId']) ||
+            (myId == change.doc.data()['cusers'][1] &&
+                friendId == change.doc.data()['cusers'][0] &&
+                postId == change.doc.data()['postId'])) {
           existChattingRoom = true;
           chattingRoomId = change.doc.id;
-        }
+          print("###채팅방 들어가면 뜨는 채팅방 id : $chattingRoomId");
+        } else
+          print("###생성된 채팅방 없음");
       });
-
+      print("###채팅방 확인 종료");
       if (existChattingRoom == true) {
         //만약 채팅방이 있으면
         setState(() {});
       } else {
         chattingRoomId = DateTime.now().millisecondsSinceEpoch.toString();
+        print("###채팅방없어서 ID생성" + chattingRoomId);
       }
     });
 
@@ -285,7 +290,7 @@ class _LastChatState extends State<ChatScreen> {
     return FirebaseFirestore.instance
         .collection('Board')
         .doc(boardId)
-        .collection("Board_Free_BoardId")
+        .collection(boardId)
         .doc(postId)
         .get();
   }

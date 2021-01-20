@@ -87,11 +87,10 @@ class FirebaseChatController {
         boardName = value["boardName"];
       }).whenComplete(
         () {
-          postId = "IcjvDyXsYE901Ti1hCaY";
           FirebaseFirestore.instance
               .collection("Board")
               .doc(boardId)
-              .collection("Board_Free_BoardId") //찬섭이한테 통일하는건지 물어봐
+              .collection(boardId) //찬섭이한테 통일하는건지 물어봐
               .doc(postId) //입력받아야함
               .get()
               .then((value) {

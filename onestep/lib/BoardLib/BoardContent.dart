@@ -329,13 +329,13 @@ class _Board extends State<BoardContent>
                         "###" +
                         boardData.documentId.toString());
 
-                    // NotificationManager.navigateToBoardChattingRoom(
-                    //   context,
-                    //   FirebaseApi.getId(),
-                    //   boardData.userId,
-                    //   boardData.boardId, //게시판id
-                    //   boardData.documentId, //게시글id
-                    // );
+                    NotificationManager.navigateToBoardChattingRoom(
+                      context,
+                      FirebaseApi.getId(),
+                      boardData.uid,
+                      boardData.boardId, //게시판id
+                      boardData.documentId, //게시글id
+                    );
                   }),
             ),
 

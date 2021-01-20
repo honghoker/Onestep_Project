@@ -8,6 +8,7 @@ import 'package:onestep/notification/Controllers/notificationManager.dart';
 import 'package:flutter/animation.dart';
 import 'package:tip_dialog/tip_dialog.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardClass.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class BoardContent extends StatefulWidget {
   final BoardData boardData;
@@ -114,12 +115,41 @@ class _Board extends State<BoardContent>
                 )
               ]));
             } else {
-              return Container(
-                  child: Text(_getImageContent != null ? "Hi" : "hello"));
+              return _setImageContent(snapshot.data);
             }
         }
       },
     );
+  }
+
+  _setImageContent(DocumentSnapshot snapshot) async {
+    _imageMap = snapshot.data()["imageCommentList"];
+    Widget _imageCommentColumn;
+    List<dynamic> _commentList = _imageMap["COMMENT"];
+    List<dynamic> _imageURi = _imageMap["IMAGE"];
+    List<dynamic> _imageWidgetList = [];
+    // _imageURi.forEach((element) {})
+    List<Widget> _imageContainer = [];
+
+    _imageURi.asMap().forEach((index, element) async {
+      print(element);
+      // imageList.add(await Image.network(element));
+      _imageContainer.add(GestureDetector(
+          onTap: () {
+            print('$index');
+            // Navigator.pushNamed(context, '/ImageFullViewer',
+            //     arguments: {"INDEX": index, "IMAGES": []});
+          },
+          child: Container(
+            padding: EdgeInsets.all(10.0),
+            child: CachedNetworkImage(
+              imageUrl: element.toString(),
+              placeholder: (context, url) => CupertinoActivityIndicator(),
+              errorWidget: (context, url, error) => Icon(Icons.error),
+            ),
+          )));
+    });
+    return Column(children: _imageContainer);
   }
 
   getBoardData() async {

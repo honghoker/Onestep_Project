@@ -72,7 +72,7 @@ class ProuductProvider with ChangeNotifier {
     _isFetchingUsers = false;
   }
 
-  Future searchProducts(String search, String category) async {
+  Future searchProducts(String search) async {
     if (_isFetchingUsers) return;
     _isFetchingUsers = true;
     _productsSnapshot.clear();
@@ -80,15 +80,18 @@ class ProuductProvider with ChangeNotifier {
       final snap = await FirebaseApi.getSearchProducts(
         documentLimit,
         search,
-        category,
-        startAfter: null,
+        startAfter:
+            _productsSnapshot.isNotEmpty ? _productsSnapshot.last : null,
       );
       _productsSnapshot.addAll(snap.docs);
+
       if (snap.docs.length < documentLimit) _hasNext = false;
       notifyListeners();
     } catch (error) {
+      _errorMessage = error.toString();
       notifyListeners();
     }
+
     _isFetchingUsers = false;
   }
 }

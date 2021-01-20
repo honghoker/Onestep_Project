@@ -49,7 +49,7 @@ class InBoardChattingRoomPage extends StatelessWidget {
               style: TextStyle(fontSize: 8),
             ),
             Text(
-              "chatRoomUid : $boardId",
+              "boardUid : $boardId",
               style: TextStyle(fontSize: 8),
             ),
             Text(

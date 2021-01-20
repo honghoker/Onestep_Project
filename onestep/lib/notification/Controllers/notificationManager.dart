@@ -19,7 +19,7 @@ class NotificationManager {
 
   static void navigateToBoardChattingRoom(var context, String myUid,
       String friendUid, String boardId, String postId) {
-    print("## 노티 $myUid $friendUid $postId");
+    print("## 노티 $myUid $friendUid $boardId $postId");
     Navigator.push(
         context,
         MaterialPageRoute(

@@ -12,13 +12,6 @@ import 'package:flutter/animation.dart';
 import 'package:tip_dialog/tip_dialog.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardClass.dart';
 import 'package:onestep/cloth/clothDetailViewWidget.dart';
-import 'dart:typed_data';
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:flutter/foundation.dart';
 
 class BoardContent extends StatefulWidget {
   final BoardData boardData;
@@ -40,6 +33,7 @@ class _Board extends State<BoardContent>
 
   ScrollController _scrollController;
   Map<String, dynamic> _imageMap = {};
+  List<dynamic> imageList = [];
   @override
   void initState() {
     super.initState();
@@ -137,14 +131,15 @@ class _Board extends State<BoardContent>
     List<dynamic> _imageWidgetList = [];
     // _imageURi.forEach((element) {})
     List<Widget> _imageContainer = [];
-    List<ByteData> imageDat = [];
+
     _imageURi.asMap().forEach((index, element) async {
-      imageDat.add(await NetworkAssetBundle(Uri.parse(element)).load(""));
+      print(element);
+      // imageList.add(await Image.network(element));
       _imageContainer.add(GestureDetector(
           onTap: () {
             print('$index');
-            Navigator.pushNamed(context, '/ImageFullViewer',
-                arguments: {"INDEX": index, "IMAGES": []});
+            // Navigator.pushNamed(context, '/ImageFullViewer',
+            //     arguments: {"INDEX": index, "IMAGES": []});
           },
           child: Container(
             padding: EdgeInsets.all(10.0),

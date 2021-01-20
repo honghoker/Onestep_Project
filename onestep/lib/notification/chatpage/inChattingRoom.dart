@@ -6,11 +6,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:onestep/notification/Controllers/firebaseChatController.dart';
 import 'package:onestep/notification/time/chat_time.dart';
 import 'package:onestep/notification/widget/FullmageWidget.dart';
 import 'package:intl/intl.dart';
-
-import 'Controllers/firebaseChatController.dart';
 
 class InChattingRoomPage extends StatelessWidget {
   final String myUid;

@@ -220,7 +220,7 @@ class _ProductChatPageState extends State<ProductChatPage> {
               return CircularProgressIndicator();
             }
 
-            if (snapshot.data['photoUrl'] == "") {
+            if (snapshot.data['nickname'] == "") {
               return Text("닉네임 오류");
             } else if (snapshot.hasError) {
               return Text(

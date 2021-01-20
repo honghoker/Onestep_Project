@@ -21,6 +21,8 @@ class _JoinScreenState extends State<JoinScreen> {
 
   bool _isNickNameChecked = false;
   bool _isEmailChecked = false;
+  bool _isEmailUnderLine = true;
+  bool _isNickNameUnderLine = true;
   String tempNickName = "";
   String tempEmail = "";
   var checkPassword;
@@ -31,6 +33,9 @@ class _JoinScreenState extends State<JoinScreen> {
   void initState() {
     _isNickNameChecked = false;
     _isEmailChecked = false;
+    _isEmailUnderLine = true;
+    _isNickNameUnderLine = true;
+
     emailController = TextEditingController(text: tempEmail);
     emailController.selection = TextSelection.fromPosition(
         TextPosition(offset: emailController.text.length));
@@ -46,29 +51,41 @@ class _JoinScreenState extends State<JoinScreen> {
     if (flag == 1) {
       _isEmailChecked = false;
       QuerySnapshot ref = await FirebaseFirestore.instance
-          .collection('sunghunTest')
-          .where("email", isEqualTo: text)
+          .collection('users')
+          .where("userEmail", isEqualTo: text)
           .get();
 
       List<QueryDocumentSnapshot> docRef = ref.docs;
 
-      print("docRef.isEmpty = ${docRef.isNotEmpty}");
+      print("docRef.isEmpty 1 = ${docRef.isNotEmpty}");
       setState(() {
-        _isEmailChecked = docRef.isNotEmpty;
+        _isEmailChecked = docRef.isEmpty;
+        _isEmailUnderLine = docRef.isEmpty;
+        print("docRef.isEmpty 2 = ${docRef.isNotEmpty}");
       });
     } else {
       _isNickNameChecked = false;
       QuerySnapshot ref = await FirebaseFirestore.instance
-          .collection('sunghunTest')
+          .collection('users')
           .where("nickname", isEqualTo: text)
           .get();
 
       List<QueryDocumentSnapshot> docRef = ref.docs;
 
+      print("docRef.isEmpty 1 = ${docRef.isNotEmpty}");
       setState(() {
-        _isNickNameChecked = docRef.isNotEmpty;
+        _isNickNameChecked = docRef.isEmpty;
+        _isNickNameUnderLine = docRef.isEmpty;
+        print("docRef.isEmpty 2 = ${docRef.isNotEmpty}");
       });
     }
+  }
+
+  void updateUser(String email, String nickName) {
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc("$currentUserId")
+        .update({"userEmail": email, "nickName": nickName});
   }
 
   Future getRandomNumber() async {
@@ -91,6 +108,7 @@ class _JoinScreenState extends State<JoinScreen> {
 
   // mail 수정
   sendMail() async {
+    // 공용 mail 만들어야함
     String _username = 'leedool3003@gmail.com';
     String _password = 'alstjsdl421!';
 
@@ -172,6 +190,16 @@ class _JoinScreenState extends State<JoinScreen> {
                         },
                         decoration: InputDecoration(
                           hintText: "이메일",
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: _isEmailUnderLine == true
+                                    ? Colors.grey
+                                    : Colors.red)),
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: _isEmailUnderLine == true
+                                    ? Colors.grey
+                                    : Colors.red)),
                           suffix: _isEmailChecked
                               ? GestureDetector(
                                   child: Text("확인완료"),
@@ -193,50 +221,74 @@ class _JoinScreenState extends State<JoinScreen> {
                     ),
                   ),
                 ),
+                Offstage(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 15, 50, 0),
+                    child: Text(
+                      "이메일 형식이 잘못되었거나 중복입니다.",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                  offstage: _isEmailUnderLine == true ? true : false,
+                ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                  padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
                   child: Container(
                     width: 300,
-                    child: Row(
-                      children: [
-                        Flexible(
-                          child: TextField(
-                            controller: nicknameController,
-                            onChanged: (text) {
-                              tempNickName = text;
-                            },
-                            decoration: InputDecoration(
-                              hintText: "닉네임",
-                              suffix: _isNickNameChecked
-                                  ? GestureDetector(
-                                      child: Text("확인완료"),
-                                      onTap: () {
-                                        authEmailNickNameCheck(
-                                            nicknameController.text, 2);
-                                      },
-                                    )
-                                  : GestureDetector(
-                                      child: Text("중복확인"),
-                                      onTap: () {
-                                        // 1 -> email, 2 -> nickname
-                                        authEmailNickNameCheck(
-                                            nicknameController.text, 2);
-                                      },
-                                    ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: TextField(
+                      controller: nicknameController,
+                      onChanged: (text) {
+                        tempNickName = text;
+                      },
+                      decoration: InputDecoration(
+                        hintText: "닉네임",
+                        enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: _isNickNameUnderLine == true
+                                    ? Colors.grey
+                                    : Colors.red)),
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: _isNickNameUnderLine == true
+                                    ? Colors.grey
+                                    : Colors.red)),
+                        suffix: _isNickNameChecked
+                            ? GestureDetector(
+                                child: Text("확인완료"),
+                                onTap: () {
+                                  authEmailNickNameCheck(
+                                      nicknameController.text, 2);
+                                },
+                              )
+                            : GestureDetector(
+                                child: Text("중복확인"),
+                                onTap: () {
+                                  // 1 -> email, 2 -> nickname
+                                  authEmailNickNameCheck(
+                                      nicknameController.text, 2);
+                                },
+                              ),
+                      ),
                     ),
                   ),
                 ),
+                Offstage(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 15, 150, 0),
+                    child: Text(
+                      "닉네임이 중복입니다.",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                  offstage: _isNickNameUnderLine == true ? true : false,
+                ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
+                  padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Container(
-                        child: Text("학교인증"),
+                        child: Text("학교인증 (선택사항)"),
                       ),
                       Container(
                           width: 100,
@@ -251,6 +303,7 @@ class _JoinScreenState extends State<JoinScreen> {
                                     MaterialPageRoute(
                                         builder: (BuildContext context) =>
                                             AuthScreen(
+                                                currentUserId,
                                                 checkPassword,
                                                 DateTime.now()
                                                     .add(Duration(hours: 9)))));
@@ -270,6 +323,8 @@ class _JoinScreenState extends State<JoinScreen> {
                         if (_isEmailChecked == true &&
                             _isNickNameChecked == true) {
                           print("성공");
+                          updateUser(
+                              emailController.text, nicknameController.text);
                           Navigator.of(context).pushReplacementNamed(
                               '/MainPage?UID=$currentUserId');
                         } else {

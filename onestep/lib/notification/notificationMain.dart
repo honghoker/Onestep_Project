@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/notification/Controllers/firebaseChatController.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
-import 'package:onestep/notification/chatpage/productsChatPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'chatpage/productChatPage.dart';
 import 'time/chat_time.dart';
 
 //채팅 1페이지 일 때 원본
@@ -32,7 +32,7 @@ class _NotificationMainState extends State<NotificationMain> {
           ],
         ),
         //body: _buildList(),
-        body: ScrollableTabsDemo(),
+        body: ProductChatPage(),
         backgroundColor: Colors.white);
   }
 

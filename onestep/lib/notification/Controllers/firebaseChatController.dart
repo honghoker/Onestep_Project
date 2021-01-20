@@ -69,13 +69,14 @@ class FirebaseChatController {
   }
 
   Future<void> createBoardChatingRoomToFirebaseStorage(
-    String boardId,
-    String postId,
+    String boardId, //게시판Id
+    String postId, //게시글Id
+    String chatId, //생성 챗 Id
   ) async {
     String myUid = FirebaseApi.getId();
     String title;
     String friendUid;
-    String board;
+    String boardName;
     // userImageFile,
     try {
       FirebaseFirestore.instance
@@ -83,39 +84,47 @@ class FirebaseChatController {
           .doc(boardId)
           .get()
           .then((value) {
-        title = value["title"];
-        friendUid = value["uid"];
+        boardName = value["boardName"];
       }).whenComplete(
         () {
-          var nowTime = DateTime.now().millisecondsSinceEpoch.toString();
+          postId = "IcjvDyXsYE901Ti1hCaY";
           FirebaseFirestore.instance
-              .collection("chattingroom")
-              .doc(nowTime)
-              .set({
-            "boardtype": "장터게시판",
-            "title": title,
-            "read_count": 0, //sum(is_read)
-            "cusers": [myUid, friendUid],
-            //"recent_text": "최근 텍스트 update ",
-            "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+              .collection("Board")
+              .doc(boardId)
+              .collection("Board_Free_BoardId") //찬섭이한테 통일하는건지 물어봐
+              .doc(postId) //입력받아야함
+              .get()
+              .then((value) {
+            title = value["title"];
+            friendUid = value["uid"];
           }).whenComplete(() {
-            Fluttertoast.showToast(msg: '채팅방을 생성했습니다.');
-            print("저장완료");
-          }).catchError((onError) {
-            Fluttertoast.showToast(msg: '채팅방 생성에 실패했습니다.');
+            var nowTime = DateTime.now().millisecondsSinceEpoch.toString();
+            FirebaseFirestore.instance
+                .collection("boardChattingroom")
+                .doc(chatId)
+                .set({
+              "boardtype": boardName,
+              "title": title,
+              "boardId": boardId,
+              "postId": postId,
+              "read_count": 0, //sum(is_read)
+              "cusers": [myUid, friendUid],
+              "recent_text": "최근 텍스트 update ",
+              "timestamp": nowTime,
+            }).whenComplete(() {
+              Fluttertoast.showToast(msg: '채팅방을 생성했습니다.');
+              print("##저장완료");
+            }).catchError((onError) {
+              Fluttertoast.showToast(msg: '채팅방 생성에 실패했습니다.');
 
-            print(onError);
+              print(onError);
+            });
           });
         },
       );
     } catch (e) {
       print(e.message);
     }
-  }
-
-  Future<void> getChattingRoomTOToFirebaseStorage() {
-    //채팅 쳤을 때 채팅방있는지 확인 후 없으면 채팅방 생성부터 한다.
-    //메세지 전송 눌렀을 때 방 있는지 확인 후 없으면 생성
   }
 
   Future<void> createProductChatingRoomToFirebaseStorage(

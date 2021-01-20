@@ -54,6 +54,8 @@ class ProuductProvider with ChangeNotifier {
   }
 
   Future fetchProducts(String category) async {
+    if (_isFetchingUsers) return;
+    _isFetchingUsers = true;
     _productsSnapshot.clear();
     try {
       final snap = await FirebaseApi.getProducts(
@@ -67,5 +69,6 @@ class ProuductProvider with ChangeNotifier {
     } catch (error) {
       notifyListeners();
     }
+    _isFetchingUsers = false;
   }
 }

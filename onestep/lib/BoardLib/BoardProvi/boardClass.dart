@@ -21,6 +21,9 @@ class BoardData {
   final int watchCount;
   final int commentCount;
   final String boardCategory;
+  final String boardName;
+  final String boardId;
+  Function completeImageUploadCallback;
   List imgUriList;
   Map<String, dynamic> imageCommentList;
 
@@ -41,6 +44,7 @@ class BoardData {
 
   BoardData(
       {this.contentCategory,
+      this.boardName,
       this.createDate,
       this.favoriteCount,
       this.title,
@@ -54,15 +58,15 @@ class BoardData {
       this.documentId,
       this.commentCount,
       this.imgUriList,
-      this.boardCategory});
+      this.boardCategory,
+      this.boardId});
   Future toFireStore(BuildContext context) async {
-    imgUriList =
-        await convertImage(imageCommentList["IMAGE"]).whenComplete(() => true);
+    imgUriList = await convertImage(imageCommentList["IMAGE"]);
     imageCommentList.update("IMAGE", (value) => imgUriList);
     await FirebaseFirestore.instance
         .collection("Board")
         .doc("Board_Free")
-        .collection("Board_Free_BoardId")
+        .collection("Board_Free")
         .add({
           "uid": await FirebaseApi.getId(),
           "createDate": Timestamp.fromDate(DateTime.now()),
@@ -76,7 +80,8 @@ class BoardData {
           "imageCommentList": imageCommentList ?? {},
           "watchCount": watchCount ?? 0,
           "commentCount": commentCount ?? 0,
-          "boardCategory": boardCategory
+          "boardCategory": boardCategory,
+          "boardId": boardId
         })
         .whenComplete(() => true)
         .then((value) => true)
@@ -100,7 +105,9 @@ class BoardData {
         documentId: snapshot.id,
         commentCount: _boardData["commentCount"],
         createDate: _boardData["createDate"].toDate(),
-        watchCount: _boardData["watchCount"]);
+        watchCount: _boardData["watchCount"],
+        boardId: _boardData["boardId"],
+        boardCategory: _boardData["boardCategory"]);
   }
 }
 
@@ -143,5 +150,15 @@ class FreeBoardList extends BoardData {
         commentCount: _boardData["commentCount"],
         createDate: _boardData["createDate"].toDate(),
         watchCount: _boardData["watchCount"]);
+  }
+}
+
+class ImageContentComment extends BoardData {
+  ImageContentComment({Map<String, dynamic> imageCommentList})
+      : super(imageCommentList: imageCommentList);
+  factory ImageContentComment.fromFireStore(DocumentSnapshot snapshot) {
+    Map _contentData = snapshot.data();
+    return ImageContentComment(
+        imageCommentList: _contentData["imageCommentList"]);
   }
 }

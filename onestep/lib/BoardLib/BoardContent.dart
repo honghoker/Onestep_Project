@@ -303,7 +303,7 @@ class _Board extends State<BoardContent>
                         FirebaseApi.getId() +
                         "###" +
                         boardData.uid.toString() +
-                        "###" +
+                        "##board##" +
                         boardData.boardId.toString() +
                         "###" +
                         boardData.documentId.toString());

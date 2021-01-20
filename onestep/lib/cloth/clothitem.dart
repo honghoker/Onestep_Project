@@ -5,6 +5,7 @@ import 'package:moor_flutter/moor_flutter.dart' as mf;
 import 'package:onestep/cloth/clothDetailViewWidgetcopy.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
+import 'animations/favoriteanimation.dart';
 
 class ClothItem extends StatefulWidget {
   final Product product;
@@ -27,7 +28,6 @@ class _ClothItemState extends State<ClothItem> {
       stream: p.watchsingleProduct(this.widget.product.firestoreid),
       builder: (BuildContext context, AsyncSnapshot<mf.QueryRow> snapshot) {
         if (snapshot.hasError) {
-          print(snapshot.error);
           return new Text('Error: ${snapshot.error}');
         }
         switch (snapshot.connectionState) {
@@ -67,9 +67,15 @@ class _ClothItemState extends State<ClothItem> {
                   children: <Widget>[
                     GestureDetector(
                       onTap: () {
-                        !snapshot.hasData
-                            ? p.insertProduct(this.widget.product)
-                            : p.deleteProduct(this.widget.product);
+                        bool chk = !snapshot.hasData;
+
+                        FavoriteAnimation().incdecProductFavorites(
+                            chk, context, this.widget.product.firestoreid);
+                        if (chk) {
+                          p.insertProduct(this.widget.product);
+                        } else {
+                          p.deleteProduct(this.widget.product);
+                        }
                       },
                       child: Icon(
                         !snapshot.hasData

@@ -8,6 +8,9 @@ import 'package:intl/intl.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
+import 'package:moor_flutter/moor_flutter.dart' as mf;
+
+import 'animations/favoriteanimation.dart';
 import 'package:provider/provider.dart';
 import 'package:onestep/api/firebase_api.dart';
 
@@ -28,7 +31,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
   @override
   void initState() {
     _imageItem.addAll(jsonDecode(widget.product.images));
-    if (widget.product.hide == 1 || widget.product.deleted == 1) {}
+
     // dynamic link
     initDynamicLinks();
     super.initState();
@@ -85,25 +88,11 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
     return _differenceTime;
   }
 
-  void showFavoriteDialog() {
-    Future.delayed(Duration(milliseconds: 300), () {
-      Navigator.pop(context);
-    });
-    showDialog(
-      context: context,
-      builder: (_) => Material(
-        type: MaterialType.transparency,
-        child: Icon(Icons.favorite, color: Colors.pink, size: 200),
-        // ),
-      ),
-    );
-  }
-
   Widget setFavorite() {
-    ProductsDao pd = Provider.of<AppDatabase>(context).productsDao;
+    ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
 
     return StreamBuilder<List<Product>>(
-      stream: pd.watchProducts(),
+      stream: p.watchProducts(),
       builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
         if (snapshot.hasError) {
           print(snapshot.error);
@@ -116,23 +105,18 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
             return GestureDetector(
               onTap: () {
                 int favorites = int.tryParse(_textcontroller.text);
-                if (snapshot.data.contains(this.widget.product) == false) {
-                  pd.insertProduct(this.widget.product);
-                  showFavoriteDialog();
-                  favorites++;
-                  _textcontroller.text = (favorites).toString();
-                  incdecProductViews(favorites);
+                bool chk = !snapshot.hasData;
+                if (chk) {
+                  p.insertProduct(this.widget.product);
                 } else {
-                  pd.deleteProduct(this.widget.product);
-                  favorites--;
-                  _textcontroller.text = (favorites).toString();
-                  incdecProductViews(favorites);
+                  p.deleteProduct(this.widget.product);
                 }
+                FavoriteAnimation().incdecProductFavorites(
+                    chk, context, this.widget.product.firestoreid);
+                _textcontroller.text = (favorites).toString();
               },
               child: Icon(
-                snapshot.data.contains(this.widget.product) == false
-                    ? Icons.favorite_border
-                    : Icons.favorite,
+                !snapshot.hasData ? Icons.favorite_border : Icons.favorite,
                 color: Colors.pink,
               ),
             );
@@ -157,20 +141,6 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
           .update(
         {
           'views': views,
-        },
-      );
-    } catch (e) {}
-  }
-
-  void incdecProductViews(int favorites) {
-    // 조회수 증가
-    try {
-      FirebaseFirestore.instance
-          .collection("products")
-          .doc(widget.product.firestoreid)
-          .update(
-        {
-          'favorites': favorites,
         },
       );
     } catch (e) {}
@@ -323,6 +293,8 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
         break;
       case '신고하기':
         break;
+      case '수정하기':
+        break;
       case '끌올하기':
         DateTime.now();
 
@@ -426,7 +398,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
       itemBuilder: (BuildContext context) {
         var menuItem = List<String>();
         if (FirebaseApi.getId() == widget.product.uid)
-          menuItem.addAll({'끌올하기', '새로고침', '숨김', '삭제'});
+          menuItem.addAll({'끌올하기', '수정하기', '새로고침', '숨김', '삭제'});
         else {
           menuItem.addAll({'새로고침', '신고하기'});
         }
@@ -440,6 +412,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
       },
     );
   }
+
   void _testModalBottomSheet(context) {
     showModalBottomSheet(
         context: context,

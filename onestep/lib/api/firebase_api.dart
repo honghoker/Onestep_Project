@@ -38,15 +38,4 @@ class FirebaseApi {
       return refProducts.startAfterDocument(startAfter).get();
     }
   }
-
-  void incdecProductFavorites(bool chk, String uid) {
-    // 찜 증가, 감소
-    try {
-      FirebaseFirestore.instance.collection("products").doc(uid).update(
-        {
-          'favorites': chk ? FieldValue.increment(1) : FieldValue.increment(-1),
-        },
-      );
-    } catch (e) {}
-  }
 }

@@ -39,6 +39,40 @@ class FirebaseApi {
     }
   }
 
+  static Future<QuerySnapshot> getSearchProducts(
+    // 장터 상품 검색
+    int limit,
+    String search,
+    String category, {
+    DocumentSnapshot startAfter,
+  }) async {
+    var refProducts;
+    if (category == "전체") {
+      refProducts = FirebaseFirestore.instance
+          .collection('products')
+          .where("title", isEqualTo: search)
+          .where("deleted", isEqualTo: false)
+          .where("hide", isEqualTo: false)
+          .orderBy("bumptime", descending: true)
+          .limit(limit);
+    } else {
+      refProducts = FirebaseFirestore.instance
+          .collection('products')
+          .where("title", isEqualTo: search)
+          .where("category", isEqualTo: category)
+          .where("deleted", isEqualTo: false)
+          .where("hide", isEqualTo: false)
+          .orderBy("bumptime", descending: true)
+          .limit(limit);
+    }
+
+    if (startAfter == null) {
+      return refProducts.get();
+    } else {
+      return refProducts.startAfterDocument(startAfter).get();
+    }
+  }
+
   void incdecProductFavorites(bool chk, String uid) {
     // 찜 증가, 감소
     try {

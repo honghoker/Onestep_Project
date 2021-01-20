@@ -91,13 +91,9 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
   Widget setFavorite() {
     ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
 
-    return StreamBuilder<List<Product>>(
-      stream: p.watchProducts(),
-      builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
-        if (snapshot.hasError) {
-          print(snapshot.error);
-          return new Text('Error: ${snapshot.error}');
-        }
+    return StreamBuilder<mf.QueryRow>(
+      stream: p.watchsingleProduct(this.widget.product.firestoreid),
+      builder: (BuildContext context, AsyncSnapshot<mf.QueryRow> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             return Text("");
@@ -108,8 +104,10 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                 bool chk = !snapshot.hasData;
                 if (chk) {
                   p.insertProduct(this.widget.product);
+                  favorites++;
                 } else {
                   p.deleteProduct(this.widget.product);
+                  favorites--;
                 }
                 FavoriteAnimation().incdecProductFavorites(
                     chk, context, this.widget.product.firestoreid);

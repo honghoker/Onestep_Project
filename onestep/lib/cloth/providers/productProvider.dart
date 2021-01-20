@@ -71,4 +71,24 @@ class ProuductProvider with ChangeNotifier {
     }
     _isFetchingUsers = false;
   }
+
+  Future searchProducts(String search, String category) async {
+    if (_isFetchingUsers) return;
+    _isFetchingUsers = true;
+    _productsSnapshot.clear();
+    try {
+      final snap = await FirebaseApi.getSearchProducts(
+        documentLimit,
+        search,
+        category,
+        startAfter: null,
+      );
+      _productsSnapshot.addAll(snap.docs);
+      if (snap.docs.length < documentLimit) _hasNext = false;
+      notifyListeners();
+    } catch (error) {
+      notifyListeners();
+    }
+    _isFetchingUsers = false;
+  }
 }

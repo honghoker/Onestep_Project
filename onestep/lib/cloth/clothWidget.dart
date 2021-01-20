@@ -215,7 +215,9 @@ class _ClothWidgetState extends State<ClothWidget> {
             onPressed: () => {
               print("검색"),
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => ClothSearchResultPage(),
+                builder: (context) => ClothSearchResultPage(
+                  productProvider: widget.productProvider,
+                ),
               ))
             },
           ),

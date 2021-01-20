@@ -27,7 +27,7 @@ class _Board extends State<BoardContent>
   Animation _favoriteAnimation;
   //index is not null and must have to get index
 
-  // ScrollController _scrollController;
+  ScrollController _scrollController;
   Map<String, dynamic> _imageMap = {};
   @override
   void initState() {
@@ -36,7 +36,7 @@ class _Board extends State<BoardContent>
     // _settingFavoriteAnimation();
 
     _onFavoriteClicked = false;
-    // _scrollController = ScrollController();
+    _scrollController = ScrollController();
   }
 
   @override
@@ -44,24 +44,26 @@ class _Board extends State<BoardContent>
     return Scaffold(
         body: SafeArea(
       child: Stack(children: <Widget>[
-        Container(
-          //Dynamic height Size
-          height: MediaQuery.of(context).size.height,
-          // alignment: AlignmentA,
-          child: SingleChildScrollView(
-              // controller: _scrollController,
-              child: Container(
-                  height: MediaQuery.of(context).size.height,
-                  child: Column(children: <Widget>[
-                    //Title Container
-                    setTitle(boardData.title),
-                    //Date Container
-                    setDateNVisitor(boardData.createDate, boardData.watchCount),
-                    // FutureBuilder(future:,builder: builder,AsyncSnapshot snapshot){}
-                    imageContent()
-                    // setBoardContent()
-                  ]))),
-        ),
+        // Container(
+        //   //Dynamic height Size
+        //   height: MediaQuery.of(context).size.height,
+        //   // alignment: AlignmentA,
+        //   child:
+        SingleChildScrollView(
+            controller: _scrollController,
+            // child: Expanded(
+            // height: MediaQuery.of(context).size.height,
+            child: Column(children: <Widget>[
+              // Title Container
+              setTitle(boardData.title),
+              //Date Container
+              setDateNVisitor(boardData.createDate, boardData.watchCount),
+              // FutureBuilder(future:,builder: builder,AsyncSnapshot snapshot){}
+              imageContent()
+              // setBoardContent()
+            ])),
+        // ),
+        // ),
         TipDialogContainer(
           duration: const Duration(milliseconds: 400),
           maskAlpha: 0,
@@ -79,17 +81,17 @@ class _Board extends State<BoardContent>
 
   Future<List<dynamic>> _getImageContent() async {
     final FirebaseFirestore _db = FirebaseFirestore.instance;
-    QuerySnapshot querySnapshot = await _db
-        .collection(boardData.boardId.toString())
-        .doc(boardData.boardId.toString());
-    return _db
-        .collection("Board")
-        .doc(boardData.boardId.toString())
-        .collection(boardData.boardId.toString())
-        .snapshots()
-        .map((list) => list.docs
-            .map((doc) => ImageContentComment.fromFireStore(doc))
-            .toList());
+    // QuerySnapshot querySnapshot = await _db
+    //     .collection(boardData.boardId.toString())
+    //     .doc(boardData.boardId.toString());
+    // return await _db
+    //     .collection("Board")
+    //     .doc(boardData.boardId.toString())
+    //     .collection(boardData.boardId.toString())
+    //     .snapshots()
+    //     .map((list) => list.docs
+    //         .map((doc) => ImageContentComment.fromFireStore(doc))
+    //         .toList());
   }
 
   Widget imageContent() {

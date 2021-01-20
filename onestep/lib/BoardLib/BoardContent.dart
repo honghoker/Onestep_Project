@@ -319,13 +319,23 @@ class _Board extends State<BoardContent>
                     size: 30,
                   ),
                   onPressed: () {
-                    NotificationManager.navigateToBoardChattingRoom(
-                      context,
-                      FirebaseApi.getId(),
-                      boardData.userId,
-                      boardData.boardId, //게시판id
-                      boardData.documentId, //게시글id
-                    );
+                    print("###dt");
+                    print("###" +
+                        FirebaseApi.getId() +
+                        "###" +
+                        boardData.uid.toString() +
+                        "###" +
+                        boardData.boardId.toString() +
+                        "###" +
+                        boardData.documentId.toString());
+
+                    // NotificationManager.navigateToBoardChattingRoom(
+                    //   context,
+                    //   FirebaseApi.getId(),
+                    //   boardData.userId,
+                    //   boardData.boardId, //게시판id
+                    //   boardData.documentId, //게시글id
+                    // );
                   }),
             ),
 

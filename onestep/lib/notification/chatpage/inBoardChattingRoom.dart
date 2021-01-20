@@ -735,9 +735,10 @@ class _LastChatState extends State<ChatScreen> {
                   onPressed: () {
                     if (existChattingRoom == false) {
                       //방 만들어진 적이 없으면
+                      print("####최.종.방.생.성 $boardId $postId $chattingRoomId");
                       FirebaseChatController()
-                          .createBoardChatingRoomToFirebaseStorage("Board_Free",
-                              "IcjvDyXsYE901Ti1hCaY", "1610879839584");
+                          .createBoardChatingRoomToFirebaseStorage(
+                              boardId, postId, chattingRoomId);
                       print("# myid $myId / fid $friendId");
                       existChattingRoom = true;
                     }
@@ -789,23 +790,24 @@ class _LastChatState extends State<ChatScreen> {
           "content": contentMsg,
           "type": type,
         });
-      });
+      }).whenComplete(() {
+        switch (type) {
+          case 1:
+            contentMsg = "사진을 보냈습니다.";
+            break;
+          case 2:
+            contentMsg = "이모티콘을 보냈습니다.";
+            break;
+        }
 
-      switch (type) {
-        case 1:
-          contentMsg = "사진을 보냈습니다.";
-          break;
-        case 2:
-          contentMsg = "이모티콘을 보냈습니다.";
-          break;
-      }
-
-      FirebaseFirestore.instance.runTransaction((transaction) async {
-        await transaction.update(docRef2, {
-          "recent_text": contentMsg,
-          "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+        FirebaseFirestore.instance.runTransaction((transaction) async {
+          await transaction.update(docRef2, {
+            "recent_text": contentMsg,
+            "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+          });
         });
       });
+
       listScrollController.animateTo(0.0,
           duration: Duration(microseconds: 300), curve: Curves.easeOut);
     } //if

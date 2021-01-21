@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
@@ -228,7 +229,14 @@ class _ProductChatPageState extends State<ProductChatPage> {
                 style: TextStyle(fontSize: 15),
               );
             } else {
-              return Text(snapshot.data['nickname']);
+              return AutoSizeText(
+                snapshot.data['nickname'],
+                style: TextStyle(fontSize: 15),
+                minFontSize: 10,
+                stepGranularity: 10,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              );
             }
         }
       },

@@ -52,7 +52,7 @@ dependencies:
   unicorndial: "^1.1.5"        # multi floatingActionButton 
   algolia: ^0.1.7              # search
 
-  #kakao_flutter_sdk: ^0.5.2    # KAKAO
+  kakao_flutter_sdk: ^0.5.2    # KAKAO
   mailer: ^3.2.1
   firebase_dynamic_links: ^0.6.2
   cached_network_image: ^2.5.0

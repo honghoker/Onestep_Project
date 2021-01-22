@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/myinfo/myinfoMyWrite.dart';
 
 class MyinfoWidget extends StatefulWidget {
@@ -6,7 +9,16 @@ class MyinfoWidget extends StatefulWidget {
   _MyinfoWidgetState createState() => _MyinfoWidgetState();
 }
 
+DocumentSnapshot ds;
+
 class _MyinfoWidgetState extends State<MyinfoWidget> {
+  void checkUserLevel() async {
+    ds = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseApi.getId())
+        .get();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,7 +81,12 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
                     children: [
                       IconButton(
                         icon: Icon(Icons.check_circle),
-                        onPressed: () {},
+                        onPressed: () {
+                          checkUserLevel();
+                          ds.data()['authUniversity'] == 1
+                              ? print("학교인증을 이미 함")
+                              : print("학교인증페이지로");
+                        },
                       ),
                       Text("인증"),
                     ],

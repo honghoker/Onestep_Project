@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
+import 'package:onestep/login/KakaoShareManager.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
 import 'package:moor_flutter/moor_flutter.dart' as mf;
@@ -13,6 +14,7 @@ import 'package:moor_flutter/moor_flutter.dart' as mf;
 import 'animations/favoriteanimation.dart';
 import 'package:provider/provider.dart';
 import 'package:onestep/api/firebase_api.dart';
+import 'package:kakao_flutter_sdk/all.dart';
 
 class ClothDetailViewWidgetcopy extends StatefulWidget {
   final Product product;
@@ -411,7 +413,8 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
     );
   }
 
-  void _testModalBottomSheet(context) {
+  void _testModalBottomSheet(
+      context, AsyncSnapshot<DocumentSnapshot> snapshot) {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext bc) {
@@ -460,19 +463,20 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                         children: [
                           RawMaterialButton(
                             onPressed: () {
-                              print("kakao");
-                              // KakaoShareManager().shareMyCode("code");
+                              print("kakao 1");
                               // kakato test
                               // 일단 주석처리 detail 잡아야함
-                              // KakaoShareManager().isKakaotalkInstalled().then((installed) {
+                              // KakaoShareManager()
+                              //     .isKakaotalkInstalled()
+                              //     .then((installed) {
                               //   if (installed) {
                               //     print("kakao success");
-                              //     KakaoShareManager().shareMyCode("abcd");
+                              //     KakaoShareManager().shareMyCode("abcd",snapshot,_imageItem[0]);
                               //   } else {
                               //     print("kakao error");
                               //     // show alert
                               //   }
-                              // }),
+                              // });
                             },
                             constraints:
                                 BoxConstraints(minHeight: 80, minWidth: 80),
@@ -480,7 +484,21 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                             child: IconButton(
                               icon: Image.asset(
                                   'assets/images/free-icon-kakao-talk-2111466.png'),
-                              onPressed: () {},
+                              onPressed: () {
+                                print("kakao 2");
+                                // KakaoShareManager()
+                                //     .isKakaotalkInstalled()
+                                //     .then((installed) {
+                                //   if (installed) {
+                                //     print("kakao success");
+                                //     KakaoShareManager().shareMyCode(
+                                //         "abcd", snapshot, _imageItem[0]);
+                                //   } else {
+                                //     print("kakao error");
+                                //     // show alert
+                                //   }
+                                // });
+                              },
                             ),
                             shape: CircleBorder(),
                           ),
@@ -500,7 +518,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                             onPressed: () {
                               print("URL");
                               // URL
-                              // KakaoShareManager().getDynamicLink("abcd");
+                              // KakaoShareManager().getDynamicLink("abcd",snapshot,_imageItem[0]);
                             },
                             constraints:
                                 BoxConstraints(minHeight: 80, minWidth: 80),
@@ -508,7 +526,9 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                             child: IconButton(
                               icon: Image.asset(
                                   'assets/images/iconfinder_link_hyperlink_5402394.png'),
-                              onPressed: () {},
+                              onPressed: () {
+                                // KakaoShareManager().getDynamicLink("abcd",snapshot,_imageItem[0]);
+                              },
                             ),
                             shape: CircleBorder(),
                           ),
@@ -527,12 +547,12 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
         });
   }
 
-  Widget shareButton() {
+  Widget shareButton(AsyncSnapshot<DocumentSnapshot> snapshot) {
     return new IconButton(
       icon: new Icon(Icons.share),
       onPressed: () => {
         print("share"),
-        _testModalBottomSheet(context),
+        _testModalBottomSheet(context, snapshot),
       },
     );
   }
@@ -569,7 +589,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                     ),
                     backgroundColor: Colors.white,
                     actions: <Widget>[
-                      shareButton(),
+                      shareButton(snapshot),
                       popupMenuButton(),
                     ],
                   ),

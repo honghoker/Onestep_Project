@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:image_downloader/image_downloader.dart';
+import 'package:onestep/PermissionLib/customPermisson.dart';
+import 'dart:isolate';
+import 'dart:ui';
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ImageFullViewerWidget extends StatefulWidget {
   final int index;
@@ -27,7 +36,7 @@ class _ImageFullViewerWidegtState
 }
 
 abstract class ImageFullViewerWidegtStateParent<T extends StatefulWidget>
-    extends State<T> {
+    extends State<T> with OneStepPermission {
   int currentIndex;
   List galleryItems = [];
   PageController pageController;
@@ -130,39 +139,12 @@ class _CustomImageViewrState
   setIndex() => currentIndex = widget.index;
   @override
   setPageController() => pageController = widget.pageController;
-  @override
-  setClickButton() {
-    return GestureDetector(
-        onTap: () {
-          try {
-            // Saved with this method.
-            var imageId = await ImageDownloader.downloadImage(
-                "https://raw.githubusercontent.com/wiki/ko2ic/image_downloader/images/flutter.png");
-            if (imageId == null) {
-              return;
-            }
+  // @override
+  // setClickButton() {
+  //   // return GestureDetector(onTap: () async {
+  //   // });
+  // }
 
-            // Below is a method of obtaining saved image information.
-            var fileName = await ImageDownloader.findName(imageId);
-            var path = await ImageDownloader.findPath(imageId);
-            var size = await ImageDownloader.findByteSize(imageId);
-            var mimeType = await ImageDownloader.findMimeType(imageId);
-          } on PlatformException catch (error) {
-            print(error);
-          }
-        },
-        child: Icon(
-          Icons.download_outlined,
-          color: Colors.white,
-        )
-        //     child: IconButton(
-        //   icon: Icon(
-        //     Icons.download_outlined,
-        //     color: Colors.white,
-        //   ),
-        // )
-        );
-  }
   //   return IconButton(
   //       icon: Icon(
   //         Icons.download_outlined,
@@ -170,4 +152,23 @@ class _CustomImageViewrState
   //       ),
   //       onPressed: () {});
   // }
+
 }
+
+// class _TaskInfo {
+//   final String name;
+//   final String link;
+
+//   String taskId;
+//   int progress = 0;
+//   DownloadTaskStatus status = DownloadTaskStatus.undefined;
+
+//   _TaskInfo({this.name, this.link});
+// }
+
+// class _ItemHolder {
+//   final String name;
+//   final _TaskInfo task;
+
+//   _ItemHolder({this.name, this.task});
+// }

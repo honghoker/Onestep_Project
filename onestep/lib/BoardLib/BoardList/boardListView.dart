@@ -250,6 +250,7 @@ abstract class _BoardListParentState<T extends StatefulWidget>
           )),
           Container(
             padding: EdgeInsets.only(left: 3),
+            margin: EdgeInsets.only(right: 3),
             child: Text(boardDataList[index].watchCount.toString()),
           )
         ],

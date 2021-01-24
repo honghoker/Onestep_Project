@@ -7,7 +7,6 @@ import 'package:onestep/api/firebase_api.dart';
 import 'package:random_string/random_string.dart';
 
 class BoardData {
-  final String userId;
   var createDate;
   var alterDate;
   String documentId;
@@ -23,6 +22,8 @@ class BoardData {
   final String boardCategory;
   final String boardName;
   final String boardId;
+  final List favoriteUserList;
+  final List scrabUserList;
   Function completeImageUploadCallback;
   List imgUriList;
   Map<String, dynamic> imageCommentList;
@@ -43,12 +44,13 @@ class BoardData {
   }
 
   BoardData(
-      {this.contentCategory,
+      {this.scrabUserList,
+      this.favoriteUserList,
+      this.contentCategory,
       this.boardName,
       this.createDate,
       this.favoriteCount,
       this.title,
-      this.userId,
       this.reportCount,
       this.textContent,
       this.uid,
@@ -81,7 +83,9 @@ class BoardData {
           "watchCount": watchCount ?? 0,
           "commentCount": commentCount ?? 0,
           "boardCategory": boardCategory,
-          "boardId": boardId
+          "boardId": boardId,
+          "scrabUserList": scrabUserList ?? [],
+          "favoriteUserList": favoriteUserList ?? [],
         })
         .whenComplete(() => true)
         .then((value) => true)

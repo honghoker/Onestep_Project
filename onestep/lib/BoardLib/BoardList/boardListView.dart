@@ -261,10 +261,10 @@ abstract class _BoardListParentState<T extends StatefulWidget>
 
   _setDateTimeText(DateTime dateTime, int index) {
     String resultText;
-    DateTime today = DateTime.now().add(Duration(hours: 9));
+    DateTime today = DateTime.now();
     today =
         DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-    DateTime setUTC9 = dateTime.add(Duration(hours: 9));
+    DateTime setUTC9 = dateTime;
     var _dateDifference = DateTime(setUTC9.year, setUTC9.month, setUTC9.day)
         .difference(today)
         .inDays;
@@ -276,7 +276,7 @@ abstract class _BoardListParentState<T extends StatefulWidget>
         resultText = "어제 " + _date;
       }
     } else {
-      var _date = dateTime.add(Duration(hours: 9)).toString().split('');
+      var _date = dateTime.toString().split('');
       int _dateLength = dateTime.toString().split('').length;
       _date.removeRange(_dateLength - 10, _dateLength);
       resultText = _date.join();

@@ -11,6 +11,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 import 'package:flutter/animation.dart';
 import 'package:onestep/api/firebase_api.dart';
+import 'BoardComment/bottomsheep_widget.dart';
+import 'package:async/async.dart';
 
 class BoardContent extends StatefulWidget {
   final BoardData boardData;
@@ -20,63 +22,163 @@ class BoardContent extends StatefulWidget {
   _Board createState() => new _Board();
 }
 
+final _scrollController = ScrollController(keepScrollOffset: true);
+final _scaffoldKey = GlobalKey<ScaffoldState>();
+
 class _Board extends State<BoardContent>
 // with TickerProviderStateMixin
 {
+  final AsyncMemoizer _memoizer = AsyncMemoizer();
   BoardData boardData;
   var _onFavoriteClicked;
   //If clicked favorite button, activate this animation
   AnimationController _favoriteAnimationController;
-  // Animation _favoriteAnimation;
-  //index is not null and must have to get index
+  TextEditingController _textEditingControllerComment;
   String currentUID;
-  ScrollController _scrollController;
+  bool isRefresh;
+
   Map<String, dynamic> _imageMap = {};
   List<dynamic> _imageList = [];
   Map boardDataFutureBuilderMap;
+  bool isCommentBoxVisible;
   @override
   void initState() {
     super.initState();
+    _textEditingControllerComment = TextEditingController();
+    currentUID = FirebaseApi.getId();
     boardData = widget.boardData;
+    isCommentBoxVisible = false;
+    isRefresh = false;
     // currentUID = FirebaseApi.getId();
     // _settingFavoriteAnimation();
 
     _onFavoriteClicked = false;
-    _scrollController = ScrollController();
+
+    // _scrollController.addListener(() {
+    //   print("offset = ${_scrollController.offset}");
+    // });
     watchCountUpdate();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: SafeArea(
-      child: Stack(children: <Widget>[
-        // Container(
-        //   //Dynamic height Size
-        //   height: MediaQuery.of(context).size.height,
-        //   // alignment: AlignmentA,
-        //   child:
-        SingleChildScrollView(
-            controller: _scrollController,
-            // child: Expanded(
-            // height: MediaQuery.of(context).size.height,
-            child: Column(children: <Widget>[
-              // Title Container
-              setTitle(boardData.title),
-              //Date Container
-              setDateNVisitor(boardData.createDate, boardData.watchCount),
-              // FutureBuilder(future:,builder: builder,AsyncSnapshot snapshot){}
-              setBoardContent(),
-              imageContent(),
-            ])),
-        // ),
-        // ),
-        TipDialogContainer(
-          duration: const Duration(milliseconds: 400),
-          maskAlpha: 0,
-        )
-      ]),
-    ));
+    return new Scaffold(
+        key: _scaffoldKey,
+        body:
+            //   //Dynamic height Size
+            //   height: MediaQuery.of(context).size.height,
+            //   // alignment: AlignmentA,
+            //   child:
+
+            SafeArea(
+          child: Stack(alignment: Alignment.bottomCenter, children: <Widget>[
+            Container(
+              //Dynamic height Size
+              height: MediaQuery.of(context).size.height,
+              // alignment: AlignmentA,
+              child: SingleChildScrollView(
+                  controller: _scrollController,
+                  // child: Expanded(
+                  // height: MediaQuery.of(context).size.height,
+                  child:
+                      Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                    // Title Container
+                    setTitle(boardData.title),
+                    //Date Container
+                    setDateNVisitor(boardData.createDate, boardData.watchCount),
+                    // FutureBuilder(future:,builder: builder,AsyncSnapshot snapshot){}
+                    setBoardContent(),
+                    imageContent(),
+                    commentBoxExpanded(isCommentBoxVisible)
+                  ])),
+            ),
+            TipDialogContainer(
+              duration: const Duration(milliseconds: 400),
+              maskAlpha: 0,
+            ),
+            commentBoxContainer(),
+            // )
+          ]),
+        ));
+  }
+
+  commentBoxContainer() {
+    return Visibility(
+      visible: isCommentBoxVisible,
+      child: Container(
+        margin: const EdgeInsets.only(top: 5, left: 15, right: 15),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Container(
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                        blurRadius: 10,
+                        color: Colors.grey[300],
+                        spreadRadius: 5)
+                  ]),
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.cancel),
+                        onPressed: () {
+                          setState(() {
+                            isCommentBoxVisible = false;
+                          });
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.send),
+                        onPressed: () {},
+                      ),
+                    ],
+                  ),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxHeight: 100),
+                    child: Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.all(10),
+                      margin: const EdgeInsets.only(
+                          bottom: 10, left: 10, right: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: TextField(
+                        maxLines: null,
+                        controller: _textEditingControllerComment,
+                        decoration: InputDecoration.collapsed(
+                            hintText: setCommentHintText(false)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String setCommentHintText(bool isUnderComment, {String who}) {
+    return isUnderComment ? who + "의 댓글달기" : "이 글에 댓글달기";
+  }
+
+  commentBoxExpanded(bool isCommentBoxVisible) {
+    return isCommentBoxVisible
+        ? SizedBox(
+            child: Container(),
+            height: MediaQuery.of(context).size.height * (1 / 4),
+          )
+        : SizedBox();
   }
 
   Future<void> watchCountUpdate() async {
@@ -95,7 +197,6 @@ class _Board extends State<BoardContent>
   }
 
   _getImageContent() async {
-    currentUID = await FirebaseApi.getId();
     final FirebaseFirestore _db = FirebaseFirestore.instance;
     String _boardID = boardData.boardId.toString();
     String _documentID = boardData.documentId.toString();
@@ -107,9 +208,17 @@ class _Board extends State<BoardContent>
         .get();
   }
 
+  _fetchData(bool refresh) {
+    return refresh
+        ? _getImageContent()
+        : this._memoizer.runOnce(() async {
+            return await _getImageContent();
+          });
+  }
+
   Widget imageContent() {
     return FutureBuilder(
-      future: _getImageContent(),
+      future: _fetchData(isRefresh),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -148,6 +257,9 @@ class _Board extends State<BoardContent>
     List<dynamic> _imageWidgetList = [];
     // _imageURi.forEach((element) {})
     List<Widget> _imageContainer = [];
+    // _commentList.forEach((element) {
+    //   print(element);
+    // });
 
     _imageURi.asMap().forEach((index, element) async {
       _imageList.add(
@@ -159,27 +271,41 @@ class _Board extends State<BoardContent>
       );
       _imageContainer.add(GestureDetector(
           onTap: () {
-            print('$index');
             Navigator.of(context).pushNamed('/CustomFullViewer',
                 arguments: {"INDEX": index, "IMAGES": _imageURi});
           },
           child: Container(
-              padding: EdgeInsets.all(10.0), child: _imageList[index])));
+            margin: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: Offset(0, 3), // changes position of shadow
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                    margin: EdgeInsets.all(10.0), child: _imageList[index]),
+                Container(
+                    margin: EdgeInsets.only(left: 10, bottom: 5),
+                    child: Text(
+                      _commentList[index],
+                      style: TextStyle(fontSize: 15),
+                    ))
+              ],
+            ),
+          )));
     });
     return Column(
       children: _imageContainer,
     );
-
-    // return Column(children: [
-    //   GestureDetector(
-    //       onTap: () {
-    //         Navigator.pushNamed(context, '/ImageFullViewer',
-    //             arguments: {"INDEX": 0, "IMAGES": _imageList});
-    //       },
-    //       child: Container(
-    //         child: _imageList[0],
-    //       ))
-    // ]);
   }
 
   getBoardData() async {
@@ -351,15 +477,15 @@ class _Board extends State<BoardContent>
                         size: 30,
                       ),
                       onPressed: () {
-                        print("###dt");
-                        print("###" +
-                            FirebaseApi.getId() +
-                            "###" +
-                            boardData.uid.toString() +
-                            "##board##" +
-                            boardData.boardId.toString() +
-                            "###" +
-                            boardData.documentId.toString());
+                        // print("###dt");
+                        // print("###" +
+                        //     FirebaseApi.getId() +
+                        //     "###" +
+                        //     boardData.uid.toString() +
+                        //     "##board##" +
+                        //     boardData.boardId.toString() +
+                        //     "###" +
+                        //     boardData.documentId.toString());
 
                         NotificationManager.navigateToBoardChattingRoom(
                           context,
@@ -369,6 +495,55 @@ class _Board extends State<BoardContent>
                           boardData.documentId, //게시글id
                         );
                       }),
+                ),
+                Positioned(
+                  left: width * (2 / 5),
+                  child: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        isCommentBoxVisible = true;
+                      });
+
+                      // scaffoldKey.currentState
+                      //     .showBottomSheet((context) => BottomSheetWidget());
+
+                      // _showButton(false);
+
+                      // sheetController.closed.then((value) {
+                      //   _showButton(true);
+                      // });
+                      // showModalBottomSheet(
+                      //     context: context,
+                      //     builder: (context) => BottomSheetWidget()
+                      //     // scaffoldKey.currentState
+                      //     //   .showBottomSheet((context) => BottomSheetWidget())
+                      //     ).then((value) => print(value));
+
+                      // _showButton(false);
+
+                      // sheetController.closed.then((value) {
+                      //   print(value);
+                      // });
+                    },
+                    padding: EdgeInsets.only(bottom: 0),
+                    alignment: Alignment.topCenter,
+                    icon: Icon(
+                      Icons.add_comment_rounded,
+                      color: Colors.yellow,
+                      size: 33,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: width * (3 / 5),
+                  child: IconButton(
+                    padding: EdgeInsets.only(bottom: 0),
+                    alignment: Alignment.topCenter,
+                    icon: Icon(
+                      Icons.flag,
+                      size: 30,
+                    ),
+                  ),
                 ),
 
                 //Set Scrap Button
@@ -424,7 +599,6 @@ class _Board extends State<BoardContent>
   Future<bool> _clickFavoriteButton(bool isLike) async {
     final FirebaseFirestore _db = FirebaseFirestore.instance;
     if (!isLike) {
-      print(boardDataFutureBuilderMap["favoriteUserList"]);
       // print("Like");
 
       String _boardID = boardData.boardId.toString();
@@ -435,7 +609,8 @@ class _Board extends State<BoardContent>
           .collection(_boardID)
           .doc(_documentID)
           .update({
-        "favoriteCount": boardDataFutureBuilderMap["favoriteCount"] + 1,
+        "favoriteCount":
+            boardDataFutureBuilderMap["favoriteUserList"].length + 1,
         "favoriteUserList": boardDataFutureBuilderMap["favoriteUserList"]
           ..add(boardData.uid)
       });
@@ -448,7 +623,8 @@ class _Board extends State<BoardContent>
           .collection(_boardID)
           .doc(_documentID)
           .update({
-        "favoriteCount": boardDataFutureBuilderMap["favoriteCount"] - 1,
+        "favoriteCount":
+            boardDataFutureBuilderMap["favoriteUserList"].length - 1,
         "favoriteUserList": boardDataFutureBuilderMap["favoriteUserList"]
           ..remove(boardData.uid)
       });

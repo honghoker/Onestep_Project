@@ -553,7 +553,7 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
         !isSave ? MAX_IMAGE_COUNT : imageCommentMap["IMAGE"].length;
     if (isMapSet) {
       for (int i = 0; i < mapSetLength; i++) {
-        _tempTextEditing.add(_getTextEditingImageTextField(i).text);
+        _tempTextEditing.add(_getTextEditingImageTextField(i).text.trim());
       }
       imageCommentMap["COMMENT"].clear();
       imageCommentMap["COMMENT"].addAll(_tempTextEditing);

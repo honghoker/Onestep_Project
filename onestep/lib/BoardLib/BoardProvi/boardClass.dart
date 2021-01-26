@@ -70,7 +70,7 @@ class BoardData {
         .doc("Board_Free")
         .collection("Board_Free")
         .add({
-          "uid": await FirebaseApi.getId(),
+          "uid": FirebaseApi.getId(),
           "createDate": Timestamp.fromDate(DateTime.now()),
           "alterDate": null,
           "scribeCount": scribeCount ?? 0,

@@ -29,10 +29,12 @@ class tempBoardCommentData {
 }
 
 class CommentList {
+  final List commentList;
+  CommentList({@required this.commentList});
   Widget tempCommentContainer() {
     return Container(
         child: Column(
-      children: tempSetComment(commentCount: 3),
+      children: tempSetComment(commentCount: commentList.length),
     ));
   }
 

@@ -65,7 +65,7 @@ class BoardData {
   Future toFireStore(BuildContext context) async {
     imgUriList = await convertImage(imageCommentList["IMAGE"]);
     imageCommentList.update("IMAGE", (value) => imgUriList);
-    await FirebaseFirestore.instance
+    return await FirebaseFirestore.instance
         .collection("Board")
         .doc("Board_Free")
         .collection("Board_Free")
@@ -167,5 +167,54 @@ class ImageContentComment extends BoardData {
     Map _contentData = snapshot.data();
     return ImageContentComment(
         imageCommentList: _contentData["imageCommentList"]);
+  }
+}
+
+class Comment {
+  String COMMENT_COLLECTION_NAME = "Comment";
+  final String uid;
+  final String text;
+  final String reportCount;
+  var createDate;
+  var lastAlterDate;
+  final int favoriteCount;
+  final List favoriteUserList;
+  final String name;
+  final String boardId;
+  final String boardDocumentId;
+  Comment(
+      {this.createDate,
+      this.uid,
+      this.favoriteCount,
+      this.favoriteUserList,
+      this.lastAlterDate,
+      this.name,
+      this.reportCount,
+      this.text,
+      this.boardDocumentId,
+      this.boardId});
+  Future toFireStore(BuildContext context) async {
+    return await FirebaseFirestore.instance
+        .collection("Board")
+        .doc(boardId)
+        .collection(boardId)
+        .doc(boardDocumentId)
+        .collection(COMMENT_COLLECTION_NAME)
+        .add({
+      "uid": FirebaseApi.getId(),
+      "text": text ?? "",
+      "createDate": Timestamp.fromDate(DateTime.now()),
+      "lastAlterDate": null,
+      "name": name ?? "익명",
+      "boardId": boardId ?? "",
+      "boardDocumentId": boardDocumentId ?? "",
+      "favoriteCount": 0,
+      "favoriteUserList": [],
+      "reportCount": 0,
+    }).then((value) {
+      if (value.runtimeType == DocumentReference) {
+        return true;
+      }
+    });
   }
 }

@@ -13,6 +13,8 @@ import 'package:flutter/animation.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'BoardComment/bottomsheep_widget.dart';
 import 'package:async/async.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'dart:io' show Platform;
 
 class BoardContent extends StatefulWidget {
   final BoardData boardData;
@@ -22,6 +24,7 @@ class BoardContent extends StatefulWidget {
   _Board createState() => new _Board();
 }
 
+final String COMMENT_COLLECTION_NAME = "Comment";
 final _scrollController = ScrollController(keepScrollOffset: true);
 final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -31,6 +34,7 @@ class _Board extends State<BoardContent>
   final AsyncMemoizer _memoizer = AsyncMemoizer();
   BoardData boardData;
   var _onFavoriteClicked;
+  Map favorite_data;
   //If clicked favorite button, activate this animation
   AnimationController _favoriteAnimationController;
   TextEditingController _textEditingControllerComment;
@@ -39,7 +43,6 @@ class _Board extends State<BoardContent>
 
   Map<String, dynamic> _imageMap = {};
   List<dynamic> _imageList = [];
-  Map boardDataFutureBuilderMap;
   bool isCommentBoxVisible;
   @override
   void initState() {
@@ -48,15 +51,10 @@ class _Board extends State<BoardContent>
     currentUID = FirebaseApi.getId();
     boardData = widget.boardData;
     isCommentBoxVisible = false;
-    isRefresh = false;
-    // currentUID = FirebaseApi.getId();
-    // _settingFavoriteAnimation();
+    isRefresh = true;
 
     _onFavoriteClicked = false;
 
-    // _scrollController.addListener(() {
-    //   print("offset = ${_scrollController.offset}");
-    // });
     watchCountUpdate();
   }
 
@@ -64,13 +62,7 @@ class _Board extends State<BoardContent>
   Widget build(BuildContext context) {
     return new Scaffold(
         key: _scaffoldKey,
-        body:
-            //   //Dynamic height Size
-            //   height: MediaQuery.of(context).size.height,
-            //   // alignment: AlignmentA,
-            //   child:
-
-            SafeArea(
+        body: SafeArea(
           child: Stack(alignment: Alignment.bottomCenter, children: <Widget>[
             Container(
               //Dynamic height Size
@@ -89,87 +81,81 @@ class _Board extends State<BoardContent>
                     // FutureBuilder(future:,builder: builder,AsyncSnapshot snapshot){}
                     setBoardContent(),
                     imageContent(),
-                    commentBoxExpanded(isCommentBoxVisible)
+                    buttonContent(),
+                    createCommentListMethod(),
+                    commentBoxExpanded(isCommentBoxVisible),
                   ])),
             ),
-            TipDialogContainer(
-              duration: const Duration(milliseconds: 400),
-              maskAlpha: 0,
-            ),
+
             commentBoxContainer(),
+            TipDialogContainer(
+              duration: const Duration(seconds: 2),
+            ),
             // )
           ]),
         ));
   }
 
-  commentBoxContainer() {
-    return Visibility(
-      visible: isCommentBoxVisible,
-      child: Container(
-        margin: const EdgeInsets.only(top: 5, left: 15, right: 15),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                        blurRadius: 10,
-                        color: Colors.grey[300],
-                        spreadRadius: 5)
-                  ]),
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.cancel),
-                        onPressed: () {
-                          setState(() {
-                            isCommentBoxVisible = false;
-                          });
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.send),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
-                  ConstrainedBox(
-                    constraints: BoxConstraints(maxHeight: 100),
-                    child: Container(
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.all(10),
-                      margin: const EdgeInsets.only(
-                          bottom: 10, left: 10, right: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: TextField(
-                        maxLines: null,
-                        controller: _textEditingControllerComment,
-                        decoration: InputDecoration.collapsed(
-                            hintText: setCommentHintText(false)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   String setCommentHintText(bool isUnderComment, {String who}) {
     return isUnderComment ? who + "의 댓글달기" : "이 글에 댓글달기";
+  }
+
+  commentSaveMethod() async {
+    TipDialogHelper.loading("저장 중입니다.\n 잠시만 기다려주세요.");
+    String commentText = _textEditingControllerComment.text.trimRight();
+    bool result = await Comment(
+            boardDocumentId: boardData.documentId,
+            boardId: boardData.boardId,
+            text: commentText,
+            name: "fix")
+        .toFireStore(context);
+
+    if (result ?? false) {
+      TipDialogHelper.dismiss();
+      setState(() {
+        isCommentBoxVisible = false;
+        _textEditingControllerComment.clear();
+      });
+      TipDialogHelper.success("저장 완료!");
+      await Future.delayed(Duration(seconds: 3));
+    }
+  }
+
+  commentBoxHideMethod() {
+    if (_textEditingControllerComment.text != '') {
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('작성 중'),
+            content: Text("작성된 내용은 저장이 되지 않습니다."),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('나가기'),
+                onPressed: () {
+                  setState(() {
+                    Navigator.pop(context);
+                    isCommentBoxVisible = false;
+                    _textEditingControllerComment.clear();
+                  });
+                },
+              ),
+              FlatButton(
+                child: Text('유지'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      setState(() {
+        isCommentBoxVisible = false;
+      });
+    }
   }
 
   commentBoxExpanded(bool isCommentBoxVisible) {
@@ -208,17 +194,39 @@ class _Board extends State<BoardContent>
         .get();
   }
 
-  _fetchData(bool refresh) {
-    return refresh
-        ? _getImageContent()
-        : this._memoizer.runOnce(() async {
-            return await _getImageContent();
-          });
+  // _fetchData() {
+  //   print("isRefresh : " + isRefresh.toString());
+  //   if (isRefresh) {
+  //     isRefresh = false;
+  //     return _getImageContent();
+  //   } else {
+  //     this._memoizer.runOnce(() async {
+  //       return await _getImageContent();
+  //     });
+  //   }
+  // }
+  _fetchData({bool isImageFetch}) {
+    isImageFetch = isImageFetch ?? false;
+    if (isImageFetch) {
+      return this._memoizer.runOnce(() async {
+        return await _getImageContent();
+      });
+    } else {
+      return _getImageContent();
+    }
   }
+
+  // _fetchData(bool refresh) {
+  //   return refresh
+  //       ? _getImageContent()
+  //       : this._memoizer.runOnce(() async {
+  //           return await _getImageContent();
+  //         });
+  // }
 
   Widget imageContent() {
     return FutureBuilder(
-      future: _fetchData(isRefresh),
+      future: _fetchData(isImageFetch: true),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -238,10 +246,38 @@ class _Board extends State<BoardContent>
                 )
               ]));
             } else {
-              return Column(children: [
-                _setImageContent(snapshot.data),
-                setScrapAndFavoriteButton()
-              ]);
+              return Container(
+                child: _setImageContent(snapshot.data),
+              );
+            }
+        }
+      },
+    );
+  }
+
+  Widget buttonContent() {
+    return FutureBuilder(
+      future: _fetchData(),
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+          case ConnectionState.none:
+            return CupertinoActivityIndicator();
+          default:
+            if (snapshot.hasError) {
+              return Center(
+                  child: Column(children: [
+                Text("데이터 불러오기에 실패하였습니다. 네트워크 연결상태를 확인하여 주십시오."),
+                Text("${snapshot.hasError}"),
+                IconButton(
+                  icon: Icon(Icons.refresh),
+                  onPressed: () {
+                    setState(() {});
+                  },
+                )
+              ]));
+            } else {
+              return Container(child: setScrapAndFavoriteButton(snapshot.data));
             }
         }
       },
@@ -249,12 +285,9 @@ class _Board extends State<BoardContent>
   }
 
   _setImageContent(DocumentSnapshot snapshot) {
-    boardDataFutureBuilderMap = snapshot.data();
-
     _imageMap = snapshot.data()["imageCommentList"];
     List<dynamic> _commentList = _imageMap["COMMENT"];
     List<dynamic> _imageURi = _imageMap["IMAGE"];
-    List<dynamic> _imageWidgetList = [];
     // _imageURi.forEach((element) {})
     List<Widget> _imageContainer = [];
     // _commentList.forEach((element) {
@@ -410,11 +443,12 @@ class _Board extends State<BoardContent>
   //   // return !isLiked;
   // }
 
-  Widget setScrapAndFavoriteButton() {
+  Widget setScrapAndFavoriteButton(DocumentSnapshot snapshot) {
+    favorite_data = snapshot.data();
     double width = MediaQuery.of(context).size.width;
     // AnimationController _favoriteAnimationController =
     //     AnimationController(vsync: this, duration: Duration(milliseconds: 300));
-    return boardDataFutureBuilderMap.runtimeType != null
+    return favorite_data.runtimeType != null
         ? Container(
             margin: EdgeInsets.only(bottom: 10, top: 5),
             // padding: EdgeInsets.only(top: 5),
@@ -432,8 +466,8 @@ class _Board extends State<BoardContent>
                 Positioned(
                   left: width / 40,
                   child: LikeButton(
-                    isLiked: boardDataFutureBuilderMap["favoriteUserList"]
-                        .contains(currentUID),
+                    isLiked:
+                        favorite_data["favoriteUserList"].contains(currentUID),
                     onTap: _clickFavoriteButton,
                     size: 30,
                     circleColor:
@@ -449,7 +483,7 @@ class _Board extends State<BoardContent>
                         size: 30,
                       );
                     },
-                    likeCount: boardData.favoriteCount,
+                    likeCount: favorite_data["favoriteCount"],
                     countBuilder: (int count, bool isLiked, String text) {
                       var color = isLiked ? Colors.red[900] : Colors.grey;
                       Widget result;
@@ -592,10 +626,6 @@ class _Board extends State<BoardContent>
         : CupertinoActivityIndicator();
   }
 
-  checkLikeButton() {
-    return boardDataFutureBuilderMap["favoriteUserList"].contains(currentUID);
-  }
-
   Future<bool> _clickFavoriteButton(bool isLike) async {
     final FirebaseFirestore _db = FirebaseFirestore.instance;
     if (!isLike) {
@@ -609,9 +639,8 @@ class _Board extends State<BoardContent>
           .collection(_boardID)
           .doc(_documentID)
           .update({
-        "favoriteCount":
-            boardDataFutureBuilderMap["favoriteUserList"].length + 1,
-        "favoriteUserList": boardDataFutureBuilderMap["favoriteUserList"]
+        "favoriteCount": favorite_data["favoriteUserList"].length + 1,
+        "favoriteUserList": favorite_data["favoriteUserList"]
           ..add(boardData.uid)
       });
     } else {
@@ -623,14 +652,289 @@ class _Board extends State<BoardContent>
           .collection(_boardID)
           .doc(_documentID)
           .update({
-        "favoriteCount":
-            boardDataFutureBuilderMap["favoriteUserList"].length - 1,
-        "favoriteUserList": boardDataFutureBuilderMap["favoriteUserList"]
+        "favoriteCount": favorite_data["favoriteUserList"].length - 1,
+        "favoriteUserList": favorite_data["favoriteUserList"]
           ..remove(boardData.uid)
       });
     }
     return !isLike;
   }
+
+  commentBoxContainer() {
+    return Visibility(
+      visible: isCommentBoxVisible,
+      child: Container(
+        margin: const EdgeInsets.only(top: 5, left: 15, right: 15),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Container(
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                        blurRadius: 10,
+                        color: Colors.grey[300],
+                        spreadRadius: 5)
+                  ]),
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.cancel),
+                        onPressed: () {
+                          commentBoxHideMethod();
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.send),
+                        onPressed: () {
+                          if (_textEditingControllerComment.text == null ||
+                              _textEditingControllerComment.text == '') {
+                            _scaffoldKey.currentState.showSnackBar(new SnackBar(
+                              content: Text("댓글 작성내용이 없습니다."),
+                              duration: Duration(seconds: 1),
+                            ));
+                          } else {
+                            commentSaveMethod();
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxHeight: 100, minHeight: 50),
+                    child: Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.only(left: 10, right: 5),
+                      margin: const EdgeInsets.only(
+                          bottom: 10, left: 10, right: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: TextField(
+                        maxLines: null,
+                        controller: _textEditingControllerComment,
+                        decoration: InputDecoration.collapsed(
+                            hintText: setCommentHintText(false)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _commentFetchDataMethod() {
+    final FirebaseFirestore _db = FirebaseFirestore.instance;
+    String _boardID = boardData.boardId.toString();
+    String _documentID = boardData.documentId.toString();
+    return _db
+        .collection("Board")
+        .doc(_boardID)
+        .collection(_boardID)
+        .doc(_documentID)
+        .collection(COMMENT_COLLECTION_NAME)
+        .orderBy("createDate")
+        .get();
+  }
+
+  Widget createCommentListMethod() {
+    return FutureBuilder(
+      future: _commentFetchDataMethod(),
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+          case ConnectionState.none:
+            return CupertinoActivityIndicator();
+          default:
+            if (snapshot.hasError) {
+              return Center(
+                  child: Column(children: [
+                Text("데이터 불러오기에 실패하였습니다. 네트워크 연결상태를 확인하여 주십시오."),
+                Text("${snapshot.hasError}"),
+                IconButton(
+                  icon: Icon(Icons.refresh),
+                  onPressed: () {
+                    setState(() {});
+                  },
+                )
+              ]));
+            } else {
+              return _commentContainerMethod(snapshot.data);
+              // print(snapshot.data.docs[0]["uid"]);
+              // return Container(
+              //   child: Column(),
+              // );
+            }
+        }
+      },
+    );
+  }
+
+  String _commentNameMethod(QuerySnapshot snapshot) {
+    String _currentUID = FirebaseApi.getId();
+    for (int i = 0; i < snapshot.size; i++) {
+      if (_currentUID == snapshot.docs[i]["uid"]) {
+        return "익명 " + (i + 1).toString();
+      }
+    }
+    return "익명 " + snapshot.size.toString();
+  }
+
+  String _commentCreateTimeMethod(var createTimeStamp) {
+    DateTime _convertDateTime = DateTime.fromMicrosecondsSinceEpoch(
+        createTimeStamp.microsecondsSinceEpoch);
+    // DateTime _hhmmss = DateTime(_convertDateTime.hour, _convertDateTime.minute,
+    //     _convertDateTime.second);
+    String _hhmmss = _convertDateTime.toString().split(' ')[1].split('.')[0];
+    String _days;
+    if (_convertDateTime.difference(DateTime.now()).inDays.toString() == '0') {
+      _days = " 오늘 ";
+    } else {
+      _days = DateTime(_convertDateTime.year, _convertDateTime.month,
+              _convertDateTime.day)
+          .toString();
+    }
+    return _days + _hhmmss;
+  }
+
+  _commentContainerMethod(QuerySnapshot snapshot) {
+    int _commentLength = snapshot.size;
+    String _commentName = _commentNameMethod(snapshot);
+
+    List<Widget> _commentContainerList = [];
+    for (int i = 0; i < _commentLength; i++) {
+      var _commentData = snapshot.docs[i];
+      String _createDate = _commentCreateTimeMethod(_commentData["createDate"]);
+      _commentContainerList.add(GestureDetector(
+        onTap: () {
+          if (Platform.isAndroid) {
+            showMaterialModalBottomSheet(
+              context: context,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10))),
+              builder: (context) => Container(
+                margin: EdgeInsets.only(left: 5, right: 5),
+                height: MediaQuery.of(context).size.height / 2,
+                child: Column(children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 4,
+                    height: 42.0,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          color: Colors.red),
+                    ),
+                  ),
+                  GestureDetector(
+                      child: Container(
+                          child: Text(
+                    "신고하기",
+                    style: TextStyle(color: Colors.red),
+                  )))
+                ]),
+              ),
+            );
+          } else if (Platform.isIOS) {
+            showCupertinoModalBottomSheet(
+                context: context, builder: (context) => Container());
+          }
+        },
+        child: Container(
+          padding: EdgeInsets.all(5),
+          margin: EdgeInsets.only(top: 5.0, left: 10, right: 10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 5,
+                blurRadius: 7,
+                offset: Offset(0, 3), // changes position of shadow
+              ),
+            ],
+          ),
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                      child: Text(
+                    _commentName,
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  )),
+                  Container(
+                    // child: Text(_commentData["createDate"].runtimeType.toString())
+                    child: Text(
+                      _createDate,
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  )
+                ],
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 5),
+                child: Text(_commentData["text"]),
+              )
+            ],
+          ),
+        ),
+      ));
+    }
+    return Container(
+      margin: EdgeInsets.only(bottom: 10),
+      child: Column(
+        children: _commentContainerList,
+      ),
+    );
+  }
+  // Widget imageContent() {
+  //   return FutureBuilder(
+  //     future: _fetchData(),
+  //     builder: (context, snapshot) {
+  //       switch (snapshot.connectionState) {
+  //         case ConnectionState.waiting:
+  //         case ConnectionState.none:
+  //           return CupertinoActivityIndicator();
+  //         default:
+  //           if (snapshot.hasError) {
+  //             return Center(
+  //                 child: Column(children: [
+  //               Text("데이터 불러오기에 실패하였습니다. 네트워크 연결상태를 확인하여 주십시오."),
+  //               Text("${snapshot.hasError}"),
+  //               IconButton(
+  //                 icon: Icon(Icons.refresh),
+  //                 onPressed: () {
+  //                   setState(() {});
+  //                 },
+  //               )
+  //             ]));
+  //           } else {
+  //             return Column(children: [
+  //               _setImageContent(snapshot.data),
+  //               setScrapAndFavoriteButton()
+  //             ]);
+  //           }
+  //       }
+  //     },
+  //   );
+  // }
 
   Future _setPopUpFavoriteIcon() async {
     TipDialogHelper.show(

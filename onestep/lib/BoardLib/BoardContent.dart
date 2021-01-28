@@ -24,14 +24,23 @@ class BoardContent extends StatefulWidget {
   _Board createState() => new _Board();
 }
 
-final String COMMENT_COLLECTION_NAME = "Comment";
-final _scrollController = ScrollController(keepScrollOffset: true);
-final _scaffoldKey = GlobalKey<ScaffoldState>();
-
 class _Board extends State<BoardContent>
 // with TickerProviderStateMixin
 {
-  final AsyncMemoizer _memoizer = AsyncMemoizer();
+  final String REFRESH_COMMENT = "COMMENT";
+  final String REFRESH_IMAGE = "IMAGE";
+  final String REFRESH_LIKEBUTTON = "LIKEBUTTON";
+  final String COMMENT_COLLECTION_NAME = "Comment";
+  final _scrollController = ScrollController(keepScrollOffset: true);
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  AsyncMemoizer _imageMemoizer = AsyncMemoizer();
+  AsyncMemoizer _likeButtonMemoizer = AsyncMemoizer();
+  AsyncMemoizer _commentMemoizer = AsyncMemoizer();
+
+  double device_width;
+  double device_height;
+
   BoardData boardData;
   var _onFavoriteClicked;
   Map favorite_data;
@@ -39,7 +48,9 @@ class _Board extends State<BoardContent>
   AnimationController _favoriteAnimationController;
   TextEditingController _textEditingControllerComment;
   String currentUID;
-  bool isRefresh;
+  bool isImageRefresh;
+  bool isLikeButtonRefresh;
+  bool isCommentRefresh;
 
   Map<String, dynamic> _imageMap = {};
   List<dynamic> _imageList = [];
@@ -51,7 +62,7 @@ class _Board extends State<BoardContent>
     currentUID = FirebaseApi.getId();
     boardData = widget.boardData;
     isCommentBoxVisible = false;
-    isRefresh = true;
+    isImageRefresh = isLikeButtonRefresh = isCommentRefresh = true;
 
     _onFavoriteClicked = false;
 
@@ -60,13 +71,15 @@ class _Board extends State<BoardContent>
 
   @override
   Widget build(BuildContext context) {
+    device_width = MediaQuery.of(context).size.width;
+    device_height = MediaQuery.of(context).size.height;
     return new Scaffold(
         key: _scaffoldKey,
         body: SafeArea(
           child: Stack(alignment: Alignment.bottomCenter, children: <Widget>[
             Container(
               //Dynamic height Size
-              height: MediaQuery.of(context).size.height,
+              height: device_height,
               // alignment: AlignmentA,
               child: SingleChildScrollView(
                   controller: _scrollController,
@@ -112,12 +125,13 @@ class _Board extends State<BoardContent>
 
     if (result ?? false) {
       TipDialogHelper.dismiss();
+      TipDialogHelper.success("저장 완료!");
+
       setState(() {
+        isCommentRefresh = true;
         isCommentBoxVisible = false;
         _textEditingControllerComment.clear();
       });
-      TipDialogHelper.success("저장 완료!");
-      await Future.delayed(Duration(seconds: 3));
     }
   }
 
@@ -162,7 +176,7 @@ class _Board extends State<BoardContent>
     return isCommentBoxVisible
         ? SizedBox(
             child: Container(),
-            height: MediaQuery.of(context).size.height * (1 / 4),
+            height: device_height * (1 / 4),
           )
         : SizedBox();
   }
@@ -182,18 +196,6 @@ class _Board extends State<BoardContent>
     }
   }
 
-  _getImageContent() async {
-    final FirebaseFirestore _db = FirebaseFirestore.instance;
-    String _boardID = boardData.boardId.toString();
-    String _documentID = boardData.documentId.toString();
-    return _db
-        .collection("Board")
-        .doc(_boardID)
-        .collection(_boardID)
-        .doc(_documentID)
-        .get();
-  }
-
   // _fetchData() {
   //   print("isRefresh : " + isRefresh.toString());
   //   if (isRefresh) {
@@ -205,16 +207,16 @@ class _Board extends State<BoardContent>
   //     });
   //   }
   // }
-  _fetchData({bool isImageFetch}) {
-    isImageFetch = isImageFetch ?? false;
-    if (isImageFetch) {
-      return this._memoizer.runOnce(() async {
-        return await _getImageContent();
-      });
-    } else {
-      return _getImageContent();
-    }
-  }
+  // _managementFatchDataMethod() {}
+  // _fetchData() {
+  //   if (isImageRefresh) {
+  //     _memoizer = AsyncMemoizer();
+  //     isImageRefresh = false;
+  //   }
+  //   return this._memoizer.runOnce(() async {
+  //     return await _getImageContent();
+  //   });
+  // }
 
   // _fetchData(bool refresh) {
   //   return refresh
@@ -223,10 +225,63 @@ class _Board extends State<BoardContent>
   //           return await _getImageContent();
   //         });
   // }
+  futureBuilderFetchRefreshMethod({@required String refreshType}) {
+    if (refreshType == REFRESH_IMAGE) {
+      if (isImageRefresh) {
+        _imageMemoizer = AsyncMemoizer();
+        isImageRefresh = false;
+      }
+      return this._imageMemoizer.runOnce(() async {
+        return await _fetchData();
+      });
+    } else if (refreshType == REFRESH_LIKEBUTTON) {
+      if (isLikeButtonRefresh) {
+        _likeButtonMemoizer = AsyncMemoizer();
+        isLikeButtonRefresh = false;
+      }
+      return this._likeButtonMemoizer.runOnce(() async {
+        return await _fetchData();
+      });
+    } else if (refreshType == REFRESH_COMMENT) {
+      if (isCommentRefresh) {
+        _commentMemoizer = AsyncMemoizer();
+        isCommentRefresh = false;
+      }
+      return this._commentMemoizer.runOnce(() async {
+        return await _commentFetchDataMethod();
+      });
+    }
+  }
+
+  _fetchData() async {
+    final FirebaseFirestore _db = FirebaseFirestore.instance;
+    String _boardID = boardData.boardId.toString();
+    String _documentID = boardData.documentId.toString();
+    return _db
+        .collection("Board")
+        .doc(_boardID)
+        .collection(_boardID)
+        .doc(_documentID)
+        .get();
+  }
+
+  _commentFetchDataMethod() {
+    final FirebaseFirestore _db = FirebaseFirestore.instance;
+    String _boardID = boardData.boardId.toString();
+    String _documentID = boardData.documentId.toString();
+    return _db
+        .collection("Board")
+        .doc(_boardID)
+        .collection(_boardID)
+        .doc(_documentID)
+        .collection(COMMENT_COLLECTION_NAME)
+        .orderBy("createDate")
+        .get();
+  }
 
   Widget imageContent() {
     return FutureBuilder(
-      future: _fetchData(isImageFetch: true),
+      future: futureBuilderFetchRefreshMethod(refreshType: REFRESH_IMAGE),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -257,7 +312,7 @@ class _Board extends State<BoardContent>
 
   Widget buttonContent() {
     return FutureBuilder(
-      future: _fetchData(),
+      future: futureBuilderFetchRefreshMethod(refreshType: REFRESH_LIKEBUTTON),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -445,7 +500,7 @@ class _Board extends State<BoardContent>
 
   Widget setScrapAndFavoriteButton(DocumentSnapshot snapshot) {
     favorite_data = snapshot.data();
-    double width = MediaQuery.of(context).size.width;
+
     // AnimationController _favoriteAnimationController =
     //     AnimationController(vsync: this, duration: Duration(milliseconds: 300));
     return favorite_data.runtimeType != null
@@ -464,7 +519,7 @@ class _Board extends State<BoardContent>
                 //   children: <Widget>[
                 //     //Set Favorite Button
                 Positioned(
-                  left: width / 40,
+                  left: device_width / 40,
                   child: LikeButton(
                     isLiked:
                         favorite_data["favoriteUserList"].contains(currentUID),
@@ -502,7 +557,7 @@ class _Board extends State<BoardContent>
                   ),
                 ),
                 Positioned(
-                  left: width * (1 / 5),
+                  left: device_width * (1 / 5),
                   child: IconButton(
                       padding: EdgeInsets.only(bottom: 0),
                       alignment: Alignment.topCenter,
@@ -531,7 +586,7 @@ class _Board extends State<BoardContent>
                       }),
                 ),
                 Positioned(
-                  left: width * (2 / 5),
+                  left: device_width * (2 / 5),
                   child: IconButton(
                     onPressed: () {
                       setState(() {
@@ -569,7 +624,7 @@ class _Board extends State<BoardContent>
                   ),
                 ),
                 Positioned(
-                  left: width * (3 / 5),
+                  left: device_width * (3 / 5),
                   child: IconButton(
                     padding: EdgeInsets.only(bottom: 0),
                     alignment: Alignment.topCenter,
@@ -582,7 +637,7 @@ class _Board extends State<BoardContent>
 
                 //Set Scrap Button
                 Positioned(
-                  left: width * (14 / 17),
+                  left: device_width * (14 / 17),
                   child: LikeButton(
                     // padding: EdgeInsets.only(left: 20),
                     size: 30,
@@ -734,23 +789,9 @@ class _Board extends State<BoardContent>
     );
   }
 
-  _commentFetchDataMethod() {
-    final FirebaseFirestore _db = FirebaseFirestore.instance;
-    String _boardID = boardData.boardId.toString();
-    String _documentID = boardData.documentId.toString();
-    return _db
-        .collection("Board")
-        .doc(_boardID)
-        .collection(_boardID)
-        .doc(_documentID)
-        .collection(COMMENT_COLLECTION_NAME)
-        .orderBy("createDate")
-        .get();
-  }
-
   Widget createCommentListMethod() {
     return FutureBuilder(
-      future: _commentFetchDataMethod(),
+      future: futureBuilderFetchRefreshMethod(refreshType: REFRESH_COMMENT),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -771,10 +812,6 @@ class _Board extends State<BoardContent>
               ]));
             } else {
               return _commentContainerMethod(snapshot.data);
-              // print(snapshot.data.docs[0]["uid"]);
-              // return Container(
-              //   child: Column(),
-              // );
             }
         }
       },
@@ -802,8 +839,10 @@ class _Board extends State<BoardContent>
       _days = " 오늘 ";
     } else {
       _days = DateTime(_convertDateTime.year, _convertDateTime.month,
-              _convertDateTime.day)
-          .toString();
+                  _convertDateTime.day)
+              .toString()
+              .split(' ')[0] +
+          ' ';
     }
     return _days + _hhmmss;
   }
@@ -823,27 +862,44 @@ class _Board extends State<BoardContent>
               context: context,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10))),
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20))),
               builder: (context) => Container(
                 margin: EdgeInsets.only(left: 5, right: 5),
-                height: MediaQuery.of(context).size.height / 2,
+                height: device_height / 3,
                 child: Column(children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 4,
-                    height: 42.0,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          color: Colors.red),
+                  Container(
+                    margin: EdgeInsets.only(top: 10, bottom: 20),
+                    child: SizedBox(
+                      width: device_width / 7,
+                      height: device_height / 100,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            color: Colors.grey[400]),
+                      ),
                     ),
                   ),
-                  GestureDetector(
-                      child: Container(
-                          child: Text(
-                    "신고하기",
-                    style: TextStyle(color: Colors.red),
-                  )))
+                  _setCommentButtonMethod(
+                      onTap: () {
+                        print("hi");
+                      },
+                      text: Text(
+                        "",
+                        style: TextStyle(color: Colors.red, fontSize: 18),
+                      )),
+                  _setCommentButtonMethod(
+                    text: Text(
+                      "채팅 시작하기",
+                      style: TextStyle(color: Colors.red, fontSize: 18),
+                    ),
+                  ),
+                  _setCommentButtonMethod(
+                    text: Text(
+                      "신고하기",
+                      style: TextStyle(color: Colors.red, fontSize: 18),
+                    ),
+                  ),
                 ]),
               ),
             );
@@ -867,18 +923,22 @@ class _Board extends State<BoardContent>
               ),
             ],
           ),
-          width: MediaQuery.of(context).size.width,
+          width: device_width,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                      child: Text(
-                    _commentName,
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  )),
+                  Row(
+                    children: [
+                      Container(
+                          child: Text(
+                        _commentName,
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      )),
+                    ],
+                  ),
                   Container(
                     // child: Text(_commentData["createDate"].runtimeType.toString())
                     child: Text(
@@ -904,6 +964,7 @@ class _Board extends State<BoardContent>
       ),
     );
   }
+
   // Widget imageContent() {
   //   return FutureBuilder(
   //     future: _fetchData(),
@@ -935,6 +996,28 @@ class _Board extends State<BoardContent>
   //     },
   //   );
   // }
+  _setCommentButtonMethod({Text text, Function onTap}) {
+    return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          // margin: EdgeInsets.only(top: 10,bottom: 10),
+          width: device_width,
+          decoration: BoxDecoration(
+              border: Border(
+                  top: BorderSide(
+            color: Colors.grey,
+            width: 1,
+          ))),
+          child: Container(
+            margin: EdgeInsets.only(top: 10, bottom: 10),
+            child: Center(child: text ?? Text("")
+                // Text(
+                //   text ?? "",
+                //   style: TextStyle(color: Colors.red, fontSize: 18),
+                ),
+          ),
+        ));
+  }
 
   Future _setPopUpFavoriteIcon() async {
     TipDialogHelper.show(

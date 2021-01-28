@@ -316,37 +316,6 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
     }
   }
 
-  Widget bottomChatWidget() {
-    return Padding(
-      padding: EdgeInsets.only(right: 10.0),
-      child: SizedBox(
-        width: 150,
-        child: RaisedButton(
-          onPressed: () {
-            // FirebaseChatController()
-            //     .createChatingRoomToFirebaseStorage(
-            //   false,
-            //   widget.product.firestoreid,
-            //   widget.product.title,
-            //   FirebaseApi.getId(),
-            //   widget.product.uid,
-            // );
-            NotificationManager.navigateToChattingRoom(
-              context,
-              FirebaseApi.getId(),
-              widget.product.uid,
-              widget.product.firestoreid,
-            );
-            //Navigator.of(context).pop();
-          },
-          color: Colors.pink,
-          textColor: Colors.white,
-          child: Text('채팅'),
-        ),
-      ),
-    );
-  }
-
   Widget bottomNavigator() {
     return SizedBox(
       height: 70,
@@ -387,7 +356,34 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
               ),
             ),
             Expanded(child: Container()),
-            if (widget.product.uid != FirebaseApi.getId()) bottomChatWidget(),
+            Padding(
+              padding: EdgeInsets.only(right: 10.0),
+              child: SizedBox(
+                width: 150,
+                child: RaisedButton(
+                  onPressed: () {
+                    // FirebaseChatController()
+                    //     .createChatingRoomToFirebaseStorage(
+                    //   false,
+                    //   widget.product.firestoreid,
+                    //   widget.product.title,
+                    //   FirebaseApi.getId(),
+                    //   widget.product.uid,
+                    // );
+                    NotificationManager.navigateToChattingRoom(
+                      context,
+                      FirebaseApi.getId(),
+                      widget.product.uid,
+                      widget.product.firestoreid,
+                    );
+                    //Navigator.of(context).pop();
+                  },
+                  color: Colors.pink,
+                  textColor: Colors.white,
+                  child: Text('채팅'),
+                ),
+              ),
+            )
           ],
         ),
       ),

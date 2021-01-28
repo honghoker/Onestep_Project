@@ -146,6 +146,8 @@ class _LastChatState extends State<ChatScreen> {
   bool existChattingRoom;
   @override
   void initState() {
+    // TODO: implement initState
+
     super.initState();
     focusNode.addListener(() {
       onFocusChange();
@@ -159,16 +161,11 @@ class _LastChatState extends State<ChatScreen> {
       value.docChanges.forEach((change) {
         // print(change.doc.id);
         // print(change.doc.data()['title']);
-        if ((myId == change.doc.data()['cusers'][0] &&
-                friendId == change.doc.data()['cusers'][1] &&
-                postId == change.doc.data()['postId']) ||
-            (myId == change.doc.data()['cusers'][1] &&
-                friendId == change.doc.data()['cusers'][0] &&
-                postId == change.doc.data()['postId'])) {
+        if (myId == change.doc.data()['cusers'][0] &&
+            friendId == change.doc.data()['cusers'][1] &&
+            postId == change.doc.data()['postId']) {
           existChattingRoom = true;
           chattingRoomId = change.doc.id;
-          print(
-              "#### 생성 채팅방 있음 186 myid $myId / fid $friendId / chatId $chattingRoomId");
         }
       });
 
@@ -176,8 +173,6 @@ class _LastChatState extends State<ChatScreen> {
         //만약 채팅방이 있으면
         setState(() {});
       } else {
-        print(
-            "#### 생성 채팅방 없음 186 myid $myId / fid $friendId / chatId $chattingRoomId");
         chattingRoomId = DateTime.now().millisecondsSinceEpoch.toString();
       }
     });
@@ -764,8 +759,7 @@ class _LastChatState extends State<ChatScreen> {
                   icon: Icon(Icons.send),
                   color: Colors.lightBlueAccent,
                   onPressed: () {
-                    print(
-                        "#### myid $myId / fid $friendId / chatId $chattingRoomId");
+                    print("# myid $myId / fid $friendId");
                     if (existChattingRoom == false) {
                       //방 만들어진 적이 없으면
                       FirebaseChatController()

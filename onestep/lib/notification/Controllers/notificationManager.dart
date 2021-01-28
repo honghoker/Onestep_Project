@@ -6,7 +6,7 @@ import 'package:onestep/notification/chatpage/inChattingRoom.dart';
 class NotificationManager {
   static void navigateToChattingRoom(
       var context, String myUid, String friendUid, String postId) {
-    print("#### 노티 $myUid $friendUid $postId");
+    print("## 노티 $myUid $friendUid $postId");
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -19,7 +19,7 @@ class NotificationManager {
 
   static void navigateToBoardChattingRoom(var context, String myUid,
       String friendUid, String boardId, String postId) {
-    print("#### 노티 $myUid $friendUid $boardId $postId");
+    print("## 노티 $myUid $friendUid $boardId $postId");
     Navigator.push(
         context,
         MaterialPageRoute(

@@ -99,12 +99,12 @@ class _ClothItemState extends State<ClothItem> {
     var img = jsonDecode(widget.product.images);
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  ClothDetailViewWidgetcopy(product: widget.product),
-            ));
+        Navigator.of(context).pushNamed(
+          '/DetailProduct',
+          arguments: {"PRODUCT": widget.product},
+        ).then((value) {
+          print("clothitem");
+        });
       },
       child: Container(
         child: Column(
@@ -118,26 +118,11 @@ class _ClothItemState extends State<ClothItem> {
                     Center(child: CircularProgressIndicator()),
                     ExtendedImage.network(
                       img[0],
-
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height,
                       fit: BoxFit.cover,
                       cache: true,
-                      // border: Border.all(color: Colors.red, width: 1.0),
-                      // shape: boxShape,
-                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                      //cancelToken: cancellationToken,
                     ),
-                    // FadeInImage(
-                    //   placeholder: MemoryImage(
-                    //     kTransparentImage,
-                    //   ), // 이미지 로드 시 빈 이미지 표시
-
-                    //   image: NetworkImage(img == null
-                    //       ? 'https://grlib.sen.go.kr/resources/common/img/noimg-apply.png'
-                    //       : img[0]),
-                    //   fit: BoxFit.cover,
-                    // ),
                     Positioned(
                       left: 0,
                       right: 0,

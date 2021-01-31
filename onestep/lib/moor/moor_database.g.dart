@@ -158,24 +158,28 @@ class Product extends DataClass implements Insertable<Product> {
     );
   }
 
-  factory Product.fromJson(Map<String, dynamic> json,
+  factory Product.fromJson(Map<String, dynamic> json, String id,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
+
     return Product(
       title: serializer.fromJson<String>(json['title']),
-      firestoreid: serializer.fromJson<String>(json['firestoreid']),
+      firestoreid: id,
       uid: serializer.fromJson<String>(json['uid']),
       category: serializer.fromJson<String>(json['category']),
       price: serializer.fromJson<String>(json['price']),
       explain: serializer.fromJson<String>(json['explain']),
       views: serializer.fromJson<int>(json['views']),
       favorites: serializer.fromJson<int>(json['favorites']),
-      uploadtime: serializer.fromJson<DateTime>(json['uploadtime']),
-      updatetime: serializer.fromJson<DateTime>(json['updatetime']),
-      bumptime: serializer.fromJson<DateTime>(json['bumptime']),
-      images: serializer.fromJson<String>(json['images']),
-      hide: serializer.fromJson<int>(json['hide']),
-      deleted: serializer.fromJson<int>(json['deleted']),
+      uploadtime: DateTime.fromMillisecondsSinceEpoch(
+          json['uploadtime'].millisecondsSinceEpoch),
+      updatetime: DateTime.fromMillisecondsSinceEpoch(
+          json['updatetime'].millisecondsSinceEpoch),
+      bumptime: DateTime.fromMillisecondsSinceEpoch(
+          json['bumptime'].millisecondsSinceEpoch),
+      images: serializer.fromJson<String>(json['images'].toString()),
+      hide: serializer.fromJson<int>(json['hide'] ? 1 : 0),
+      deleted: serializer.fromJson<int>(json['deleted'] ? 1 : 0),
     );
   }
   @override

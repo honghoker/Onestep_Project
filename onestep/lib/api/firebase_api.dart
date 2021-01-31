@@ -39,6 +39,40 @@ class FirebaseApi {
     }
   }
 
+  static Future<QuerySnapshot> getMyProducts(
+    // 장터 상품 불러오기
+    int limit,
+    String category, {
+    DocumentSnapshot startAfter,
+  }) async {
+    var refProducts;
+
+    if (category == "전체") {
+      refProducts = FirebaseFirestore.instance
+          .collection('products')
+          .where("uid", isEqualTo: getId())
+          .where("deleted", isEqualTo: false)
+          .where("hide", isEqualTo: false)
+          .orderBy("bumptime", descending: true)
+          .limit(limit);
+    } else {
+      refProducts = FirebaseFirestore.instance
+          .collection('products')
+          .where("uid", isEqualTo: getId())
+          .where("category", isEqualTo: category)
+          .where("deleted", isEqualTo: false)
+          .where("hide", isEqualTo: false)
+          .orderBy("bumptime", descending: true)
+          .limit(limit);
+    }
+
+    if (startAfter == null) {
+      return refProducts.get();
+    } else {
+      return refProducts.startAfterDocument(startAfter).get();
+    }
+  }
+
   static Future<QuerySnapshot> getSearchProducts(
     // 장터 상품 검색
 

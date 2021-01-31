@@ -49,7 +49,7 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
 
   Widget renderBody(double itemWidth, double itemHeight) {
     ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
-    
+
     return StreamBuilder<List<Product>>(
       stream: p.watchProducts(),
       builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
@@ -101,7 +101,7 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
               color: Colors.black,
             ),
             onPressed: () => {
-              //print("delete all product"),
+              print("delete all product"),
               Provider.of<AppDatabase>(context, listen: false)
                   .productsDao
                   .deleteAllProduct(),

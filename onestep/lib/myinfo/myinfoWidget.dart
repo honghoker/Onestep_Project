@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:onestep/cloth/providers/myProductProvider.dart';
 import 'package:onestep/myinfo/myinfoMyWrite.dart';
+import 'package:provider/provider.dart';
 
 class MyinfoWidget extends StatefulWidget {
   @override
@@ -100,7 +102,13 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
                         icon: Icon(Icons.keyboard_arrow_right),
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => MyinfoMyWrite()));
+                            builder: (context) => Consumer<MyProductProvider>(
+                              builder: (context, myProductProvider, _) =>
+                                  MyinfoMyWrite(
+                                myProductProvider: myProductProvider,
+                              ),
+                            ),
+                          ));
                         },
                       ),
                     ),

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/moor/moor_database.dart';
 
-class ProuductProvider with ChangeNotifier {
+class MyProductProvider with ChangeNotifier {
   final _productsSnapshot = <DocumentSnapshot>[];
   String _errorMessage = '';
   int documentLimit = 9;
@@ -35,7 +35,7 @@ class ProuductProvider with ChangeNotifier {
     _isFetchingUsers = true;
 
     try {
-      final snap = await FirebaseApi.getProducts(
+      final snap = await FirebaseApi.getMyProducts(
         documentLimit,
         category,
         startAfter:
@@ -58,7 +58,7 @@ class ProuductProvider with ChangeNotifier {
     _isFetchingUsers = true;
     _productsSnapshot.clear();
     try {
-      final snap = await FirebaseApi.getProducts(
+      final snap = await FirebaseApi.getMyProducts(
         documentLimit,
         category,
         startAfter: null,

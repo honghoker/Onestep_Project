@@ -1,10 +1,12 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
+import 'package:onestep/cloth/clothBumpWidget.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
@@ -13,6 +15,8 @@ import 'package:moor_flutter/moor_flutter.dart' as mf;
 import 'animations/favoriteanimation.dart';
 import 'package:provider/provider.dart';
 import 'package:onestep/api/firebase_api.dart';
+
+import 'clothitem.dart';
 
 class ClothDetailViewWidgetcopy extends StatefulWidget {
   final Product product;
@@ -27,7 +31,8 @@ class ClothDetailViewWidgetcopy extends StatefulWidget {
 class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
   List _imageItem = new List();
   TextEditingController _textcontroller;
-
+  TextEditingController priceEditingController;
+  Product _product;
   @override
   void initState() {
     _imageItem.addAll(jsonDecode(widget.product.images));
@@ -144,6 +149,58 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
     } catch (e) {}
   }
 
+  Widget getUserProducts() {
+    var _size = MediaQuery.of(context).size;
+    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.0;
+    final double _itemWidth = _size.width / 2;
+
+    return FutureBuilder<QuerySnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('products')
+          .where('uid', isEqualTo: this._product.uid)
+          .orderBy('bumptime', descending: true)
+          .limit(6)
+          .get(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return new Text("");
+          default:
+            return GridView.builder(
+              shrinkWrap: true,
+              itemCount: snapshot.data.size,
+              physics: NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                childAspectRatio: _itemWidth > _itemHeight
+                    ? (_itemHeight / _itemWidth)
+                    : (_itemWidth / _itemHeight),
+                crossAxisCount: 3,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+              ),
+              itemBuilder: (context, index) {
+                return ClothItem(
+                  product: Product(
+                    firestoreid: snapshot.data.docs[index].id,
+                    uid: snapshot.data.docs[index].data()['uid'],
+                    title: snapshot.data.docs[index].data()['title'],
+                    category: snapshot.data.docs[index].data()['category'],
+                    price: snapshot.data.docs[index].data()['price'],
+                    hide: snapshot.data.docs[index].data()['hide'] ? 1 : 0,
+                    deleted:
+                        snapshot.data.docs[index].data()['deleted'] ? 1 : 0,
+                    images:
+                        jsonEncode(snapshot.data.docs[index].data()['images']),
+                  ),
+                );
+              },
+            );
+        }
+      },
+    );
+  }
+
   Widget renderBody(AsyncSnapshot<DocumentSnapshot> snapshot) {
     return SingleChildScrollView(
       child: Column(
@@ -173,112 +230,173 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
               ),
               itemCount: _imageItem.length,
               itemBuilder: (BuildContext context, int index) {
-                return Image.network(
+                return ExtendedImage.network(
                   _imageItem[index],
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
                   fit: BoxFit.cover,
+                  cache: true,
+                  borderRadius: BorderRadius.all(Radius.circular(30.0)),
                 );
               },
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(5.0),
-            child: Text(
-              "${snapshot.data.data()['price']}원",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF333333),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Text(
-              "${snapshot.data.data()['title']}",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF333333),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Row(
+            child: Column(
               children: <Widget>[
-                Icon(
-                  Icons.local_offer,
-                  color: Colors.grey,
-                  size: 17,
+                TextField(
+                  controller: priceEditingController,
+                  enableInteractiveSelection: false,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                  ),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF333333),
+                  ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 2.0),
-                ),
-                Text("${snapshot.data.data()['category']}"),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Row(
-              children: <Widget>[
-                Icon(
-                  Icons.access_time,
-                  color: Colors.grey,
-                  size: 15,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 2.0),
-                ),
-                Text("${getDiffTime(snapshot.data.data()['uploadtime'])}"),
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                ),
-                Icon(
-                  Icons.remove_red_eye,
-                  color: Colors.grey,
-                  size: 15,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 2.0),
-                ),
-                Text("${snapshot.data.data()['views']}"),
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                ),
-                Icon(
-                  Icons.favorite,
-                  color: Colors.grey,
-                  size: 15,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 2.0),
-                ),
-                Container(
-                  width: 30,
-                  child: TextField(
-                    controller: _textcontroller,
-                    enableInteractiveSelection: false,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "${snapshot.data.data()['title']}",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF333333),
                     ),
                   ),
                 ),
-
-                // Text("${snapshot.data.data()['favorites']}"),
-                // dtdtdtdtd
+                Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.local_offer,
+                      color: Colors.grey,
+                      size: 17,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 2.0),
+                    ),
+                    Text("${snapshot.data.data()['category']}"),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.access_time,
+                      color: Colors.grey,
+                      size: 15,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 2.0),
+                    ),
+                    Text("${getDiffTime(snapshot.data.data()['uploadtime'])}"),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                    ),
+                    Icon(
+                      Icons.remove_red_eye,
+                      color: Colors.grey,
+                      size: 15,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 2.0),
+                    ),
+                    Text("${snapshot.data.data()['views']}"),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                    ),
+                    Icon(
+                      Icons.favorite,
+                      color: Colors.grey,
+                      size: 15,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 2.0),
+                    ),
+                    Container(
+                      width: 30,
+                      child: TextField(
+                        controller: _textcontroller,
+                        enableInteractiveSelection: false,
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Divider(),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "${snapshot.data.data()['explain']}",
+                  ),
+                ),
+                Divider(),
+                SizedBox(
+                  height: 80,
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        height: 50,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          image: DecorationImage(
+                              image: AssetImage('images/profile.png'),
+                              fit: BoxFit.cover),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        "User ID",
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 40),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      '올린 물품',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF333333),
+                      ),
+                    ),
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          '더보기',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF666666),
+                          ),
+                        ),
+                        Icon(
+                          Icons.keyboard_arrow_right,
+                          size: 20,
+                          color: Color(0xFF999999),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                getUserProducts(),
               ],
             ),
-          ),
-          Divider(),
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Text("${snapshot.data.data()['explain']}"),
           ),
         ],
       ),
@@ -294,12 +412,20 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
       case '수정하기':
         break;
       case '끌올하기':
-        DateTime.now();
+        if (DateTime.now().difference(_product.bumptime).inHours >= 1) {
+          Navigator.of(context).pushNamed(
+            '/BumpProduct',
+            arguments: {"PRODUCT": widget.product},
+          ).then(
+            (value) {
+              print("detail");
+              if (value == "OK") Navigator.pop(context);
+            },
+          );
+        } else {
+          print("끌올 불가 메세지 출력");
+        }
 
-        FirebaseFirestore.instance
-            .collection("products")
-            .doc(widget.product.firestoreid)
-            .update({'bumptime': DateTime.now()});
         break;
       case '숨김':
         FirebaseFirestore.instance
@@ -559,6 +685,10 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                   ),
                 );
               } else {
+                _product =
+                    Product.fromJson(snapshot.data.data(), snapshot.data.id);
+                priceEditingController =
+                    TextEditingController(text: widget.product.price + "원");
                 _textcontroller = TextEditingController(
                     text: snapshot.data.data()['favorites'].toString());
                 incProductViews(snapshot.data.data()['views'] + 1);

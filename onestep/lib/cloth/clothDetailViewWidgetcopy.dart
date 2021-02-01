@@ -6,7 +6,6 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
-import 'package:onestep/cloth/clothBumpWidget.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
@@ -107,7 +106,14 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
               onTap: () {
                 int favorites = int.tryParse(_textcontroller.text);
                 bool chk = !snapshot.hasData;
+
                 if (chk) {
+                  // Product pro = this
+                  //     .widget
+                  //     .product
+                  //     .copyWith(favoritetime: DateTime.now());
+
+                  this.widget.product.favoritetime = DateTime.now();
                   p.insertProduct(this.widget.product);
                   favorites++;
                 } else {
@@ -158,8 +164,9 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
       future: FirebaseFirestore.instance
           .collection('products')
           .where('uid', isEqualTo: this._product.uid)
+          .where('bumptime', isNotEqualTo: this._product.bumptime)
           .orderBy('bumptime', descending: true)
-          .limit(6)
+          .limit(4)
           .get(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
@@ -167,6 +174,9 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
           case ConnectionState.waiting:
             return new Text("");
           default:
+            if (!snapshot.hasData) {
+              return Text("");
+            }
             return GridView.builder(
               shrinkWrap: true,
               itemCount: snapshot.data.size,
@@ -175,7 +185,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                 childAspectRatio: _itemWidth > _itemHeight
                     ? (_itemHeight / _itemWidth)
                     : (_itemWidth / _itemHeight),
-                crossAxisCount: 3,
+                crossAxisCount: 2,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
               ),
@@ -271,6 +281,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                     ),
                   ),
                 ),
+                SizedBox(height: 10),
                 Row(
                   children: <Widget>[
                     Icon(
@@ -332,25 +343,32 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                   ],
                 ),
                 Divider(),
+                SizedBox(height: 10),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "${snapshot.data.data()['explain']}",
                   ),
                 ),
+                SizedBox(height: 10),
                 Divider(),
                 SizedBox(
                   height: 80,
                   child: Row(
                     children: <Widget>[
-                      Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          image: DecorationImage(
-                              image: AssetImage('images/profile.png'),
-                              fit: BoxFit.cover),
+                      GestureDetector(
+                        onTap: () {
+                          print("프로필 터치 ${_product.uid}");
+                        },
+                        child: Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            image: DecorationImage(
+                                image: AssetImage('images/profile.png'),
+                                fit: BoxFit.cover),
+                          ),
                         ),
                       ),
                       SizedBox(
@@ -363,33 +381,38 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                     ],
                   ),
                 ),
-                SizedBox(height: 40),
+                SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
-                      '올린 물품',
+                      '판매 상품',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF333333),
                       ),
                     ),
-                    Row(
-                      children: <Widget>[
-                        Text(
-                          '더보기',
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Color(0xFF666666),
+                    GestureDetector(
+                      onTap: () {
+                        print("더보기 터치 ${_product.uid}");
+                      },
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            '더보기',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF666666),
+                            ),
                           ),
-                        ),
-                        Icon(
-                          Icons.keyboard_arrow_right,
-                          size: 20,
-                          color: Color(0xFF999999),
-                        ),
-                      ],
+                          Icon(
+                            Icons.keyboard_arrow_right,
+                            size: 20,
+                            color: Color(0xFF999999),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moor/moor.dart' as mf;
 import 'package:onestep/cloth/clothItem.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
@@ -50,9 +51,10 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
   Widget renderBody(double itemWidth, double itemHeight) {
     ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
 
-    return StreamBuilder<List<Product>>(
+    return StreamBuilder<List<mf.QueryRow>>(
       stream: p.watchProducts(),
-      builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
+      builder:
+          (BuildContext context, AsyncSnapshot<List<mf.QueryRow>> snapshot) {
         if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -70,7 +72,11 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
                 crossAxisSpacing: 10,
               ),
               itemBuilder: (context, index) {
-                return ClothItem(product: snapshot.data[index]);
+                print(
+                    "favoritetime = ${snapshot.data[index].data["favoritetime"]}");
+                Product p = Product.fromJson(snapshot.data[index].data,
+                    snapshot.data[index].data["firestoreid"]);
+                return ClothItem(product: p);
               },
             );
         }
@@ -85,6 +91,7 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
     final double _itemWidth = _size.width / 2;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         iconTheme: IconThemeData(
           color: Colors.black,

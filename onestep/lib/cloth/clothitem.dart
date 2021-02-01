@@ -51,12 +51,12 @@ class _ClothItemState extends State<ClothItem> {
               ),
             );
           default:
-            if (snapshot.hasData) {
-              if (snapshot.data.data.toString() !=
-                  widget.product.toJson().toString()) {
-                p.updateProduct(widget.product);
-              }
-            }
+            // if (snapshot.hasData) { // 업데이트
+            //   if (snapshot.data.data.toString() !=
+            //       widget.product.toJson().toString()) {
+            //     p.updateProduct(widget.product);
+            //   }
+            // }
             return Positioned(
               right: 0,
               bottom: 0,
@@ -71,8 +71,13 @@ class _ClothItemState extends State<ClothItem> {
 
                         FavoriteAnimation().incdecProductFavorites(
                             chk, context, this.widget.product.firestoreid);
+
                         if (chk) {
-                          p.insertProduct(this.widget.product);
+                          Product pro = this
+                              .widget
+                              .product
+                              .copyWith(favoritetime: DateTime.now());
+                          p.insertProduct(pro);
                         } else {
                           p.deleteProduct(this.widget.product);
                         }

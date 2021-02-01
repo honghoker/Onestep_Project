@@ -27,8 +27,11 @@ class ProuductSearchProvider with ChangeNotifier {
           hide: product['hide'] ? 1 : 0,
           deleted: product['deleted'] ? 1 : 0,
           images: jsonEncode(product['images']),
+          bumptime: DateTime.fromMillisecondsSinceEpoch(
+              product['bumptime'].millisecondsSinceEpoch),
         );
-      }).toList();
+      }).toList()
+        ..sort((key1, key2) => key2.bumptime.compareTo(key1.bumptime));
 
   Future fetchNextProducts(String category) async {
     if (_isFetchingUsers) return;

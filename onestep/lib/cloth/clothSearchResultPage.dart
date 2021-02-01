@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/providers/productSearchProvider.dart';
 import 'package:onestep/moor/moor_database.dart';
@@ -43,55 +44,68 @@ class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
       child: StreamBuilder<List<Search>>(
         stream: p.watchSearchs(),
         builder: (BuildContext context, AsyncSnapshot<List<Search>> snapshot) {
-          if (snapshot.data == null) return new Text(""); // 이거 안넣어주면 오류남
-          SizedBox(
-            height: 5,
-          );
-          return SizedBox(
-            height: 50,
-            child: ListView.builder(
-              itemCount: snapshot.data.length,
-              physics: ClampingScrollPhysics(),
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (BuildContext context, int index) {
-                return Card(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  child: InkWell(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        left: 10,
-                        right: 10,
-                        top: 5,
-                        bottom: 5,
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Text("");
+            default:
+              if (!snapshot.hasData) return Text("");
+              SizedBox(height: 5);
+              return SizedBox(
+                height: 50,
+                child: ListView.builder(
+                  itemCount: snapshot.data.length,
+                  physics: ClampingScrollPhysics(),
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Card(
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
                       ),
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                            "${snapshot.data[snapshot.data.length - (index + 1)].title}",
-                            style: TextStyle(),
-                            textAlign: TextAlign.center),
+                      child: InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            left: 10,
+                            right: 10,
+                            top: 5,
+                            bottom: 5,
+                          ),
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                                "${snapshot.data[snapshot.data.length - (index + 1)].title}",
+                                style: TextStyle(),
+                                textAlign: TextAlign.center),
+                          ),
+                        ),
+                        onTap: () {
+                          print("searchClick");
+                          FocusScope.of(context).unfocus();
+                          setState(() {
+                            _isSearchMode = false;
+                            _textController.text = snapshot
+                                .data[snapshot.data.length - (index + 1)].title;
+                          });
+                        },
                       ),
-                    ),
-                    onTap: () {
-                      print("searchClick");
-                      FocusScope.of(context).unfocus();
-                      setState(() {
-                        _isSearchMode = false;
-                        _textController.text = snapshot
-                            .data[snapshot.data.length - (index + 1)].title;
-                      });
-                    },
-                  ),
-                );
-              },
-            ),
-          );
+                    );
+                  },
+                ),
+              );
+          }
         },
       ),
     );
+  }
+
+  void serachtest(String searchkey) {
+    FirebaseFirestore.instance
+        .collection('products')
+        .orderBy('title')
+        .startAt([searchkey])
+        .endAt([searchkey + '\uf8ff'])
+        .get()
+        .then((value) => print(value.docs.map((e) => print(e.data()))));
   }
 
   Widget appbar() {
@@ -120,8 +134,8 @@ class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
                 onSubmitted: (text) {
                   // 2글자 제한
                   if (text.trim().length >= 2) {
-                    print(text);
                     widget.prouductSearchProvider.searchProducts(text);
+                    // serachtest(text);
                     search = Search(title: text, id: null);
                     setState(() {
                       _isSearchMode = false;

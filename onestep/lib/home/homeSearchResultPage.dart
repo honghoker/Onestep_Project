@@ -115,17 +115,15 @@ class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
                     controller: _textController,
                     onSubmitted: (text) {
                       // 2글자 제한
-                      if (text.length <= 2) {
+                      if (text.trim().length < 2) {
                         print("2글자 이하");
-                      } else if (text == "") {
-                        print("공백");
                       } else {
                         print("search $text");
                         search = Search(title: text, id: null);
                         setState(() {
                           _isSearchMode = false;
                           // p.insertSearch(search);
-                          text != "" ? p.insertSearch(search) : null;
+                          p.insertSearch(search);
                           // _isAutoFocus = false;
                         });
                       }

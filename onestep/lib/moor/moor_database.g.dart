@@ -19,6 +19,7 @@ class Product extends DataClass implements Insertable<Product> {
   final DateTime uploadtime;
   final DateTime updatetime;
   final DateTime bumptime;
+  DateTime favoritetime;
   final String images;
   final int hide;
   final int deleted;
@@ -34,6 +35,7 @@ class Product extends DataClass implements Insertable<Product> {
       this.uploadtime,
       this.updatetime,
       this.bumptime,
+      this.favoritetime,
       @required this.images,
       @required this.hide,
       @required this.deleted});
@@ -64,6 +66,8 @@ class Product extends DataClass implements Insertable<Product> {
           .mapFromDatabaseResponse(data['${effectivePrefix}updatetime']),
       bumptime: dateTimeType
           .mapFromDatabaseResponse(data['${effectivePrefix}bumptime']),
+      favoritetime: dateTimeType
+          .mapFromDatabaseResponse(data['${effectivePrefix}favoritetime']),
       images:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}images']),
       hide: intType.mapFromDatabaseResponse(data['${effectivePrefix}hide']),
@@ -71,6 +75,11 @@ class Product extends DataClass implements Insertable<Product> {
           intType.mapFromDatabaseResponse(data['${effectivePrefix}deleted']),
     );
   }
+
+  void setFavoriteTime(DateTime time) {
+    this.favoritetime = time;
+  }
+
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -106,6 +115,9 @@ class Product extends DataClass implements Insertable<Product> {
     }
     if (!nullToAbsent || bumptime != null) {
       map['bumptime'] = Variable<DateTime>(bumptime);
+    }
+    if (!nullToAbsent || favoritetime != null) {
+      map['favoritetime'] = Variable<DateTime>(favoritetime);
     }
     if (!nullToAbsent || images != null) {
       map['images'] = Variable<String>(images);
@@ -149,6 +161,9 @@ class Product extends DataClass implements Insertable<Product> {
       bumptime: bumptime == null && nullToAbsent
           ? const Value.absent()
           : Value(bumptime),
+      favoritetime: favoritetime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(favoritetime),
       images:
           images == null && nullToAbsent ? const Value.absent() : Value(images),
       hide: hide == null && nullToAbsent ? const Value.absent() : Value(hide),
@@ -161,7 +176,6 @@ class Product extends DataClass implements Insertable<Product> {
   factory Product.fromJson(Map<String, dynamic> json, String id,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
-
     return Product(
       title: serializer.fromJson<String>(json['title']),
       firestoreid: id,
@@ -171,15 +185,32 @@ class Product extends DataClass implements Insertable<Product> {
       explain: serializer.fromJson<String>(json['explain']),
       views: serializer.fromJson<int>(json['views']),
       favorites: serializer.fromJson<int>(json['favorites']),
-      uploadtime: DateTime.fromMillisecondsSinceEpoch(
-          json['uploadtime'].millisecondsSinceEpoch),
-      updatetime: DateTime.fromMillisecondsSinceEpoch(
-          json['updatetime'].millisecondsSinceEpoch),
-      bumptime: DateTime.fromMillisecondsSinceEpoch(
-          json['bumptime'].millisecondsSinceEpoch),
+      uploadtime: json['uploadtime'] == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(
+              json['uploadtime'].millisecondsSinceEpoch),
+      updatetime: json['updatetime'] == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(
+              json['updatetime'].millisecondsSinceEpoch),
+      bumptime: json['bumptime'] == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(
+              json['bumptime'].millisecondsSinceEpoch),
+      favoritetime: json['favoritetime'] == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(json['favoritetime']),
       images: serializer.fromJson<String>(json['images'].toString()),
-      hide: serializer.fromJson<int>(json['hide'] ? 1 : 0),
-      deleted: serializer.fromJson<int>(json['deleted'] ? 1 : 0),
+      hide: json['hide'] is int
+          ? json['hide']
+          : json['hide']
+              ? 1
+              : 0,
+      deleted: json['deleted'] is int
+          ? json['deleted']
+          : json['deleted']
+              ? 1
+              : 0,
     );
   }
   @override
@@ -197,6 +228,7 @@ class Product extends DataClass implements Insertable<Product> {
       'uploadtime': serializer.toJson<DateTime>(uploadtime),
       'updatetime': serializer.toJson<DateTime>(updatetime),
       'bumptime': serializer.toJson<DateTime>(bumptime),
+      'favoritetime': serializer.toJson<DateTime>(favoritetime),
       'images': serializer.toJson<String>(images),
       'hide': serializer.toJson<int>(hide),
       'deleted': serializer.toJson<int>(deleted),
@@ -215,6 +247,7 @@ class Product extends DataClass implements Insertable<Product> {
           DateTime uploadtime,
           DateTime updatetime,
           DateTime bumptime,
+          DateTime favoritetime,
           String images,
           int hide,
           int deleted}) =>
@@ -230,6 +263,7 @@ class Product extends DataClass implements Insertable<Product> {
         uploadtime: uploadtime ?? this.uploadtime,
         updatetime: updatetime ?? this.updatetime,
         bumptime: bumptime ?? this.bumptime,
+        favoritetime: favoritetime ?? this.favoritetime,
         images: images ?? this.images,
         hide: hide ?? this.hide,
         deleted: deleted ?? this.deleted,
@@ -248,6 +282,7 @@ class Product extends DataClass implements Insertable<Product> {
           ..write('uploadtime: $uploadtime, ')
           ..write('updatetime: $updatetime, ')
           ..write('bumptime: $bumptime, ')
+          ..write('favoritetime: $favoritetime, ')
           ..write('images: $images, ')
           ..write('hide: $hide, ')
           ..write('deleted: $deleted')
@@ -279,11 +314,13 @@ class Product extends DataClass implements Insertable<Product> {
                                           $mrjc(
                                               bumptime.hashCode,
                                               $mrjc(
-                                                  images.hashCode,
+                                                  favoritetime.hashCode,
                                                   $mrjc(
-                                                      hide.hashCode,
-                                                      deleted
-                                                          .hashCode))))))))))))));
+                                                      images.hashCode,
+                                                      $mrjc(
+                                                          hide.hashCode,
+                                                          deleted
+                                                              .hashCode)))))))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -299,6 +336,7 @@ class Product extends DataClass implements Insertable<Product> {
           other.uploadtime == this.uploadtime &&
           other.updatetime == this.updatetime &&
           other.bumptime == this.bumptime &&
+          other.favoritetime == this.favoritetime &&
           other.images == this.images &&
           other.hide == this.hide &&
           other.deleted == this.deleted);
@@ -316,6 +354,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<DateTime> uploadtime;
   final Value<DateTime> updatetime;
   final Value<DateTime> bumptime;
+  final Value<DateTime> favoritetime;
   final Value<String> images;
   final Value<int> hide;
   final Value<int> deleted;
@@ -331,6 +370,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.uploadtime = const Value.absent(),
     this.updatetime = const Value.absent(),
     this.bumptime = const Value.absent(),
+    this.favoritetime = const Value.absent(),
     this.images = const Value.absent(),
     this.hide = const Value.absent(),
     this.deleted = const Value.absent(),
@@ -347,6 +387,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.uploadtime = const Value.absent(),
     this.updatetime = const Value.absent(),
     this.bumptime = const Value.absent(),
+    this.favoritetime = const Value.absent(),
     @required String images,
     @required int hide,
     @required int deleted,
@@ -370,6 +411,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     Expression<DateTime> uploadtime,
     Expression<DateTime> updatetime,
     Expression<DateTime> bumptime,
+    Expression<DateTime> favoritetime,
     Expression<String> images,
     Expression<int> hide,
     Expression<int> deleted,
@@ -386,6 +428,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       if (uploadtime != null) 'uploadtime': uploadtime,
       if (updatetime != null) 'updatetime': updatetime,
       if (bumptime != null) 'bumptime': bumptime,
+      if (favoritetime != null) 'favoritetime': favoritetime,
       if (images != null) 'images': images,
       if (hide != null) 'hide': hide,
       if (deleted != null) 'deleted': deleted,
@@ -404,6 +447,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       Value<DateTime> uploadtime,
       Value<DateTime> updatetime,
       Value<DateTime> bumptime,
+      Value<DateTime> favoritetime,
       Value<String> images,
       Value<int> hide,
       Value<int> deleted}) {
@@ -419,6 +463,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       uploadtime: uploadtime ?? this.uploadtime,
       updatetime: updatetime ?? this.updatetime,
       bumptime: bumptime ?? this.bumptime,
+      favoritetime: favoritetime ?? this.favoritetime,
       images: images ?? this.images,
       hide: hide ?? this.hide,
       deleted: deleted ?? this.deleted,
@@ -461,6 +506,9 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     if (bumptime.present) {
       map['bumptime'] = Variable<DateTime>(bumptime.value);
     }
+    if (favoritetime.present) {
+      map['favoritetime'] = Variable<DateTime>(favoritetime.value);
+    }
     if (images.present) {
       map['images'] = Variable<String>(images.value);
     }
@@ -487,6 +535,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
           ..write('uploadtime: $uploadtime, ')
           ..write('updatetime: $updatetime, ')
           ..write('bumptime: $bumptime, ')
+          ..write('favoritetime: $favoritetime, ')
           ..write('images: $images, ')
           ..write('hide: $hide, ')
           ..write('deleted: $deleted')
@@ -635,6 +684,20 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     );
   }
 
+  final VerificationMeta _favoritetimeMeta =
+      const VerificationMeta('favoritetime');
+  GeneratedDateTimeColumn _favoritetime;
+  @override
+  GeneratedDateTimeColumn get favoritetime =>
+      _favoritetime ??= _constructFavoritetime();
+  GeneratedDateTimeColumn _constructFavoritetime() {
+    return GeneratedDateTimeColumn(
+      'favoritetime',
+      $tableName,
+      true,
+    );
+  }
+
   final VerificationMeta _imagesMeta = const VerificationMeta('images');
   GeneratedTextColumn _images;
   @override
@@ -684,6 +747,7 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
         uploadtime,
         updatetime,
         bumptime,
+        favoritetime,
         images,
         hide,
         deleted
@@ -758,6 +822,12 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     if (data.containsKey('bumptime')) {
       context.handle(_bumptimeMeta,
           bumptime.isAcceptableOrUnknown(data['bumptime'], _bumptimeMeta));
+    }
+    if (data.containsKey('favoritetime')) {
+      context.handle(
+          _favoritetimeMeta,
+          favoritetime.isAcceptableOrUnknown(
+              data['favoritetime'], _favoritetimeMeta));
     }
     if (data.containsKey('images')) {
       context.handle(_imagesMeta,

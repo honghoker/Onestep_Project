@@ -80,16 +80,13 @@ class FirebaseApi {
     String search, {
     DocumentSnapshot startAfter,
   }) async {
-    print("firebase_api 검색");
-
     var refProducts;
     refProducts = FirebaseFirestore.instance
         .collection('products')
-        .where("title", isEqualTo: 'duck')
         .where("deleted", isEqualTo: false)
         .where("hide", isEqualTo: false)
-        .orderBy("bumptime", descending: true)
-        .limit(limit);
+        .orderBy('title')
+        .startAt([search]).endAt([search + '\uf8ff']).limit(limit);
 
     if (startAfter == null) {
       return refProducts.get();

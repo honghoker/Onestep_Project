@@ -11,7 +11,6 @@ class FavoriteAnimation {
       builder: (_) => Material(
         type: MaterialType.transparency,
         child: Icon(Icons.favorite, color: Colors.pink, size: 200),
-        // ),
       ),
     );
   }

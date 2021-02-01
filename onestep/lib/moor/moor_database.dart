@@ -14,6 +14,7 @@ class Products extends Table {
   DateTimeColumn get uploadtime => dateTime().nullable()();
   DateTimeColumn get updatetime => dateTime().nullable()();
   DateTimeColumn get bumptime => dateTime().nullable()();
+  DateTimeColumn get favoritetime => dateTime().nullable()();
   TextColumn get images => text()();
   IntColumn get hide => integer()();
   IntColumn get deleted => integer()();
@@ -36,7 +37,12 @@ class ProductsDao extends DatabaseAccessor<AppDatabase>
   ProductsDao(AppDatabase db) : super(db);
 
   Future<List<Product>> getAllProducts() => select(products).get();
-  Stream<List<Product>> watchProducts() => select(products).watch();
+
+  Stream<List<QueryRow>> watchProducts() => customSelect(
+        "SELECT * FROM Products ORDER BY favoritetime DESC",
+        readsFrom: {products},
+      ).watch();
+
   Future insertProduct(Product product) => into(products).insert(product);
   Future deleteProduct(Product product) => delete(products).delete(product);
   Stream<QueryRow> watchsingleProduct(String firestoreid) => customSelect(

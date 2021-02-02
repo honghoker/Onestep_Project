@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moor/moor.dart' as mf;
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
 
@@ -31,9 +32,10 @@ class _BoardSearchResultPageState extends State<BoardSearchResultPage> {
 
     return Padding(
       padding: const EdgeInsets.only(top: 10),
-      child: StreamBuilder<List<Search>>(
+      child: StreamBuilder<List<mf.QueryRow>>(
         stream: p.watchSearchs(),
-        builder: (BuildContext context, AsyncSnapshot<List<Search>> snapshot) {
+        builder:
+            (BuildContext context, AsyncSnapshot<List<mf.QueryRow>> snapshot) {
           if (snapshot.data == null) return new Text(""); // 이거 안넣어주면 오류남
           SizedBox(
             height: 5,
@@ -60,18 +62,16 @@ class _BoardSearchResultPageState extends State<BoardSearchResultPage> {
                       ),
                       child: Align(
                         alignment: Alignment.center,
-                        child: Text(
-                            "${snapshot.data[snapshot.data.length - (index + 1)].title}",
-                            style: TextStyle(),
-                            textAlign: TextAlign.center),
+                        child: Text("",
+                            style: TextStyle(), textAlign: TextAlign.center),
                       ),
                     ),
                     onTap: () {
                       print("searchClick");
                       setState(() {
                         _isSearchMode = false;
-                        _textController.text = snapshot
-                            .data[snapshot.data.length - (index + 1)].title;
+                        // _textController.text = snapshot
+                        //     .data[snapshot.data.length - (index + 1)].title;
                       });
                     },
                   ),

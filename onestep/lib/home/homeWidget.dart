@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:onestep/home/homeNotificationPage.dart';
+import 'package:onestep/search/provider/searchProvider.dart';
+import 'package:onestep/search/widget/searchAllWidget.dart';
+import 'package:provider/provider.dart';
 
 import 'homeHotBoardBody.dart';
-import 'homeHotBoardPage.dart';
-import 'homeImagesBody.dart';
 import 'homeNoticeBody.dart';
-import 'homeSearchResultPage.dart';
-import 'message/messagePage.dart';
 
 class HomeWidget extends StatefulWidget {
   @override
@@ -24,10 +20,6 @@ final List<String> imgList = [
 class _HomeWidgetState extends State<HomeWidget> {
   @override
   Widget build(BuildContext context) {
-    var _size = MediaQuery.of(context).size;
-    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 1.9;
-    final double _itemWidth = _size.width / 2;
-
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -40,7 +32,11 @@ class _HomeWidgetState extends State<HomeWidget> {
                 color: Colors.black,
                 onPressed: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => HomeSearchResultPage(),
+                    builder: (context) => Consumer<SearchProvider>(
+                      builder: (context, searchProvider, _) => SearchAllWidget(
+                        searchProvider: searchProvider,
+                      ),
+                    ),
                   ));
                 },
               ),
@@ -66,7 +62,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                       right: 10,
                       child: Icon(
                         Icons.brightness_1,
-                        color:Colors.red,
+                        color: Colors.red,
                         size: 15,
                       ))
                 ]),

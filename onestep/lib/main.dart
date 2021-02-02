@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/providers/myProductProvider.dart';
+import 'package:onestep/search/provider/searchProvider.dart';
 
 import 'appmain/Route_Generator.dart';
 
@@ -11,7 +12,6 @@ import 'package:provider/provider.dart';
 import 'appmain/myhomepage.dart';
 import 'cloth/models/category.dart';
 import 'cloth/providers/productProvider.dart';
-import 'cloth/providers/productSearchProvider.dart';
 
 import 'login/CheckAuth.dart';
 import 'login/LoginPage.dart';
@@ -31,8 +31,8 @@ void main() async {
         Provider<AppDatabase>.value(value: AppDatabase()),
         ChangeNotifierProvider<ProuductProvider>.value(
             value: new ProuductProvider()),
-        ChangeNotifierProvider<ProuductSearchProvider>.value(
-            value: new ProuductSearchProvider()),
+        ChangeNotifierProvider<SearchProvider>.value(
+            value: new SearchProvider()),
         ChangeNotifierProvider<MyProductProvider>.value(
             value: new MyProductProvider()),
         StreamProvider<List<FreeBoardList>>.value(

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/clothAddWidget.dart';
-import 'package:onestep/cloth/clothSearchResultPage.dart';
 import 'package:onestep/cloth/providers/productProvider.dart';
-import 'package:onestep/cloth/providers/productSearchProvider.dart';
 import 'package:onestep/favorite/favoriteWidget.dart';
+import 'package:onestep/search/provider/searchProvider.dart';
+import 'package:onestep/search/widget/searchProductBoardWidget.dart';
 import 'package:provider/provider.dart';
 import 'package:unicorndial/unicorndial.dart';
 
@@ -216,10 +216,11 @@ class _ClothWidgetState extends State<ClothWidget> {
             onPressed: () => {
               print("검색"),
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => Consumer<ProuductSearchProvider>(
-                  builder: (context, prouductSearchProvider, _) =>
-                      ClothSearchResultPage(
-                    prouductSearchProvider: prouductSearchProvider,
+                builder: (context) => Consumer<SearchProvider>(
+                  builder: (context, searchProvider, _) =>
+                      SearchProductBoardWidget(
+                    searchProvider: searchProvider,
+                    type: 'product',
                   ),
                 ),
               ))

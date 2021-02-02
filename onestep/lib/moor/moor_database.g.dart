@@ -75,11 +75,6 @@ class Product extends DataClass implements Insertable<Product> {
           intType.mapFromDatabaseResponse(data['${effectivePrefix}deleted']),
     );
   }
-
-  void setFavoriteTime(DateTime time) {
-    this.favoritetime = time;
-  }
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -195,8 +190,10 @@ class Product extends DataClass implements Insertable<Product> {
               json['updatetime'].millisecondsSinceEpoch),
       bumptime: json['bumptime'] == null
           ? null
-          : DateTime.fromMillisecondsSinceEpoch(
-              json['bumptime'].millisecondsSinceEpoch),
+          : json['bumptime'] is int
+              ? DateTime(json['bumptime'])
+              : DateTime.fromMillisecondsSinceEpoch(
+                  json['bumptime'].millisecondsSinceEpoch),
       favoritetime: json['favoritetime'] == null
           ? null
           : DateTime.fromMillisecondsSinceEpoch(json['favoritetime']),
@@ -867,16 +864,20 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
 class Search extends DataClass implements Insertable<Search> {
   final int id;
   final String title;
-  Search({@required this.id, @required this.title});
+  final DateTime time;
+  Search({@required this.id, @required this.title, @required this.time});
   factory Search.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
+    final dateTimeType = db.typeSystem.forDartType<DateTime>();
     return Search(
       id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       title:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}title']),
+      time:
+          dateTimeType.mapFromDatabaseResponse(data['${effectivePrefix}time']),
     );
   }
   @override
@@ -888,6 +889,9 @@ class Search extends DataClass implements Insertable<Search> {
     if (!nullToAbsent || title != null) {
       map['title'] = Variable<String>(title);
     }
+    if (!nullToAbsent || time != null) {
+      map['time'] = Variable<DateTime>(time);
+    }
     return map;
   }
 
@@ -896,6 +900,7 @@ class Search extends DataClass implements Insertable<Search> {
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       title:
           title == null && nullToAbsent ? const Value.absent() : Value(title),
+      time: time == null && nullToAbsent ? const Value.absent() : Value(time),
     );
   }
 
@@ -905,6 +910,7 @@ class Search extends DataClass implements Insertable<Search> {
     return Search(
       id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
+      time: serializer.fromJson<DateTime>(json['time']),
     );
   }
   @override
@@ -913,55 +919,70 @@ class Search extends DataClass implements Insertable<Search> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
+      'time': serializer.toJson<DateTime>(time),
     };
   }
 
-  Search copyWith({int id, String title}) => Search(
+  Search copyWith({int id, String title, DateTime time}) => Search(
         id: id ?? this.id,
         title: title ?? this.title,
+        time: time ?? this.time,
       );
   @override
   String toString() {
     return (StringBuffer('Search(')
           ..write('id: $id, ')
-          ..write('title: $title')
+          ..write('title: $title, ')
+          ..write('time: $time')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(id.hashCode, title.hashCode));
+  int get hashCode =>
+      $mrjf($mrjc(id.hashCode, $mrjc(title.hashCode, time.hashCode)));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
-      (other is Search && other.id == this.id && other.title == this.title);
+      (other is Search &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.time == this.time);
 }
 
 class SearchsCompanion extends UpdateCompanion<Search> {
   final Value<int> id;
   final Value<String> title;
+  final Value<DateTime> time;
   const SearchsCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
+    this.time = const Value.absent(),
   });
   SearchsCompanion.insert({
     this.id = const Value.absent(),
     @required String title,
-  }) : title = Value(title);
+    @required DateTime time,
+  })  : title = Value(title),
+        time = Value(time);
   static Insertable<Search> custom({
     Expression<int> id,
     Expression<String> title,
+    Expression<DateTime> time,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (title != null) 'title': title,
+      if (time != null) 'time': time,
     });
   }
 
-  SearchsCompanion copyWith({Value<int> id, Value<String> title}) {
+  SearchsCompanion copyWith(
+      {Value<int> id, Value<String> title, Value<DateTime> time}) {
     return SearchsCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
+      time: time ?? this.time,
     );
   }
 
@@ -974,6 +995,9 @@ class SearchsCompanion extends UpdateCompanion<Search> {
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
+    if (time.present) {
+      map['time'] = Variable<DateTime>(time.value);
+    }
     return map;
   }
 
@@ -981,7 +1005,8 @@ class SearchsCompanion extends UpdateCompanion<Search> {
   String toString() {
     return (StringBuffer('SearchsCompanion(')
           ..write('id: $id, ')
-          ..write('title: $title')
+          ..write('title: $title, ')
+          ..write('time: $time')
           ..write(')'))
         .toString();
   }
@@ -1012,8 +1037,20 @@ class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
     );
   }
 
+  final VerificationMeta _timeMeta = const VerificationMeta('time');
+  GeneratedDateTimeColumn _time;
   @override
-  List<GeneratedColumn> get $columns => [id, title];
+  GeneratedDateTimeColumn get time => _time ??= _constructTime();
+  GeneratedDateTimeColumn _constructTime() {
+    return GeneratedDateTimeColumn(
+      'time',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [id, title, time];
   @override
   $SearchsTable get asDslTable => this;
   @override
@@ -1033,6 +1070,12 @@ class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
           _titleMeta, title.isAcceptableOrUnknown(data['title'], _titleMeta));
     } else if (isInserting) {
       context.missing(_titleMeta);
+    }
+    if (data.containsKey('time')) {
+      context.handle(
+          _timeMeta, time.isAcceptableOrUnknown(data['time'], _timeMeta));
+    } else if (isInserting) {
+      context.missing(_timeMeta);
     }
     return context;
   }

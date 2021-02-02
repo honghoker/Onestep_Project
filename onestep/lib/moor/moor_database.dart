@@ -23,14 +23,6 @@ class Products extends Table {
   Set<Column> get primaryKey => {firestoreid};
 }
 
-class Searchs extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get title => text()();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
 @UseDao(tables: [Products])
 class ProductsDao extends DatabaseAccessor<AppDatabase>
     with _$ProductsDaoMixin {
@@ -55,12 +47,27 @@ class ProductsDao extends DatabaseAccessor<AppDatabase>
   deleteAllProduct() => delete(products).go();
 }
 
+class Searchs extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get title => text()();
+  DateTimeColumn get time => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @UseDao(tables: [Searchs])
 class SearchsDao extends DatabaseAccessor<AppDatabase> with _$SearchsDaoMixin {
   SearchsDao(AppDatabase db) : super(db);
 
   Future<List<Search>> getAllSearchs() => select(searchs).get();
-  Stream<List<Search>> watchSearchs() => select(searchs).watch();
+  // Stream<List<Search>> watchSearchs() => select(searchs).watch();
+
+  Stream<List<QueryRow>> watchSearchs() => customSelect(
+        "SELECT * FROM Searchs ORDER BY time DESC",
+        readsFrom: {searchs},
+      ).watch();
+
   Future insertSearch(Search search) => into(searchs).insert(search);
   Future deleteSearch(Search search) => delete(searchs).delete(search);
   Future updateSearch(Search search) => update(searchs).replace(search);

@@ -72,8 +72,6 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
                 crossAxisSpacing: 10,
               ),
               itemBuilder: (context, index) {
-                print(
-                    "favoritetime = ${snapshot.data[index].data["favoritetime"]}");
                 Product p = Product.fromJson(snapshot.data[index].data,
                     snapshot.data[index].data["firestoreid"]);
                 return ClothItem(product: p);

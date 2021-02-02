@@ -81,6 +81,7 @@ class _Board extends State<BoardContent>
             title: setTitle(boardData.title),
             actions: <Widget>[
               IconButton(
+                onPressed: () {},
                 icon: Icon(Icons.more_horiz),
               )
             ],
@@ -341,25 +342,8 @@ class _Board extends State<BoardContent>
   }
 
   Widget setTitle(String title) {
-    // return Container(
-    //   width: device_width,
-    //   child: Container(
-    //       margin: EdgeInsets.only(left: 5),
-    //       child: Text(title ?? "",
-    //           maxLines: 1,
-    //           overflow: TextOverflow.fade,
-    //           style: new TextStyle(fontSize: 17, fontWeight: FontWeight.bold))),
-    //   // decoration: BoxDecoration(color: Colors.white, boxShadow: [
-    //   //   BoxShadow(
-    //   //       color: Colors.grey.withOpacity(0.5),
-    //   //       spreadRadius: 3,
-    //   //       blurRadius: 5,
-    //   //       offset: Offset(0, 1))
-    //   // ]),
-    // );
     return GestureDetector(
       onTap: () {
-        // _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
         _scrollController.position
             .moveTo(0.5, duration: Duration(milliseconds: 500));
       },
@@ -884,6 +868,7 @@ class _Board extends State<BoardContent>
     List<Widget> _commentContainerList = [];
     for (int i = 0; i < _commentLength; i++) {
       var _commentData = snapshot.docs[i];
+      bool isItSelf = _commentData["uid"] == FirebaseApi.getId();
       String _createDate = _commentCreateTimeMethod(_commentData["createDate"]);
       _commentContainerList.add(GestureDetector(
         onTap: () {
@@ -912,10 +897,10 @@ class _Board extends State<BoardContent>
                   ),
                   _setCommentButtonMethod(
                       onTap: () {
-                        print("hi");
+                        print(_commentData.id);
                       },
                       text: Text(
-                        "",
+                        "댓글 달기",
                         style: TextStyle(color: Colors.red, fontSize: 18),
                       )),
                   _setCommentButtonMethod(
@@ -925,8 +910,18 @@ class _Board extends State<BoardContent>
                     ),
                   ),
                   _setCommentButtonMethod(
+                    onTap: isItSelf
+                        ? () {
+                            setState(() {
+                              isCommentRefresh = true;
+                              Navigator.pop(context);
+                              _commentDataUpdateMethod(
+                                  _commentData, _commentData.id);
+                            });
+                          }
+                        : () {},
                     text: Text(
-                      "신고하기",
+                      isItSelf ? "삭제하기" : "신고하기",
                       style: TextStyle(color: Colors.red, fontSize: 18),
                     ),
                   ),
@@ -995,6 +990,19 @@ class _Board extends State<BoardContent>
     );
   }
 
+  Future _commentDataUpdateMethod(var commentData, String documentId) {
+    String _boardID = boardData.boardId.toString();
+    String _documentID = boardData.documentId.toString();
+    FirebaseFirestore.instance
+        .collection("Board")
+        .doc(_boardID)
+        .collection(_boardID)
+        .doc(_documentID)
+        .collection(COMMENT_COLLECTION_NAME)
+        .doc(documentId)
+        .delete();
+  }
+
   // Widget imageContent() {
   //   return FutureBuilder(
   //     future: _fetchData(),
@@ -1026,7 +1034,10 @@ class _Board extends State<BoardContent>
   //     },
   //   );
   // }
-  _setCommentButtonMethod({Text text, Function onTap}) {
+  _setCommentButtonMethod({
+    Text text,
+    Function onTap,
+  }) {
     return GestureDetector(
         onTap: onTap,
         child: Container(

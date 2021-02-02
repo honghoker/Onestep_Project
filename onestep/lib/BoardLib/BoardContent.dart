@@ -74,6 +74,18 @@ class _Board extends State<BoardContent>
     device_width = MediaQuery.of(context).size.width;
     device_height = MediaQuery.of(context).size.height;
     return new Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(device_height / 20),
+          child: AppBar(
+            backgroundColor: Colors.white,
+            title: setTitle(boardData.title),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.more_horiz),
+              )
+            ],
+          ),
+        ),
         key: _scaffoldKey,
         body: SafeArea(
           child: Stack(alignment: Alignment.bottomCenter, children: <Widget>[
@@ -88,7 +100,7 @@ class _Board extends State<BoardContent>
                   child:
                       Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
                     // Title Container
-                    setTitle(boardData.title),
+                    // setTitle(boardData.title),
                     //Date Container
                     setDateNVisitor(boardData.createDate, boardData.watchCount),
                     // FutureBuilder(future:,builder: builder,AsyncSnapshot snapshot){}
@@ -107,78 +119,6 @@ class _Board extends State<BoardContent>
             // )
           ]),
         ));
-  }
-
-  String setCommentHintText(bool isUnderComment, {String who}) {
-    return isUnderComment ? who + "의 댓글달기" : "이 글에 댓글달기";
-  }
-
-  commentSaveMethod() async {
-    TipDialogHelper.loading("저장 중입니다.\n 잠시만 기다려주세요.");
-    String commentText = _textEditingControllerComment.text.trimRight();
-    bool result = await Comment(
-            boardDocumentId: boardData.documentId,
-            boardId: boardData.boardId,
-            text: commentText,
-            name: "fix")
-        .toFireStore(context);
-
-    if (result ?? false) {
-      TipDialogHelper.dismiss();
-      TipDialogHelper.success("저장 완료!");
-
-      setState(() {
-        isCommentRefresh = true;
-        isCommentBoxVisible = false;
-        _textEditingControllerComment.clear();
-      });
-    }
-  }
-
-  commentBoxHideMethod() {
-    if (_textEditingControllerComment.text != '') {
-      showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('작성 중'),
-            content: Text("작성된 내용은 저장이 되지 않습니다."),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('나가기'),
-                onPressed: () {
-                  setState(() {
-                    Navigator.pop(context);
-                    isCommentBoxVisible = false;
-                    _textEditingControllerComment.clear();
-                  });
-                },
-              ),
-              FlatButton(
-                child: Text('유지'),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      setState(() {
-        isCommentBoxVisible = false;
-      });
-    }
-  }
-
-  commentBoxExpanded(bool isCommentBoxVisible) {
-    return isCommentBoxVisible
-        ? SizedBox(
-            child: Container(),
-            height: device_height * (1 / 4),
-          )
-        : SizedBox();
   }
 
   Future<void> watchCountUpdate() async {
@@ -401,21 +341,37 @@ class _Board extends State<BoardContent>
   }
 
   Widget setTitle(String title) {
-    return Container(
-      width: double.infinity,
+    // return Container(
+    //   width: device_width,
+    //   child: Container(
+    //       margin: EdgeInsets.only(left: 5),
+    //       child: Text(title ?? "",
+    //           maxLines: 1,
+    //           overflow: TextOverflow.fade,
+    //           style: new TextStyle(fontSize: 17, fontWeight: FontWeight.bold))),
+    //   // decoration: BoxDecoration(color: Colors.white, boxShadow: [
+    //   //   BoxShadow(
+    //   //       color: Colors.grey.withOpacity(0.5),
+    //   //       spreadRadius: 3,
+    //   //       blurRadius: 5,
+    //   //       offset: Offset(0, 1))
+    //   // ]),
+    // );
+    return GestureDetector(
+      onTap: () {
+        // _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        _scrollController.position
+            .moveTo(0.5, duration: Duration(milliseconds: 500));
+      },
       child: Container(
-          margin: EdgeInsets.only(left: 5),
-          child: Text(title ?? "",
-              maxLines: 1,
-              overflow: TextOverflow.fade,
-              style: new TextStyle(fontSize: 17, fontWeight: FontWeight.bold))),
-      decoration: BoxDecoration(color: Colors.white, boxShadow: [
-        BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 3,
-            blurRadius: 5,
-            offset: Offset(0, 1))
-      ]),
+        margin: EdgeInsets.only(left: 5),
+        width: device_width,
+        child: Text(
+          title,
+          style: new TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+          maxLines: 1,
+        ),
+      ),
     );
   }
 
@@ -592,6 +548,8 @@ class _Board extends State<BoardContent>
                       setState(() {
                         isCommentBoxVisible = true;
                       });
+                      _scrollController.position.moveTo(double.infinity,
+                          duration: Duration(milliseconds: 500));
 
                       // scaffoldKey.currentState
                       //     .showBottomSheet((context) => BottomSheetWidget());
@@ -845,6 +803,78 @@ class _Board extends State<BoardContent>
           ' ';
     }
     return _days + _hhmmss;
+  }
+
+  String setCommentHintText(bool isUnderComment, {String who}) {
+    return isUnderComment ? who + "의 댓글달기" : "이 글에 댓글달기";
+  }
+
+  commentSaveMethod() async {
+    TipDialogHelper.loading("저장 중입니다.\n 잠시만 기다려주세요.");
+    String commentText = _textEditingControllerComment.text.trimRight();
+    bool result = await Comment(
+            boardDocumentId: boardData.documentId,
+            boardId: boardData.boardId,
+            text: commentText,
+            name: "fix")
+        .toFireStore(context);
+
+    if (result ?? false) {
+      TipDialogHelper.dismiss();
+      TipDialogHelper.success("저장 완료!");
+
+      setState(() {
+        isCommentRefresh = true;
+        isCommentBoxVisible = false;
+        _textEditingControllerComment.clear();
+      });
+    }
+  }
+
+  commentBoxHideMethod() {
+    if (_textEditingControllerComment.text != '') {
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('작성 중'),
+            content: Text("작성된 내용은 저장이 되지 않습니다."),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('나가기'),
+                onPressed: () {
+                  setState(() {
+                    Navigator.pop(context);
+                    isCommentBoxVisible = false;
+                    _textEditingControllerComment.clear();
+                  });
+                },
+              ),
+              FlatButton(
+                child: Text('유지'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      setState(() {
+        isCommentBoxVisible = false;
+      });
+    }
+  }
+
+  commentBoxExpanded(bool isCommentBoxVisible) {
+    return isCommentBoxVisible
+        ? SizedBox(
+            child: Container(),
+            height: device_height * (1 / 4),
+          )
+        : SizedBox();
   }
 
   _commentContainerMethod(QuerySnapshot snapshot) {

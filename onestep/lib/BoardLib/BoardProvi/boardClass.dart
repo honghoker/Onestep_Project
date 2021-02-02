@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:onestep/BoardLib/BoardComment/CommentInBoardContent.dart';
 import 'package:onestep/BoardLib/CreateAlterBoard/parentState.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -86,6 +87,7 @@ class BoardData {
           "boardId": boardId,
           "scrabUserList": scrabUserList ?? [],
           "favoriteUserList": favoriteUserList ?? [],
+          "commentList": []
         })
         .whenComplete(() => true)
         .then((value) => true)
@@ -216,5 +218,25 @@ class Comment {
         return true;
       }
     });
+  }
+
+  Future _saveUidInBoardField(
+      DocumentSnapshot documentSnapshot, String currentUid) async {
+    Map _data = documentSnapshot.data();
+    List _commentList = documentSnapshot.data()["commentList"];
+
+    if (!_commentList.contains(currentUid)) {
+      return await FirebaseFirestore.instance
+          .collection("Board")
+          .doc(boardId)
+          .collection(boardId)
+          .doc(boardDocumentId)
+          .update({"commentList": _data["commentList"].add(currentUid)})
+          .catchError((onError) {
+            print("catchError ");
+          })
+          .then((value) => print("Something error null pointer or.. "))
+          .whenComplete(() => true);
+    }
   }
 }

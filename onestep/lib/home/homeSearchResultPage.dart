@@ -121,7 +121,7 @@ class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
                         print("공백");
                       } else {
                         print("search $text");
-                        search = Search(title: text, id: null);
+                        search = Search(title: text);
                         setState(() {
                           _isSearchMode = false;
                           // p.insertSearch(search);

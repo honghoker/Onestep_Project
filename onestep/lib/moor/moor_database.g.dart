@@ -791,16 +791,13 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
 }
 
 class Search extends DataClass implements Insertable<Search> {
-  final int id;
   final String title;
-  Search({@required this.id, @required this.title});
+  Search({@required this.title});
   factory Search.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
     return Search(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       title:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}title']),
     );
@@ -808,9 +805,6 @@ class Search extends DataClass implements Insertable<Search> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<int>(id);
-    }
     if (!nullToAbsent || title != null) {
       map['title'] = Variable<String>(title);
     }
@@ -819,7 +813,6 @@ class Search extends DataClass implements Insertable<Search> {
 
   SearchsCompanion toCompanion(bool nullToAbsent) {
     return SearchsCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       title:
           title == null && nullToAbsent ? const Value.absent() : Value(title),
     );
@@ -829,7 +822,6 @@ class Search extends DataClass implements Insertable<Search> {
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Search(
-      id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
     );
   }
@@ -837,56 +829,44 @@ class Search extends DataClass implements Insertable<Search> {
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
     };
   }
 
-  Search copyWith({int id, String title}) => Search(
-        id: id ?? this.id,
+  Search copyWith({String title}) => Search(
         title: title ?? this.title,
       );
   @override
   String toString() {
-    return (StringBuffer('Search(')
-          ..write('id: $id, ')
-          ..write('title: $title')
-          ..write(')'))
+    return (StringBuffer('Search(')..write('title: $title')..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(id.hashCode, title.hashCode));
+  int get hashCode => $mrjf(title.hashCode);
   @override
   bool operator ==(dynamic other) =>
-      identical(this, other) ||
-      (other is Search && other.id == this.id && other.title == this.title);
+      identical(this, other) || (other is Search && other.title == this.title);
 }
 
 class SearchsCompanion extends UpdateCompanion<Search> {
-  final Value<int> id;
   final Value<String> title;
   const SearchsCompanion({
-    this.id = const Value.absent(),
     this.title = const Value.absent(),
   });
   SearchsCompanion.insert({
-    this.id = const Value.absent(),
     @required String title,
   }) : title = Value(title);
   static Insertable<Search> custom({
-    Expression<int> id,
     Expression<String> title,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (title != null) 'title': title,
     });
   }
 
-  SearchsCompanion copyWith({Value<int> id, Value<String> title}) {
+  SearchsCompanion copyWith({Value<String> title}) {
     return SearchsCompanion(
-      id: id ?? this.id,
       title: title ?? this.title,
     );
   }
@@ -894,9 +874,6 @@ class SearchsCompanion extends UpdateCompanion<Search> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
@@ -906,7 +883,6 @@ class SearchsCompanion extends UpdateCompanion<Search> {
   @override
   String toString() {
     return (StringBuffer('SearchsCompanion(')
-          ..write('id: $id, ')
           ..write('title: $title')
           ..write(')'))
         .toString();
@@ -917,15 +893,6 @@ class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
   final GeneratedDatabase _db;
   final String _alias;
   $SearchsTable(this._db, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedIntColumn _id;
-  @override
-  GeneratedIntColumn get id => _id ??= _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        hasAutoIncrement: true, declaredAsPrimaryKey: true);
-  }
-
   final VerificationMeta _titleMeta = const VerificationMeta('title');
   GeneratedTextColumn _title;
   @override
@@ -939,7 +906,7 @@ class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
   }
 
   @override
-  List<GeneratedColumn> get $columns => [id, title];
+  List<GeneratedColumn> get $columns => [title];
   @override
   $SearchsTable get asDslTable => this;
   @override
@@ -951,9 +918,6 @@ class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
-    }
     if (data.containsKey('title')) {
       context.handle(
           _titleMeta, title.isAcceptableOrUnknown(data['title'], _titleMeta));
@@ -964,7 +928,7 @@ class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {title};
   @override
   Search map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -977,21 +941,185 @@ class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
   }
 }
 
+class NotificationCheck extends DataClass
+    implements Insertable<NotificationCheck> {
+  final String docId;
+  NotificationCheck({@required this.docId});
+  factory NotificationCheck.fromData(
+      Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    return NotificationCheck(
+      docId:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}doc_id']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || docId != null) {
+      map['doc_id'] = Variable<String>(docId);
+    }
+    return map;
+  }
+
+  NotificationChecksCompanion toCompanion(bool nullToAbsent) {
+    return NotificationChecksCompanion(
+      docId:
+          docId == null && nullToAbsent ? const Value.absent() : Value(docId),
+    );
+  }
+
+  factory NotificationCheck.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return NotificationCheck(
+      docId: serializer.fromJson<String>(json['docId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'docId': serializer.toJson<String>(docId),
+    };
+  }
+
+  NotificationCheck copyWith({String docId}) => NotificationCheck(
+        docId: docId ?? this.docId,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('NotificationCheck(')
+          ..write('docId: $docId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf(docId.hashCode);
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is NotificationCheck && other.docId == this.docId);
+}
+
+class NotificationChecksCompanion extends UpdateCompanion<NotificationCheck> {
+  final Value<String> docId;
+  const NotificationChecksCompanion({
+    this.docId = const Value.absent(),
+  });
+  NotificationChecksCompanion.insert({
+    @required String docId,
+  }) : docId = Value(docId);
+  static Insertable<NotificationCheck> custom({
+    Expression<String> docId,
+  }) {
+    return RawValuesInsertable({
+      if (docId != null) 'doc_id': docId,
+    });
+  }
+
+  NotificationChecksCompanion copyWith({Value<String> docId}) {
+    return NotificationChecksCompanion(
+      docId: docId ?? this.docId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (docId.present) {
+      map['doc_id'] = Variable<String>(docId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotificationChecksCompanion(')
+          ..write('docId: $docId')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $NotificationChecksTable extends NotificationChecks
+    with TableInfo<$NotificationChecksTable, NotificationCheck> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $NotificationChecksTable(this._db, [this._alias]);
+  final VerificationMeta _docIdMeta = const VerificationMeta('docId');
+  GeneratedTextColumn _docId;
+  @override
+  GeneratedTextColumn get docId => _docId ??= _constructDocId();
+  GeneratedTextColumn _constructDocId() {
+    return GeneratedTextColumn(
+      'doc_id',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [docId];
+  @override
+  $NotificationChecksTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'notification_checks';
+  @override
+  final String actualTableName = 'notification_checks';
+  @override
+  VerificationContext validateIntegrity(Insertable<NotificationCheck> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('doc_id')) {
+      context.handle(
+          _docIdMeta, docId.isAcceptableOrUnknown(data['doc_id'], _docIdMeta));
+    } else if (isInserting) {
+      context.missing(_docIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {docId};
+  @override
+  NotificationCheck map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return NotificationCheck.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $NotificationChecksTable createAlias(String alias) {
+    return $NotificationChecksTable(_db, alias);
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $ProductsTable _products;
   $ProductsTable get products => _products ??= $ProductsTable(this);
   $SearchsTable _searchs;
   $SearchsTable get searchs => _searchs ??= $SearchsTable(this);
+  $NotificationChecksTable _notificationChecks;
+  $NotificationChecksTable get notificationChecks =>
+      _notificationChecks ??= $NotificationChecksTable(this);
   ProductsDao _productsDao;
   ProductsDao get productsDao =>
       _productsDao ??= ProductsDao(this as AppDatabase);
   SearchsDao _searchsDao;
   SearchsDao get searchsDao => _searchsDao ??= SearchsDao(this as AppDatabase);
+  NotificationChecksDao _notificationChecksDao;
+  NotificationChecksDao get notificationChecksDao =>
+      _notificationChecksDao ??= NotificationChecksDao(this as AppDatabase);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [products, searchs];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [products, searchs, notificationChecks];
 }
 
 // **************************************************************************
@@ -1003,4 +1131,8 @@ mixin _$ProductsDaoMixin on DatabaseAccessor<AppDatabase> {
 }
 mixin _$SearchsDaoMixin on DatabaseAccessor<AppDatabase> {
   $SearchsTable get searchs => attachedDatabase.searchs;
+}
+mixin _$NotificationChecksDaoMixin on DatabaseAccessor<AppDatabase> {
+  $NotificationChecksTable get notificationChecks =>
+      attachedDatabase.notificationChecks;
 }

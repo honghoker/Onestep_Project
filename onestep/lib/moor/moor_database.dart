@@ -23,11 +23,16 @@ class Products extends Table {
 }
 
 class Searchs extends Table {
-  IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text()();
 
   @override
-  Set<Column> get primaryKey => {id};
+  Set<Column> get primaryKey => {title};
+}
+
+class NotificationChecks extends Table {
+  TextColumn get docId => text()();
+@override
+  Set<Column> get primaryKey => {docId};
 }
 
 @UseDao(tables: [Products])
@@ -62,7 +67,25 @@ class SearchsDao extends DatabaseAccessor<AppDatabase> with _$SearchsDaoMixin {
   deleteAllSearch() => delete(searchs).go();
 }
 
-@UseMoor(tables: [Products, Searchs], daos: [ProductsDao, SearchsDao])
+@UseDao(tables: [NotificationChecks])
+class NotificationChecksDao extends DatabaseAccessor<AppDatabase>
+    with _$NotificationChecksDaoMixin {
+  NotificationChecksDao(AppDatabase db) : super(db);
+
+  Future insertNotificationCheck(NotificationCheck notificationCheck) =>
+      into(notificationChecks).insert(notificationCheck);
+
+  Stream<QueryRow> watchsingleNotificationCheck(String docid) => customSelect(
+        "SELECT * FROM NotificationChecks WHERE docId LIKE '$docid'",
+        readsFrom: {notificationChecks}
+      ).watchSingle();
+
+  deleteAllNotificationCheck() => delete(notificationChecks).go();
+}
+
+@UseMoor(
+    tables: [Products, Searchs, NotificationChecks],
+    daos: [ProductsDao, SearchsDao, NotificationChecksDao])
 class AppDatabase extends _$AppDatabase {
   AppDatabase()
       : super(FlutterQueryExecutor.inDatabaseFolder(

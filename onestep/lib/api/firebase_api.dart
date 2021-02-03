@@ -40,7 +40,7 @@ class FirebaseApi {
   }
 
   static Future<QuerySnapshot> getMyProducts(
-    // 장터 상품 불러오기
+    // 내 상품 불러오기
     int limit,
     String category, {
     DocumentSnapshot startAfter,
@@ -65,6 +65,29 @@ class FirebaseApi {
           .orderBy("bumptime", descending: true)
           .limit(limit);
     }
+
+    if (startAfter == null) {
+      return refProducts.get();
+    } else {
+      return refProducts.startAfterDocument(startAfter).get();
+    }
+  }
+
+  static Future<QuerySnapshot> getUserProducts(
+    // 사용자 판매 상품 불러오기
+    int limit,
+    String uid, {
+    DocumentSnapshot startAfter,
+  }) async {
+    var refProducts;
+
+    refProducts = FirebaseFirestore.instance
+        .collection('products')
+        .where("uid", isEqualTo: uid)
+        .where("deleted", isEqualTo: false)
+        .where("hide", isEqualTo: false)
+        .orderBy("bumptime", descending: true)
+        .limit(limit);
 
     if (startAfter == null) {
       return refProducts.get();

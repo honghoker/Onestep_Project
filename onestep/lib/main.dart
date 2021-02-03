@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/providers/myProductProvider.dart';
+import 'package:onestep/profile/provider/userProductProvider.dart';
 import 'package:onestep/search/provider/searchProvider.dart';
 
 import 'appmain/Route_Generator.dart';
@@ -35,6 +36,8 @@ void main() async {
             value: new SearchProvider()),
         ChangeNotifierProvider<MyProductProvider>.value(
             value: new MyProductProvider()),
+        ChangeNotifierProvider<UserProductProvider>.value(
+            value: new UserProductProvider()),
         StreamProvider<List<FreeBoardList>>.value(
             value: _boardDB.getFreeBoard(),
             catchError: (context, error) {

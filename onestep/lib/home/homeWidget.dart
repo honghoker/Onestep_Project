@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onestep/profile/profileWidget.dart';
 import 'package:onestep/search/provider/searchProvider.dart';
 import 'package:onestep/search/widget/searchAllWidget.dart';
 import 'package:provider/provider.dart';

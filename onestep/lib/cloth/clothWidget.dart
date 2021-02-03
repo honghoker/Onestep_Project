@@ -28,7 +28,7 @@ class _ClothWidgetState extends State<ClothWidget> {
     _headerindex = 0;
     _scrollController.addListener(scrollListener);
     widget.productProvider
-        .fetchNextProducts(_category.getCategoryItems()[_headerindex]);
+        .fetchProducts(_category.getCategoryItems()[_headerindex]);
     super.initState();
   }
 
@@ -131,10 +131,8 @@ class _ClothWidgetState extends State<ClothWidget> {
   }
 
   Future<void> _refreshPage() async {
-    // setState(() {
     widget.productProvider
         .fetchProducts(_category.getCategoryItems()[_headerindex]);
-    // });
   }
 
   @override
@@ -214,16 +212,17 @@ class _ClothWidgetState extends State<ClothWidget> {
               color: Colors.black,
             ),
             onPressed: () => {
-              print("검색"),
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => Consumer<SearchProvider>(
-                  builder: (context, searchProvider, _) =>
-                      SearchProductBoardWidget(
-                    searchProvider: searchProvider,
-                    type: 'product',
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => Consumer<SearchProvider>(
+                    builder: (context, searchProvider, _) =>
+                        SearchProductBoardWidget(
+                      searchProvider: searchProvider,
+                      type: 'product',
+                    ),
                   ),
                 ),
-              ))
+              ),
             },
           ),
           new IconButton(

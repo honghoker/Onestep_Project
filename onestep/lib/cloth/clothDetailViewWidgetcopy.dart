@@ -10,6 +10,7 @@ import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
 import 'package:moor_flutter/moor_flutter.dart' as mf;
+import 'package:onestep/profile/profileWidget.dart';
 
 import 'animations/favoriteanimation.dart';
 import 'package:provider/provider.dart';
@@ -155,6 +156,27 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
     } catch (e) {}
   }
 
+  Widget getUserName() {
+    return FutureBuilder(
+      future: FirebaseFirestore.instance
+          .collection("users")
+          .doc(this._product.uid)
+          .get(),
+      builder:
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return Text("");
+          default:
+            return Text(
+              snapshot.data['nickname'],
+              style: TextStyle(fontWeight: FontWeight.w500),
+            );
+        }
+      },
+    );
+  }
+
   Widget getUserProducts() {
     var _size = MediaQuery.of(context).size;
     final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.0;
@@ -165,6 +187,8 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
           .collection('products')
           .where('uid', isEqualTo: this._product.uid)
           .where('bumptime', isNotEqualTo: this._product.bumptime)
+          .where('deleted', isEqualTo: false)
+          .where('hide', isEqualTo: false)
           .orderBy('bumptime', descending: true)
           .limit(4)
           .get(),
@@ -174,37 +198,76 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
           case ConnectionState.waiting:
             return new Text("");
           default:
-            if (!snapshot.hasData) {
+            if (snapshot.data.docs.isEmpty) {
               return Text("");
             }
-            return GridView.builder(
-              shrinkWrap: true,
-              itemCount: snapshot.data.size,
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                childAspectRatio: _itemWidth > _itemHeight
-                    ? (_itemHeight / _itemWidth)
-                    : (_itemWidth / _itemHeight),
-                crossAxisCount: 2,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-              ),
-              itemBuilder: (context, index) {
-                return ClothItem(
-                  product: Product(
-                    firestoreid: snapshot.data.docs[index].id,
-                    uid: snapshot.data.docs[index].data()['uid'],
-                    title: snapshot.data.docs[index].data()['title'],
-                    category: snapshot.data.docs[index].data()['category'],
-                    price: snapshot.data.docs[index].data()['price'],
-                    hide: snapshot.data.docs[index].data()['hide'] ? 1 : 0,
-                    deleted:
-                        snapshot.data.docs[index].data()['deleted'] ? 1 : 0,
-                    images:
-                        jsonEncode(snapshot.data.docs[index].data()['images']),
+            return Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      '판매 상품',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF333333),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        print("더보기 터치 ${_product.uid}");
+                      },
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            '더보기',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF666666),
+                            ),
+                          ),
+                          Icon(
+                            Icons.keyboard_arrow_right,
+                            size: 20,
+                            color: Color(0xFF999999),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                GridView.builder(
+                  shrinkWrap: true,
+                  itemCount: snapshot.data.size,
+                  physics: NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    childAspectRatio: _itemWidth > _itemHeight
+                        ? (_itemHeight / _itemWidth)
+                        : (_itemWidth / _itemHeight),
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
                   ),
-                );
-              },
+                  itemBuilder: (context, index) {
+                    return ClothItem(
+                      product: Product(
+                        firestoreid: snapshot.data.docs[index].id,
+                        uid: snapshot.data.docs[index].data()['uid'],
+                        title: snapshot.data.docs[index].data()['title'],
+                        category: snapshot.data.docs[index].data()['category'],
+                        price: snapshot.data.docs[index].data()['price'],
+                        hide: snapshot.data.docs[index].data()['hide'] ? 1 : 0,
+                        deleted:
+                            snapshot.data.docs[index].data()['deleted'] ? 1 : 0,
+                        images: jsonEncode(
+                            snapshot.data.docs[index].data()['images']),
+                      ),
+                    );
+                  },
+                ),
+              ],
             );
         }
       },
@@ -354,69 +417,38 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                 Divider(),
                 SizedBox(
                   height: 80,
-                  child: Row(
-                    children: <Widget>[
-                      GestureDetector(
-                        onTap: () {
-                          print("프로필 터치 ${_product.uid}");
-                        },
-                        child: Container(
+                  child: GestureDetector(
+                    onTap: () {
+                      print("프로필 터치 ${_product.uid}");
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ProfileWidget(
+                                  uid: _product.uid,
+                                )),
+                      );
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Container(
                           height: 50,
                           width: 50,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
                             image: DecorationImage(
                                 image: AssetImage('images/profile.png'),
                                 fit: BoxFit.cover),
+                            shape: BoxShape.circle,
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        "User ID",
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                    ],
+                        SizedBox(
+                          width: 10,
+                        ),
+                        getUserName(),
+                      ],
+                    ),
                   ),
                 ),
                 SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text(
-                      '판매 상품',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF333333),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        print("더보기 터치 ${_product.uid}");
-                      },
-                      child: Row(
-                        children: <Widget>[
-                          Text(
-                            '더보기',
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Color(0xFF666666),
-                            ),
-                          ),
-                          Icon(
-                            Icons.keyboard_arrow_right,
-                            size: 20,
-                            color: Color(0xFF999999),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
                 getUserProducts(),
               ],
             ),

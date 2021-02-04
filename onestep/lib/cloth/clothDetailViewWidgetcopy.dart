@@ -11,6 +11,8 @@ import 'package:onestep/moor/moor_database.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
 import 'package:moor_flutter/moor_flutter.dart' as mf;
 import 'package:onestep/profile/profileWidget.dart';
+import 'package:onestep/profile/provider/userProductProvider.dart';
+import 'package:onestep/profile/userProductWidget.dart';
 
 import 'animations/favoriteanimation.dart';
 import 'package:provider/provider.dart';
@@ -216,7 +218,17 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        print("더보기 터치 ${_product.uid}");
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => Consumer<UserProductProvider>(
+                              builder: (context, userProductProvider, _) =>
+                                  UserProductWidget(
+                                userProductProvider: userProductProvider,
+                                uid: _product.uid,
+                              ),
+                            ),
+                          ),
+                        );
                       },
                       child: Row(
                         children: <Widget>[
@@ -419,7 +431,6 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                   height: 80,
                   child: GestureDetector(
                     onTap: () {
-                      print("프로필 터치 ${_product.uid}");
                       Navigator.push(
                         context,
                         MaterialPageRoute(

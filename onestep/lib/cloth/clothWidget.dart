@@ -105,18 +105,21 @@ class _ClothWidgetState extends State<ClothWidget> {
     );
   }
 
-  Widget renderBody(double itemWidth, double itemHeight) {
+  Widget renderBody() {
+    var _size = MediaQuery.of(context).size;
+    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.0;
+    final double _itemWidth = _size.width / 2;
     return GridView(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       padding: EdgeInsets.symmetric(horizontal: 15),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        childAspectRatio: itemWidth > itemHeight
-            ? (itemHeight / itemWidth)
-            : (itemWidth / itemHeight),
+        childAspectRatio: _itemWidth > _itemHeight
+            ? (_itemHeight / _itemWidth)
+            : (_itemWidth / _itemHeight),
         crossAxisCount: 3,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
+        mainAxisSpacing: 15,
+        crossAxisSpacing: 7,
       ),
       children: [
         ...widget.productProvider.products
@@ -137,10 +140,6 @@ class _ClothWidgetState extends State<ClothWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var _size = MediaQuery.of(context).size;
-    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.0;
-    final double _itemWidth = _size.width / 2;
-
     final floatingButtons = List<UnicornButton>();
 
     floatingButtons.add(
@@ -249,7 +248,7 @@ class _ClothWidgetState extends State<ClothWidget> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 this.renderHeader(),
-                this.renderBody(_itemWidth, _itemHeight),
+                this.renderBody(),
               ],
             ),
           ),

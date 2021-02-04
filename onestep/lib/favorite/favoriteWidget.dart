@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:moor/moor.dart' as mf;
 import 'package:onestep/cloth/clothItem.dart';
@@ -58,8 +59,12 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
         if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
-            return new Text('Loading...');
+            return Container();
           default:
+            snapshot.data.forEach((element) {
+              print("@@@@@@@@@@@ ${element.data}");
+            });
+
             return GridView.builder(
               shrinkWrap: true,
               itemCount: snapshot.data.length,

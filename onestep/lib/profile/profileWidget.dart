@@ -96,9 +96,8 @@ class ProfileWidget extends StatelessWidget {
             child: ListView(
               children: <Widget>[
                 ListTile(
-                  title: Text("판매상품"),
+                  title: Text("판매 상품"),
                   onTap: () => {
-                    print("판매상품"),
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => Consumer<UserProductProvider>(
@@ -114,7 +113,7 @@ class ProfileWidget extends StatelessWidget {
                 ),
                 Padding(padding: EdgeInsets.all(5.00)),
                 ListTile(
-                  title: Text("구매상품"),
+                  title: Text("구매 상품"),
                   onTap: () => {
                     print("구매상품"),
                   },

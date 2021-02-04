@@ -22,19 +22,6 @@ class Products extends Table {
   Set<Column> get primaryKey => {firestoreid};
 }
 
-class Searchs extends Table {
-  TextColumn get title => text()();
-
-  @override
-  Set<Column> get primaryKey => {title};
-}
-
-class NotificationChecks extends Table {
-  TextColumn get docId => text()();
-@override
-  Set<Column> get primaryKey => {docId};
-}
-
 @UseDao(tables: [Products])
 class ProductsDao extends DatabaseAccessor<AppDatabase>
     with _$ProductsDaoMixin {
@@ -54,6 +41,13 @@ class ProductsDao extends DatabaseAccessor<AppDatabase>
   deleteAllProduct() => delete(products).go();
 }
 
+class Searchs extends Table {
+  TextColumn get title => text()();
+
+  @override
+  Set<Column> get primaryKey => {title};
+}
+
 @UseDao(tables: [Searchs])
 class SearchsDao extends DatabaseAccessor<AppDatabase> with _$SearchsDaoMixin {
   SearchsDao(AppDatabase db) : super(db);
@@ -67,25 +61,49 @@ class SearchsDao extends DatabaseAccessor<AppDatabase> with _$SearchsDaoMixin {
   deleteAllSearch() => delete(searchs).go();
 }
 
-@UseDao(tables: [NotificationChecks])
-class NotificationChecksDao extends DatabaseAccessor<AppDatabase>
-    with _$NotificationChecksDaoMixin {
-  NotificationChecksDao(AppDatabase db) : super(db);
+class NotificationChks extends Table {
+  TextColumn get firestoreid => text()();
+  DateTimeColumn get uploadtime => dateTime().nullable()();
+  BoolColumn get readChecked => boolean()();
 
-  Future insertNotificationCheck(NotificationCheck notificationCheck) =>
-      into(notificationChecks).insert(notificationCheck);
+  @override
+  Set<Column> get primaryKey => {firestoreid};
+}
 
-  Stream<QueryRow> watchsingleNotificationCheck(String docid) => customSelect(
-        "SELECT * FROM NotificationChecks WHERE docId LIKE '$docid'",
-        readsFrom: {notificationChecks}
+@UseDao(tables: [NotificationChks])
+class NotificationChksDao extends DatabaseAccessor<AppDatabase>
+    with _$NotificationChksDaoMixin {
+  NotificationChksDao(AppDatabase db) : super(db);
+
+  Future<List<NotificationChk>> getAllNotification() =>
+      select(notificationChks).get();
+
+  Stream<List<NotificationChk>> watchNotification() {
+    return (select(notificationChks)
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.uploadtime, mode: OrderingMode.desc),
+          ]))
+        .watch();
+  }
+
+  Future insertNotification(NotificationChk notificationChk) =>
+      into(notificationChks).insert(notificationChk);
+
+  Future deleteNotification(NotificationChk notificationChk) =>
+      delete(notificationChks).delete(notificationChk);
+
+  Stream<QueryRow> watchsingleNotification(String firestoreid) => customSelect(
+        "SELECT * FROM notification_chks WHERE firestoreid LIKE '$firestoreid'",
+        readsFrom: {notificationChks},
       ).watchSingle();
 
-  deleteAllNotificationCheck() => delete(notificationChecks).go();
+  deleteAllNotification() => delete(notificationChks).go();
 }
 
 @UseMoor(
-    tables: [Products, Searchs, NotificationChecks],
-    daos: [ProductsDao, SearchsDao, NotificationChecksDao])
+    tables: [Products, Searchs, NotificationChks],
+    daos: [ProductsDao, SearchsDao, NotificationChksDao])
 class AppDatabase extends _$AppDatabase {
   AppDatabase()
       : super(FlutterQueryExecutor.inDatabaseFolder(

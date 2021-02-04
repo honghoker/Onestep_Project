@@ -941,160 +941,266 @@ class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
   }
 }
 
-class NotificationCheck extends DataClass
-    implements Insertable<NotificationCheck> {
-  final String docId;
-  NotificationCheck({@required this.docId});
-  factory NotificationCheck.fromData(
+class NotificationChk extends DataClass implements Insertable<NotificationChk> {
+  final String firestoreid;
+  final DateTime uploadtime;
+  final bool readChecked;
+  NotificationChk(
+      {@required this.firestoreid,
+      this.uploadtime,
+      @required this.readChecked});
+  factory NotificationChk.fromData(
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
-    return NotificationCheck(
-      docId:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}doc_id']),
+    final dateTimeType = db.typeSystem.forDartType<DateTime>();
+    final boolType = db.typeSystem.forDartType<bool>();
+    return NotificationChk(
+      firestoreid: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}firestoreid']),
+      uploadtime: dateTimeType
+          .mapFromDatabaseResponse(data['${effectivePrefix}uploadtime']),
+      readChecked: boolType
+          .mapFromDatabaseResponse(data['${effectivePrefix}read_checked']),
     );
   }
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || docId != null) {
-      map['doc_id'] = Variable<String>(docId);
+    if (!nullToAbsent || firestoreid != null) {
+      map['firestoreid'] = Variable<String>(firestoreid);
+    }
+    if (!nullToAbsent || uploadtime != null) {
+      map['uploadtime'] = Variable<DateTime>(uploadtime);
+    }
+    if (!nullToAbsent || readChecked != null) {
+      map['read_checked'] = Variable<bool>(readChecked);
     }
     return map;
   }
 
-  NotificationChecksCompanion toCompanion(bool nullToAbsent) {
-    return NotificationChecksCompanion(
-      docId:
-          docId == null && nullToAbsent ? const Value.absent() : Value(docId),
+  NotificationChksCompanion toCompanion(bool nullToAbsent) {
+    return NotificationChksCompanion(
+      firestoreid: firestoreid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(firestoreid),
+      uploadtime: uploadtime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(uploadtime),
+      readChecked: readChecked == null && nullToAbsent
+          ? const Value.absent()
+          : Value(readChecked),
     );
   }
 
-  factory NotificationCheck.fromJson(Map<String, dynamic> json,
+  factory NotificationChk.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
-    return NotificationCheck(
-      docId: serializer.fromJson<String>(json['docId']),
+    return NotificationChk(
+      firestoreid: serializer.fromJson<String>(json['firestoreid']),
+      uploadtime: serializer.fromJson<DateTime>(json['uploadtime']),
+      readChecked: serializer.fromJson<bool>(json['readChecked']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'docId': serializer.toJson<String>(docId),
+      'firestoreid': serializer.toJson<String>(firestoreid),
+      'uploadtime': serializer.toJson<DateTime>(uploadtime),
+      'readChecked': serializer.toJson<bool>(readChecked),
     };
   }
 
-  NotificationCheck copyWith({String docId}) => NotificationCheck(
-        docId: docId ?? this.docId,
+  NotificationChk copyWith(
+          {String firestoreid, DateTime uploadtime, bool readChecked}) =>
+      NotificationChk(
+        firestoreid: firestoreid ?? this.firestoreid,
+        uploadtime: uploadtime ?? this.uploadtime,
+        readChecked: readChecked ?? this.readChecked,
       );
   @override
   String toString() {
-    return (StringBuffer('NotificationCheck(')
-          ..write('docId: $docId')
+    return (StringBuffer('NotificationChk(')
+          ..write('firestoreid: $firestoreid, ')
+          ..write('uploadtime: $uploadtime, ')
+          ..write('readChecked: $readChecked')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf(docId.hashCode);
+  int get hashCode => $mrjf($mrjc(
+      firestoreid.hashCode, $mrjc(uploadtime.hashCode, readChecked.hashCode)));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
-      (other is NotificationCheck && other.docId == this.docId);
+      (other is NotificationChk &&
+          other.firestoreid == this.firestoreid &&
+          other.uploadtime == this.uploadtime &&
+          other.readChecked == this.readChecked);
 }
 
-class NotificationChecksCompanion extends UpdateCompanion<NotificationCheck> {
-  final Value<String> docId;
-  const NotificationChecksCompanion({
-    this.docId = const Value.absent(),
+class NotificationChksCompanion extends UpdateCompanion<NotificationChk> {
+  final Value<String> firestoreid;
+  final Value<DateTime> uploadtime;
+  final Value<bool> readChecked;
+  const NotificationChksCompanion({
+    this.firestoreid = const Value.absent(),
+    this.uploadtime = const Value.absent(),
+    this.readChecked = const Value.absent(),
   });
-  NotificationChecksCompanion.insert({
-    @required String docId,
-  }) : docId = Value(docId);
-  static Insertable<NotificationCheck> custom({
-    Expression<String> docId,
+  NotificationChksCompanion.insert({
+    @required String firestoreid,
+    this.uploadtime = const Value.absent(),
+    @required bool readChecked,
+  })  : firestoreid = Value(firestoreid),
+        readChecked = Value(readChecked);
+  static Insertable<NotificationChk> custom({
+    Expression<String> firestoreid,
+    Expression<DateTime> uploadtime,
+    Expression<bool> readChecked,
   }) {
     return RawValuesInsertable({
-      if (docId != null) 'doc_id': docId,
+      if (firestoreid != null) 'firestoreid': firestoreid,
+      if (uploadtime != null) 'uploadtime': uploadtime,
+      if (readChecked != null) 'read_checked': readChecked,
     });
   }
 
-  NotificationChecksCompanion copyWith({Value<String> docId}) {
-    return NotificationChecksCompanion(
-      docId: docId ?? this.docId,
+  NotificationChksCompanion copyWith(
+      {Value<String> firestoreid,
+      Value<DateTime> uploadtime,
+      Value<bool> readChecked}) {
+    return NotificationChksCompanion(
+      firestoreid: firestoreid ?? this.firestoreid,
+      uploadtime: uploadtime ?? this.uploadtime,
+      readChecked: readChecked ?? this.readChecked,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (docId.present) {
-      map['doc_id'] = Variable<String>(docId.value);
+    if (firestoreid.present) {
+      map['firestoreid'] = Variable<String>(firestoreid.value);
+    }
+    if (uploadtime.present) {
+      map['uploadtime'] = Variable<DateTime>(uploadtime.value);
+    }
+    if (readChecked.present) {
+      map['read_checked'] = Variable<bool>(readChecked.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('NotificationChecksCompanion(')
-          ..write('docId: $docId')
+    return (StringBuffer('NotificationChksCompanion(')
+          ..write('firestoreid: $firestoreid, ')
+          ..write('uploadtime: $uploadtime, ')
+          ..write('readChecked: $readChecked')
           ..write(')'))
         .toString();
   }
 }
 
-class $NotificationChecksTable extends NotificationChecks
-    with TableInfo<$NotificationChecksTable, NotificationCheck> {
+class $NotificationChksTable extends NotificationChks
+    with TableInfo<$NotificationChksTable, NotificationChk> {
   final GeneratedDatabase _db;
   final String _alias;
-  $NotificationChecksTable(this._db, [this._alias]);
-  final VerificationMeta _docIdMeta = const VerificationMeta('docId');
-  GeneratedTextColumn _docId;
+  $NotificationChksTable(this._db, [this._alias]);
+  final VerificationMeta _firestoreidMeta =
+      const VerificationMeta('firestoreid');
+  GeneratedTextColumn _firestoreid;
   @override
-  GeneratedTextColumn get docId => _docId ??= _constructDocId();
-  GeneratedTextColumn _constructDocId() {
+  GeneratedTextColumn get firestoreid =>
+      _firestoreid ??= _constructFirestoreid();
+  GeneratedTextColumn _constructFirestoreid() {
     return GeneratedTextColumn(
-      'doc_id',
+      'firestoreid',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _uploadtimeMeta = const VerificationMeta('uploadtime');
+  GeneratedDateTimeColumn _uploadtime;
+  @override
+  GeneratedDateTimeColumn get uploadtime =>
+      _uploadtime ??= _constructUploadtime();
+  GeneratedDateTimeColumn _constructUploadtime() {
+    return GeneratedDateTimeColumn(
+      'uploadtime',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _readCheckedMeta =
+      const VerificationMeta('readChecked');
+  GeneratedBoolColumn _readChecked;
+  @override
+  GeneratedBoolColumn get readChecked =>
+      _readChecked ??= _constructReadChecked();
+  GeneratedBoolColumn _constructReadChecked() {
+    return GeneratedBoolColumn(
+      'read_checked',
       $tableName,
       false,
     );
   }
 
   @override
-  List<GeneratedColumn> get $columns => [docId];
+  List<GeneratedColumn> get $columns => [firestoreid, uploadtime, readChecked];
   @override
-  $NotificationChecksTable get asDslTable => this;
+  $NotificationChksTable get asDslTable => this;
   @override
-  String get $tableName => _alias ?? 'notification_checks';
+  String get $tableName => _alias ?? 'notification_chks';
   @override
-  final String actualTableName = 'notification_checks';
+  final String actualTableName = 'notification_chks';
   @override
-  VerificationContext validateIntegrity(Insertable<NotificationCheck> instance,
+  VerificationContext validateIntegrity(Insertable<NotificationChk> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('doc_id')) {
+    if (data.containsKey('firestoreid')) {
       context.handle(
-          _docIdMeta, docId.isAcceptableOrUnknown(data['doc_id'], _docIdMeta));
+          _firestoreidMeta,
+          firestoreid.isAcceptableOrUnknown(
+              data['firestoreid'], _firestoreidMeta));
     } else if (isInserting) {
-      context.missing(_docIdMeta);
+      context.missing(_firestoreidMeta);
+    }
+    if (data.containsKey('uploadtime')) {
+      context.handle(
+          _uploadtimeMeta,
+          uploadtime.isAcceptableOrUnknown(
+              data['uploadtime'], _uploadtimeMeta));
+    }
+    if (data.containsKey('read_checked')) {
+      context.handle(
+          _readCheckedMeta,
+          readChecked.isAcceptableOrUnknown(
+              data['read_checked'], _readCheckedMeta));
+    } else if (isInserting) {
+      context.missing(_readCheckedMeta);
     }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {docId};
+  Set<GeneratedColumn> get $primaryKey => {firestoreid};
   @override
-  NotificationCheck map(Map<String, dynamic> data, {String tablePrefix}) {
+  NotificationChk map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return NotificationCheck.fromData(data, _db, prefix: effectivePrefix);
+    return NotificationChk.fromData(data, _db, prefix: effectivePrefix);
   }
 
   @override
-  $NotificationChecksTable createAlias(String alias) {
-    return $NotificationChecksTable(_db, alias);
+  $NotificationChksTable createAlias(String alias) {
+    return $NotificationChksTable(_db, alias);
   }
 }
 
@@ -1104,22 +1210,22 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   $ProductsTable get products => _products ??= $ProductsTable(this);
   $SearchsTable _searchs;
   $SearchsTable get searchs => _searchs ??= $SearchsTable(this);
-  $NotificationChecksTable _notificationChecks;
-  $NotificationChecksTable get notificationChecks =>
-      _notificationChecks ??= $NotificationChecksTable(this);
+  $NotificationChksTable _notificationChks;
+  $NotificationChksTable get notificationChks =>
+      _notificationChks ??= $NotificationChksTable(this);
   ProductsDao _productsDao;
   ProductsDao get productsDao =>
       _productsDao ??= ProductsDao(this as AppDatabase);
   SearchsDao _searchsDao;
   SearchsDao get searchsDao => _searchsDao ??= SearchsDao(this as AppDatabase);
-  NotificationChecksDao _notificationChecksDao;
-  NotificationChecksDao get notificationChecksDao =>
-      _notificationChecksDao ??= NotificationChecksDao(this as AppDatabase);
+  NotificationChksDao _notificationChksDao;
+  NotificationChksDao get notificationChksDao =>
+      _notificationChksDao ??= NotificationChksDao(this as AppDatabase);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [products, searchs, notificationChecks];
+      [products, searchs, notificationChks];
 }
 
 // **************************************************************************
@@ -1132,7 +1238,7 @@ mixin _$ProductsDaoMixin on DatabaseAccessor<AppDatabase> {
 mixin _$SearchsDaoMixin on DatabaseAccessor<AppDatabase> {
   $SearchsTable get searchs => attachedDatabase.searchs;
 }
-mixin _$NotificationChecksDaoMixin on DatabaseAccessor<AppDatabase> {
-  $NotificationChecksTable get notificationChecks =>
-      attachedDatabase.notificationChecks;
+mixin _$NotificationChksDaoMixin on DatabaseAccessor<AppDatabase> {
+  $NotificationChksTable get notificationChks =>
+      attachedDatabase.notificationChks;
 }

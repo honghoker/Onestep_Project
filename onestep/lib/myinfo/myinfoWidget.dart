@@ -1,6 +1,11 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:onestep/api/firebase_api.dart';
+import 'package:random_string/random_string.dart';
 
 class MyinfoWidget extends StatefulWidget {
   @override
@@ -8,14 +13,28 @@ class MyinfoWidget extends StatefulWidget {
 }
 
 DocumentSnapshot ds;
+String downloadURL;
 
 class _MyinfoWidgetState extends State<MyinfoWidget> {
+  @override
+  void initState() {
+    super.initState();
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseApi.getId())
+        .get()
+        .then((DocumentSnapshot url) {
+      downloadURL = url.data()['photoUrl'].toString();
+      print("downloadURL = $downloadURL");
+    });
+  }
+
   void checkUserLevel() async {
     ds = await FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseApi.getId())
         .get();
-  } 
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,44 +56,59 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
               children: [
                 // 프사 변경도 에타처럼
                 IconButton(
-                  // icon: Image.network(
-                  //     'https://firebasestorage.googleapis.com/v0/b/onestep-project.appspot.com/o/user%20images%2F949365341q95863?alt=media&token=f1c3069f-e80c-46cf-81fe-7379c9cb4453'),
-                  icon: Icon(Icons.account_circle),
+                  icon: downloadURL != ""
+                      ? ClipOval(
+                          child: Image.network(
+                          downloadURL,
+                          height: 100,
+                          width: 100,
+                          fit: BoxFit.cover,
+                        ))
+                      : Icon(Icons.account_circle),
                   color: Colors.black,
                   iconSize: 100,
                   onPressed: () async {
                     // 프사 변경할때 image 가져오고 storage 저장 후 photoUrl 업데이트
-                    // File image = await ImagePicker.pickImage(
-                    //     source: ImageSource.gallery);
-                    // StorageReference storageReference = FirebaseStorage.instance
-                    //     .ref()
-                    //     .child("user images/${randomAlphaNumeric(15)}");
-                    // StorageUploadTask storageUploadTask =
-                    //     storageReference.putFile(image);
-                    // await storageUploadTask.onComplete;
-                    // String downloadURL =
-                    //     await storageReference.getDownloadURL();
-
-                    // FirebaseFirestore.instance
-                    //     .collection("users")
-                    //     .doc("${FirebaseApi.getId()}")
-                    //     .update({
-                    //   "photoUrl": downloadURL,
-                    // });
-
-                    // // firebase photourl 이용해서 storage 삭제
-                    // FirebaseStorage.instance
-                    //     .getReferenceFromUrl(
-                    //         'https://firebasestorage.googleapis.com/v0/b/onestep-project.appspot.com/o/user%20images%2F949365341q95863?alt=media&token=f1c3069f-e80c-46cf-81fe-7379c9cb4453')
-                    //     .then((reference) => reference.delete())
-                    //     .catchError((e) => print(e));
-                    // // 그리고 photoUrl "" 리셋
-                    // FirebaseFirestore.instance
-                    //     .collection("users")
-                    //     .doc("${FirebaseApi.getId()}")
-                    //     .update({
-                    //   "photoUrl": "",
-                    // });
+                    File image = await ImagePicker.pickImage(
+                        source: ImageSource.gallery);
+                    StorageReference storageReference = FirebaseStorage.instance
+                        .ref()
+                        .child("user images/${randomAlphaNumeric(15)}");
+                    StorageUploadTask storageUploadTask =
+                        storageReference.putFile(image);
+                    if (await storageUploadTask.onComplete != null) {
+                      if (downloadURL != "") {
+                        // firebase photourl 이용해서 storage 삭제
+                        // 사진 데이터없애는거  이야기해서 생각 (ex) 이상한 사진 같은거 올리면 모름
+                        FirebaseStorage.instance
+                            .getReferenceFromUrl(downloadURL)
+                            .then((reference) => reference.delete())
+                            .catchError((e) => print(e));
+                        // 그리고 photoUrl "" 리셋
+                        FirebaseFirestore.instance
+                            .collection("users")
+                            .doc("${FirebaseApi.getId()}")
+                            .update({
+                          "photoUrl": "",
+                        });
+                        downloadURL = await storageReference.getDownloadURL();
+                        FirebaseFirestore.instance
+                            .collection("users")
+                            .doc("${FirebaseApi.getId()}")
+                            .update({
+                          "photoUrl": downloadURL,
+                        });
+                      } else {
+                        downloadURL = await storageReference.getDownloadURL();
+                        FirebaseFirestore.instance
+                            .collection("users")
+                            .doc("${FirebaseApi.getId()}")
+                            .update({
+                          "photoUrl": downloadURL,
+                        });
+                      }
+                      setState(() {});
+                    }
                   },
                 ),
                 Column(

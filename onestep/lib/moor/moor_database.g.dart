@@ -197,7 +197,8 @@ class Product extends DataClass implements Insertable<Product> {
       favoritetime: json['favoritetime'] == null
           ? null
           : DateTime.fromMillisecondsSinceEpoch(json['favoritetime']),
-      images: serializer.fromJson<String>(json['images'].toString()),
+      // images: serializer.fromJson<String>(json['images'].toString()),
+      images: json['images'].toString(),
       hide: json['hide'] is int
           ? json['hide']
           : json['hide']

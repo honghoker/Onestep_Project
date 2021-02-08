@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
-import 'package:moor_flutter/moor_flutter.dart' as mf;
 import 'package:onestep/profile/profileWidget.dart';
 import 'package:onestep/profile/provider/userProductProvider.dart';
 import 'package:onestep/profile/userProductWidget.dart';
@@ -96,45 +95,52 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
   }
 
   Widget setFavorite() {
-    ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
+    return StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection("users")
+            .doc(FirebaseApi.getId())
+            .collection("favorites")
+            .where("productid", isEqualTo: this.widget.product.firestoreid)
+            .snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Container();
+            default:
+              bool chk = snapshot.data.docs.length == 0 ? false : true;
+              return GestureDetector(
+                onTap: () {
+                  int favorites = int.tryParse(_textcontroller.text);
 
-    return StreamBuilder<mf.QueryRow>(
-      stream: p.watchsingleProduct(this.widget.product.firestoreid),
-      builder: (BuildContext context, AsyncSnapshot<mf.QueryRow> snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return Text("");
-          default:
-            return GestureDetector(
-              onTap: () {
-                int favorites = int.tryParse(_textcontroller.text);
-                bool chk = !snapshot.hasData;
+                  if (!chk) {
+                    FirebaseFirestore.instance
+                        .collection("users")
+                        .doc(FirebaseApi.getId())
+                        .collection("favorites")
+                        .doc(DateTime.now().millisecondsSinceEpoch.toString())
+                        .set({"productid": this.widget.product.firestoreid});
 
-                if (chk) {
-                  // Product pro = this
-                  //     .widget
-                  //     .product
-                  //     .copyWith(favoritetime: DateTime.now());
-
-                  this.widget.product.favoritetime = DateTime.now();
-                  p.insertProduct(this.widget.product);
-                  favorites++;
-                } else {
-                  p.deleteProduct(this.widget.product);
-                  favorites--;
-                }
-                FavoriteAnimation().incdecProductFavorites(
-                    chk, context, this.widget.product.firestoreid);
-                _textcontroller.text = (favorites).toString();
-              },
-              child: Icon(
-                !snapshot.hasData ? Icons.favorite_border : Icons.favorite,
-                color: Colors.pink,
-              ),
-            );
-        }
-      },
-    );
+                    favorites++;
+                  } else {
+                    FirebaseFirestore.instance
+                        .collection("users")
+                        .doc(FirebaseApi.getId())
+                        .collection("favorites")
+                        .doc(snapshot.data.docs[0].id)
+                        .delete();
+                    favorites--;
+                  }
+                  FavoriteAnimation().incdecProductFavorites(
+                      !chk, context, this.widget.product.firestoreid);
+                  _textcontroller.text = (favorites).toString();
+                },
+                child: Icon(
+                  !chk ? Icons.favorite_border : Icons.favorite,
+                  color: Colors.pink,
+                ),
+              );
+          }
+        });
   }
 
   Future<DocumentSnapshot> getProduct() async {

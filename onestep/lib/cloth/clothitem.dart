@@ -1,10 +1,9 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:moor_flutter/moor_flutter.dart' as mf;
-import 'package:onestep/cloth/clothDetailViewWidgetcopy.dart';
+import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/moor/moor_database.dart';
-import 'package:provider/provider.dart';
 import 'animations/favoriteanimation.dart';
 
 class ClothItem extends StatefulWidget {
@@ -22,14 +21,14 @@ class _ClothItemState extends State<ClothItem> {
   }
 
   Widget setFavorite() {
-    ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
-
-    return StreamBuilder<mf.QueryRow>(
-      stream: p.watchsingleProduct(this.widget.product.firestoreid),
-      builder: (BuildContext context, AsyncSnapshot<mf.QueryRow> snapshot) {
-        if (snapshot.hasError) {
-          return new Text('Error: ${snapshot.error}');
-        }
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection("users")
+          .doc(FirebaseApi.getId())
+          .collection("favorites")
+          .where("productid", isEqualTo: this.widget.product.firestoreid)
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             return Positioned(
@@ -41,9 +40,7 @@ class _ClothItemState extends State<ClothItem> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     Icon(
-                      !snapshot.hasData
-                          ? Icons.favorite_border
-                          : Icons.favorite,
+                      Icons.favorite_border,
                       color: Colors.pink,
                     ),
                   ],
@@ -51,12 +48,7 @@ class _ClothItemState extends State<ClothItem> {
               ),
             );
           default:
-            // if (snapshot.hasData) { // 업데이트
-            //   if (snapshot.data.data.toString() !=
-            //       widget.product.toJson().toString()) {
-            //     p.updateProduct(widget.product);
-            //   }
-            // }
+            bool chk = snapshot.data.docs.length == 0 ? false : true;
             return Positioned(
               right: 0,
               bottom: 0,
@@ -67,25 +59,31 @@ class _ClothItemState extends State<ClothItem> {
                   children: <Widget>[
                     GestureDetector(
                       onTap: () {
-                        bool chk = !snapshot.hasData;
-
                         FavoriteAnimation().incdecProductFavorites(
-                            chk, context, this.widget.product.firestoreid);
+                            !chk, context, this.widget.product.firestoreid);
 
-                        if (chk) {
-                          Product pro = this
-                              .widget
-                              .product
-                              .copyWith(favoritetime: DateTime.now());
-                          p.insertProduct(pro);
+                        if (!chk) {
+                          FirebaseFirestore.instance
+                              .collection("users")
+                              .doc(FirebaseApi.getId())
+                              .collection("favorites")
+                              .doc(DateTime.now()
+                                  .millisecondsSinceEpoch
+                                  .toString())
+                              .set({
+                            "productid": this.widget.product.firestoreid
+                          });
                         } else {
-                          p.deleteProduct(this.widget.product);
+                          FirebaseFirestore.instance
+                              .collection("users")
+                              .doc(FirebaseApi.getId())
+                              .collection("favorites")
+                              .doc(snapshot.data.docs[0].id)
+                              .delete();
                         }
                       },
                       child: Icon(
-                        !snapshot.hasData
-                            ? Icons.favorite_border
-                            : Icons.favorite,
+                        !chk ? Icons.favorite_border : Icons.favorite,
                         color: Colors.pink,
                       ),
                     ),
@@ -98,10 +96,31 @@ class _ClothItemState extends State<ClothItem> {
     );
   }
 
+  Widget getImage() {
+    // print(widget.product.images);
+    // List<String> result = a.split(",");
+    // print("@@@ 0 ${result[0]}");
+
+    var img = jsonDecode(widget.product.images);
+
+    // print("next = ${img}");
+
+    return Container();
+    // return Image.network(img[0]);
+    // return ExtendedImage.network(
+    //   result[0].toString(),
+    //   width: MediaQuery.of(context).size.width,
+    //   height: MediaQuery.of(context).size.height,
+    //   fit: BoxFit.cover,
+    //   cache: true,
+    // );
+  }
+
   @override
   Widget build(BuildContext context) {
     double coverSize = 110;
-    var img = jsonDecode(widget.product.images);
+    // var img = jsonDecode(widget.product.images);
+    // print(img);
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushNamed(
@@ -121,13 +140,7 @@ class _ClothItemState extends State<ClothItem> {
                   fit: StackFit.passthrough,
                   children: <Widget>[
                     Center(child: CircularProgressIndicator()),
-                    ExtendedImage.network(
-                      img[0],
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      fit: BoxFit.cover,
-                      cache: true,
-                    ),
+                    getImage(),
                     Positioned(
                       left: 0,
                       right: 0,

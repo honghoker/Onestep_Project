@@ -1,19 +1,24 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:moor/moor.dart' as mf;
 import 'package:onestep/cloth/clothItem.dart';
+import 'package:onestep/cloth/providers/favoriteProvider.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
 
 class FavoriteWidget extends StatefulWidget {
-  final Product product;
-  const FavoriteWidget({Key key, this.product}) : super(key: key);
+  final FavoriteProvider favoriteProvider;
+  const FavoriteWidget({Key key, this.favoriteProvider}) : super(key: key);
 
   @override
   _FavoriteWidgetState createState() => _FavoriteWidgetState();
 }
 
 class _FavoriteWidgetState extends State<FavoriteWidget> {
+  @override
+  void initState() {
+    widget.favoriteProvider.fetchProducts();
+    super.initState();
+  }
+
   Widget renderHeader() {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
@@ -49,50 +54,36 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
     );
   }
 
-  Widget renderBody(double itemWidth, double itemHeight) {
-    ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
-
-    return StreamBuilder<List<mf.QueryRow>>(
-      stream: p.watchProducts(),
-      builder:
-          (BuildContext context, AsyncSnapshot<List<mf.QueryRow>> snapshot) {
-        if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return Container();
-          default:
-            snapshot.data.forEach((element) {
-              print("@@@@@@@@@@@ ${element.data}");
-            });
-
-            return GridView.builder(
-              shrinkWrap: true,
-              itemCount: snapshot.data.length,
-              physics: NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                childAspectRatio: (itemWidth / itemHeight),
-                crossAxisCount: 3,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
+  Widget renderBody() {
+    var _size = MediaQuery.of(context).size;
+    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.0;
+    final double _itemWidth = _size.width / 2;
+    return GridView(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        childAspectRatio: _itemWidth > _itemHeight
+            ? (_itemHeight / _itemWidth)
+            : (_itemWidth / _itemHeight),
+        crossAxisCount: 3,
+        mainAxisSpacing: 15,
+        crossAxisSpacing: 7,
+      ),
+      children: [
+        ...widget.favoriteProvider.products
+            .map(
+              (product) => ClothItem(
+                product: product,
               ),
-              itemBuilder: (context, index) {
-                Product p = Product.fromJson(snapshot.data[index].data,
-                    snapshot.data[index].data["firestoreid"]);
-                return ClothItem(product: p);
-              },
-            );
-        }
-      },
+            )
+            .toList(),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    var _size = MediaQuery.of(context).size;
-    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 1.9;
-    final double _itemWidth = _size.width / 2;
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -126,7 +117,7 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 renderHeader(),
-                renderBody(_itemWidth, _itemHeight),
+                renderBody(),
               ],
             )),
       ),

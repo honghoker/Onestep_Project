@@ -17,6 +17,6 @@ class FavoriteAnimation {
 
   void incdecProductFavorites(bool chk, BuildContext context, String uid) {
     if (chk) showFavoriteDialog(context);
-    FirebaseApi().incdecProductFavorites(chk, uid);
+    // FirebaseApi().incdecProductFavorites(chk, uid);
   }
 }

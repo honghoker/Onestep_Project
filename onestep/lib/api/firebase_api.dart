@@ -118,6 +118,38 @@ class FirebaseApi {
     }
   }
 
+  static Future<QuerySnapshot> getUsersFavorite(
+    int limit, {
+    DocumentSnapshot startAfter,
+  }) async {
+    var refProducts;
+    refProducts = FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseApi.getId())
+        .collection("favorites");
+
+    if (startAfter == null) {
+      return refProducts.get();
+    } else {
+      return refProducts.startAfterDocument(startAfter).get();
+    }
+  }
+
+  static Future<DocumentSnapshot> getFavoriteProducts(
+    String productid, {
+    DocumentSnapshot startAfter,
+  }) async {
+    var refProducts;
+    refProducts =
+        FirebaseFirestore.instance.collection("products").doc(productid);
+
+    if (startAfter == null) {
+      return refProducts.get();
+    } else {
+      return refProducts.startAfterDocument(startAfter).get();
+    }
+  }
+
   void incdecProductFavorites(bool chk, String uid) {
     // 찜 증가, 감소
     try {

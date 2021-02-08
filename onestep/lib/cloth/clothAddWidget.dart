@@ -204,7 +204,10 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
         _imgUriarr.add(downloadURL);
       }
 
-      FirebaseFirestore.instance.collection('products').add({
+      FirebaseFirestore.instance
+          .collection('products')
+          .doc(DateTime.now().toString())
+          .set({
         'uid': FirebaseApi.getId(),
         'price': _priceTextEditingController.text,
         'title': _titleTextEditingController.text,

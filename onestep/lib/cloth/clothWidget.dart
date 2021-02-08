@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/clothAddWidget.dart';
+import 'package:onestep/cloth/providers/favoriteProvider.dart';
 import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:onestep/favorite/favoriteWidget.dart';
 import 'package:onestep/search/provider/searchProvider.dart';
@@ -230,9 +231,14 @@ class _ClothWidgetState extends State<ClothWidget> {
               color: Colors.pink,
             ),
             onPressed: () => {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => FavoriteWidget()),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => Consumer<FavoriteProvider>(
+                    builder: (context, favoriteProvider, _) => FavoriteWidget(
+                      favoriteProvider: favoriteProvider,
+                    ),
+                  ),
+                ),
               ),
             },
           ),

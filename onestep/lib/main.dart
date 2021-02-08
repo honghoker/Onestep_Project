@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:onestep/cloth/providers/favoriteProvider.dart';
 import 'package:onestep/cloth/providers/myProductProvider.dart';
 import 'package:onestep/profile/provider/userProductProvider.dart';
 import 'package:onestep/search/provider/searchProvider.dart';
@@ -38,6 +39,8 @@ void main() async {
             value: new MyProductProvider()),
         ChangeNotifierProvider<UserProductProvider>.value(
             value: new UserProductProvider()),
+        ChangeNotifierProvider<FavoriteProvider>.value(
+            value: new FavoriteProvider()),
         StreamProvider<List<FreeBoardList>>.value(
             value: _boardDB.getFreeBoard(),
             catchError: (context, error) {

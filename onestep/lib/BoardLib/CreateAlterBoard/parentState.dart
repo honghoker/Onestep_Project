@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:onestep/BoardLib/boardMain.dart';
-import 'package:onestep/BoardLib/mySlideOverDialog/slide_dialog.dart';
-import 'package:onestep/BoardLib/mySlideOverDialog/slide_popup_dialog.dart'
-    as slideDialog;
+
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:onestep/PermissionLib/customPermisson.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardClass.dart';
 import 'package:tip_dialog/tip_dialog.dart';
 import 'package:onestep/BoardLib/CustomException/customThrow.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 enum ContentCategory { SMALLTALK, QUESTION }
 
@@ -52,7 +51,10 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
     with OneStepPermission {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   // CustomSlideDialog customSlideDialog;
+  double device_height;
+  double device_width;
   ContentCategory _category;
+  TextEditingController textEditingControllerBottomSheet;
   TextEditingController textEditingControllerContent;
   TextEditingController textEditingControllerImage1;
   TextEditingController textEditingControllerImage2;
@@ -63,13 +65,13 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
   ScrollController _scrollController;
   BoardData boardData;
   BoardCategory boardCategory;
-  String _title;
   setBoardData();
   List<String> _initCommentList = ['', '', '', '', ''];
   Map<String, List<dynamic>> imageCommentMap = {"IMAGE": [], "COMMENT": []};
 
   textEditingInitNDispose(bool isInit) {
     if (isInit) {
+      textEditingControllerBottomSheet = new TextEditingController();
       textEditingControllerContent = new TextEditingController();
       textEditingControllerImage1 = new TextEditingController();
       textEditingControllerImage2 = new TextEditingController();
@@ -77,6 +79,7 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
       textEditingControllerImage4 = new TextEditingController();
       textEditingControllerImage5 = new TextEditingController();
     } else {
+      textEditingControllerBottomSheet.dispose();
       textEditingControllerContent.dispose();
       textEditingControllerImage1.dispose();
       textEditingControllerImage2.dispose();
@@ -94,6 +97,13 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
     SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
     textEditingInitNDispose(true);
     _scrollController = new ScrollController();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    device_width = MediaQuery.of(context).size.width;
+    device_height = MediaQuery.of(context).size.height;
   }
 
   @override
@@ -188,21 +198,72 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
           Flexible(
             child: GestureDetector(
               onTap: () async {
-                Map<String, dynamic> _result =
-                    await slideDialog.showSlideDialog(
-                        context: context,
-                        customSlideDialog: new CustomSlideDialog(
-                            category: _category, title: _title));
-                setState(() {
-                  if (_result["title"] != '') {
-                    _title = _result["title"];
-                    _category = _result["category"];
-                  }
-                });
+                showMaterialModalBottomSheet(
+                    context: context,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20))),
+                    builder: (context) => StatefulBuilder(builder:
+                            (BuildContext context, StateSetter setState) {
+                          return Container(
+                            margin: EdgeInsets.only(left: 5, right: 5, top: 20),
+                            height: device_height / 2,
+                            child: Column(children: [
+                              Container(
+                                  child: Column(
+                                children: [
+                                  Container(
+                                      child: TextField(
+                                    maxLength: 30,
+                                    onSubmitted: (value) {
+                                      Navigator.pop(context, {
+                                        "title":
+                                            textEditingControllerBottomSheet
+                                                .text
+                                                .trim(),
+                                        "category": _category
+                                      });
+                                    },
+                                    controller:
+                                        textEditingControllerBottomSheet,
+                                    decoration: InputDecoration(
+                                        border: OutlineInputBorder(),
+                                        labelText: "제목"),
+                                  )),
+                                  Text(
+                                    "앤터를 누르면 글쓰기 화면으로 전환됩니다.",
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                ],
+                              )),
+                              RadioListTile(
+                                  title: Text("일상"),
+                                  value: ContentCategory.SMALLTALK,
+                                  groupValue: _category,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _category = value;
+                                    });
+                                  }),
+                              RadioListTile(
+                                  title: Text("질문"),
+                                  value: ContentCategory.QUESTION,
+                                  groupValue: _category,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _category = value;
+                                    });
+                                  }),
+                            ]),
+                          );
+                        }));
               },
               child: Container(
                 child: Text(
-                  _title ?? "제목을 입력하세요.",
+                  textEditingControllerBottomSheet.text == ''
+                      ? "제목을 입력하세요."
+                      : textEditingControllerBottomSheet.text,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: _textStyle,
@@ -261,7 +322,7 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
   Future saveData() async {
     _getterSetterImageComment(isMapSet: true, isSave: true);
     BoardData _boardData = BoardData(
-        title: _title,
+        title: textEditingControllerBottomSheet.text,
         imageCommentList: imageCommentMap,
         textContent: textEditingControllerContent.text,
         contentCategory: _category.toString(),
@@ -300,7 +361,8 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
 
   _checkDataContain() {
     String content = textEditingControllerContent.text.trim();
-    if (_title != null && _title != '') {
+    String title = textEditingControllerBottomSheet.text;
+    if (title != null && title != '') {
       if (_category != null) {
         if (content != null && content != '') {
           return true;
@@ -317,7 +379,8 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
 
   _isDataContain() {
     String content = textEditingControllerContent.text.trim();
-    if (_title == null || _title == '') {
+    String title = textEditingControllerBottomSheet.text;
+    if (title == null || title == '') {
       if (_category == null) {
         if (content == null || content == '') {
           if (imageCommentMap["IMAGE"].isEmpty) return true;
@@ -605,82 +668,5 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
           )),
       ),
     );
-  }
-}
-
-class CustomSlideDialog extends StatefulWidget {
-  final String title;
-  final ContentCategory category;
-  CustomSlideDialog({Key key, this.title, this.category}) : super(key: key);
-  @override
-  _CustomSlideDialogState createState() => _CustomSlideDialogState();
-}
-
-class _CustomSlideDialogState extends SlideParentState<CustomSlideDialog> {
-  TextEditingController _textEditingController = TextEditingController();
-
-  ContentCategory _category;
-  @override
-  void initState() {
-    super.initState();
-    _category = widget.category ?? null;
-    _textEditingController..text = widget.title ?? '';
-  }
-
-  @override
-  Widget setChildMethod() {
-    List<Widget> _radioList = [
-      RadioListTile(
-          title: Text("일상"),
-          value: ContentCategory.SMALLTALK,
-          groupValue: _category,
-          onChanged: (value) {
-            setState(() {
-              _category = value;
-            });
-          }),
-      RadioListTile(
-          title: Text("질문"),
-          value: ContentCategory.QUESTION,
-          groupValue: _category,
-          onChanged: (value) {
-            setState(() {
-              _category = value;
-            });
-          }),
-    ];
-
-    return Container(
-        child: Column(
-      children: [
-        Container(
-            child: TextField(
-          maxLength: 30,
-          onSubmitted: (value) {
-            Navigator.pop(context, {
-              "title": _textEditingController.text.trim(),
-              "category": _category
-            });
-          },
-          controller: _textEditingController,
-          decoration:
-              InputDecoration(border: OutlineInputBorder(), labelText: "제목"),
-        )),
-        Text(
-          "앤터를 누르면 글쓰기 화면으로 전환됩니다.",
-          style: TextStyle(color: Colors.grey),
-        ),
-        Container(
-            child: Column(
-          children: _radioList,
-        )),
-      ],
-    ));
-  }
-
-  @override
-  passData() {
-    Navigator.pop(context,
-        {"title": _textEditingController.text.trim(), "category": _category});
   }
 }

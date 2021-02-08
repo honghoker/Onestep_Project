@@ -87,7 +87,7 @@ class BoardData {
           "boardId": boardId,
           "scrabUserList": scrabUserList ?? [],
           "favoriteUserList": favoriteUserList ?? [],
-          "commentList": []
+          "commentUserUidList": []
         })
         .whenComplete(() => true)
         .then((value) => true)

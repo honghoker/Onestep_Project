@@ -71,7 +71,6 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
         AnimationController(vsync: this, duration: Duration(seconds: 1));
     _clickedCommentData = new ClickedCommentData(
         commentDocumentId: null, isCommentClicked: false);
-    // print(_clickedCommentData.isCommentClicked);
     _textEditingControllerComment = TextEditingController();
     currentUID = FirebaseApi.getId();
     boardData = widget.boardData;
@@ -84,6 +83,27 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
     watchCountUpdate();
   }
 
+  setPopupMenuButton(bool isItself) {
+    return isItself
+        ? [
+            PopupMenuItem(child: Text("수정하기"), value: "Alter"),
+            PopupMenuItem(
+                child: Text(
+                  "삭제",
+                  style: TextStyle(color: Colors.redAccent),
+                ),
+                value: "Delete")
+          ]
+        : [
+            PopupMenuItem(
+                child: Text(
+                  "신고하기",
+                  style: TextStyle(color: Colors.redAccent),
+                ),
+                value: "Report")
+          ];
+  }
+
   @override
   Widget build(BuildContext context) {
     device_width = MediaQuery.of(context).size.width;
@@ -94,11 +114,13 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
           child: AppBar(
             backgroundColor: Colors.white,
             title: setTitle(boardData.title),
-            actions: <Widget>[
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.more_horiz),
-              )
+            actions: [
+              PopupMenuButton(
+                  onSelected: (route) {
+                    print(route);
+                  },
+                  itemBuilder: (BuildContext bc) =>
+                      setPopupMenuButton(boardData.uid == currentUID))
             ],
           ),
         ),
@@ -124,6 +146,7 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
                     imageContent(),
                     buttonContent(),
                     createCommentListMethod(),
+
                     commentBoxExpanded(isCommentBoxVisible),
                   ])),
             ),
@@ -152,35 +175,6 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
     }
   }
 
-  // _fetchData() {
-  //   print("isRefresh : " + isRefresh.toString());
-  //   if (isRefresh) {
-  //     isRefresh = false;
-  //     return _getImageContent();
-  //   } else {
-  //     this._memoizer.runOnce(() async {
-  //       return await _getImageContent();
-  //     });
-  //   }
-  // }
-  // _managementFatchDataMethod() {}
-  // _fetchData() {
-  //   if (isImageRefresh) {
-  //     _memoizer = AsyncMemoizer();
-  //     isImageRefresh = false;
-  //   }
-  //   return this._memoizer.runOnce(() async {
-  //     return await _getImageContent();
-  //   });
-  // }
-
-  // _fetchData(bool refresh) {
-  //   return refresh
-  //       ? _getImageContent()
-  //       : this._memoizer.runOnce(() async {
-  //           return await _getImageContent();
-  //         });
-  // }
   futureBuilderFetchRefreshMethod(
       {String refreshType, bool onlyUnderCommentRefresh, String commentId}) {
     if (refreshType == REFRESH_IMAGE) {
@@ -237,6 +231,7 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
         .collection(COMMENT_COLLECTION_NAME)
         .doc(commentId)
         .collection(COMMENT_COLLECTION_NAME)
+        .orderBy("createDate")
         .get();
   }
 
@@ -973,7 +968,7 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
             child: Container(),
             height: device_height * (1 / 4),
           )
-        : SizedBox();
+        : SizedBox(height: device_height / 20);
   }
 
   _commentContainerMethod(QuerySnapshot snapshot,

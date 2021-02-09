@@ -944,7 +944,7 @@ class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
 class NotificationChk extends DataClass implements Insertable<NotificationChk> {
   final String firestoreid;
   final DateTime uploadtime;
-  final bool readChecked;
+  final String readChecked;
   NotificationChk(
       {@required this.firestoreid,
       this.uploadtime,
@@ -961,7 +961,7 @@ class NotificationChk extends DataClass implements Insertable<NotificationChk> {
           .mapFromDatabaseResponse(data['${effectivePrefix}firestoreid']),
       uploadtime: dateTimeType
           .mapFromDatabaseResponse(data['${effectivePrefix}uploadtime']),
-      readChecked: boolType
+      readChecked: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}read_checked']),
     );
   }
@@ -975,7 +975,7 @@ class NotificationChk extends DataClass implements Insertable<NotificationChk> {
       map['uploadtime'] = Variable<DateTime>(uploadtime);
     }
     if (!nullToAbsent || readChecked != null) {
-      map['read_checked'] = Variable<bool>(readChecked);
+      map['read_checked'] = Variable<String>(readChecked);
     }
     return map;
   }
@@ -1000,7 +1000,7 @@ class NotificationChk extends DataClass implements Insertable<NotificationChk> {
     return NotificationChk(
       firestoreid: serializer.fromJson<String>(json['firestoreid']),
       uploadtime: serializer.fromJson<DateTime>(json['uploadtime']),
-      readChecked: serializer.fromJson<bool>(json['readChecked']),
+      readChecked: serializer.fromJson<String>(json['readChecked']),
     );
   }
   @override
@@ -1009,7 +1009,7 @@ class NotificationChk extends DataClass implements Insertable<NotificationChk> {
     return <String, dynamic>{
       'firestoreid': serializer.toJson<String>(firestoreid),
       'uploadtime': serializer.toJson<DateTime>(uploadtime),
-      'readChecked': serializer.toJson<bool>(readChecked),
+      'readChecked': serializer.toJson<String>(readChecked),
     };
   }
 
@@ -1045,7 +1045,7 @@ class NotificationChk extends DataClass implements Insertable<NotificationChk> {
 class NotificationChksCompanion extends UpdateCompanion<NotificationChk> {
   final Value<String> firestoreid;
   final Value<DateTime> uploadtime;
-  final Value<bool> readChecked;
+  final Value<String> readChecked;
   const NotificationChksCompanion({
     this.firestoreid = const Value.absent(),
     this.uploadtime = const Value.absent(),
@@ -1054,13 +1054,13 @@ class NotificationChksCompanion extends UpdateCompanion<NotificationChk> {
   NotificationChksCompanion.insert({
     @required String firestoreid,
     this.uploadtime = const Value.absent(),
-    @required bool readChecked,
+    @required String readChecked,
   })  : firestoreid = Value(firestoreid),
         readChecked = Value(readChecked);
   static Insertable<NotificationChk> custom({
     Expression<String> firestoreid,
     Expression<DateTime> uploadtime,
-    Expression<bool> readChecked,
+    Expression<String> readChecked,
   }) {
     return RawValuesInsertable({
       if (firestoreid != null) 'firestoreid': firestoreid,
@@ -1090,7 +1090,7 @@ class NotificationChksCompanion extends UpdateCompanion<NotificationChk> {
       map['uploadtime'] = Variable<DateTime>(uploadtime.value);
     }
     if (readChecked.present) {
-      map['read_checked'] = Variable<bool>(readChecked.value);
+      map['read_checked'] = Variable<String>(readChecked.value);
     }
     return map;
   }
@@ -1140,12 +1140,12 @@ class $NotificationChksTable extends NotificationChks
 
   final VerificationMeta _readCheckedMeta =
       const VerificationMeta('readChecked');
-  GeneratedBoolColumn _readChecked;
+  GeneratedTextColumn _readChecked;
   @override
-  GeneratedBoolColumn get readChecked =>
+  GeneratedTextColumn get readChecked =>
       _readChecked ??= _constructReadChecked();
-  GeneratedBoolColumn _constructReadChecked() {
-    return GeneratedBoolColumn(
+  GeneratedTextColumn _constructReadChecked() {
+    return GeneratedTextColumn(
       'read_checked',
       $tableName,
       false,

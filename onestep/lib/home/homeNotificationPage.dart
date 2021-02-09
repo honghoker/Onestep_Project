@@ -46,61 +46,81 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
         Provider.of<AppDatabase>(context).notificationChksDao;
     return StreamBuilder(
       stream: combineStream(),
-      builder: (context, AsyncSnapshot<List<QuerySnapshot>> snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return Container();
-          default:
-            if (snapshot.data == null) return Container();
-            // print("snapshot data = ${snapshot.data}");
-            List<DocumentSnapshot> documentSnapshot = [];
+      builder: (context, AsyncSnapshot<List<QuerySnapshot>> snapshot1) {
+        return StreamBuilder(
+          stream: p.watchNotification(),
+          builder: (context, snapshot2) {
+            switch (snapshot1.connectionState) {
+              case ConnectionState.waiting:
+                return Container();
+              default:
+                if (snapshot1.data == null) return Container();
+                // print("snapshot data = ${snapshot.data}");
+                List<DocumentSnapshot> documentSnapshot = [];
 
-            List<dynamic> querySnapshot = snapshot.data.toList();
+                List<dynamic> querySnapshot = snapshot1.data.toList();
 
-            querySnapshot.forEach((query) {
-              documentSnapshot.addAll(query.docs);
-            });
-
-            List<DocumentSnapshot> documentSnapshot1 = [];
-            print("document length ${documentSnapshot.length}");
-            if (documentSnapshot.length > 1) {
-              documentSnapshot1 = documentSnapshot.toList()
-                ..sort((key1, key2) {
-                  Timestamp a = key2.data()['time'];
-                  Timestamp b = key1.data()['time'];
-                  return a.compareTo(b);
+                querySnapshot.forEach((query) {
+                  documentSnapshot.addAll(query.docs);
                 });
-            } else {
-              documentSnapshot1 = documentSnapshot;
-            }
-            List<Map<String, dynamic>> mappedData = [];
-            for (QueryDocumentSnapshot doc in documentSnapshot1) {
-              mappedData.add(doc.data());
-              print("document data ${doc.data()}");
 
-              // 내부 DB 최근 알림(moor watch 보면 orderby) 보다 
-              // 최근 알림이 오면 내부DB insert 하고 check 필드는 default false
-              // 밑에 onTap 부분 -> 읽음처리 부분 변경(check 필드 이용해서)
-              // 홈에서 빨간 버튼, 안읽은 알림 확인 내부 DB 다 돌려서 check 필드
-              // 1개라도 false 있으면 빨간색 띄우기
+                List<DocumentSnapshot> documentSnapshot1 = [];
+                print("document length ${documentSnapshot.length}");
+                if (documentSnapshot.length > 1) {
+                  documentSnapshot1 = documentSnapshot.toList()
+                    ..sort((key1, key2) {
+                      Timestamp a = key2.data()['time'];
+                      Timestamp b = key1.data()['time'];
+                      return a.compareTo(b);
+                    });
+                } else {
+                  documentSnapshot1 = documentSnapshot;
+                }
+                List<Map<String, dynamic>> mappedData = [];
+                for (QueryDocumentSnapshot doc in documentSnapshot1) {
+                  mappedData.add(doc.data());
+                  print("document data ${doc.data()}");
 
-              // 아직 내부 DB에 아무것도 없음 밑에꺼 돌리면 다 들어감
-              p.insertNotification(NotificationChk(
-                  firestoreid: doc.id,
-                  readChecked: false,
-                  uploadtime: doc.data()['time']));
+                  // 내부 DB 최근 알림(moor watch 보면 orderby) 보다
+                  // 최근 알림이 오면 내부DB insert 하고 check 필드는 default false
+                  // 밑에 onTap 부분 -> 읽음처리 부분 변경(check 필드 이용해서)
+                  // 홈에서 빨간 버튼, 안읽은 알림 확인 내부 DB 다 돌려서 check 필드
+                  // 1개라도 false 있으면 빨간색 띄우기
+
+                  NotificationChk latestTime =  snapshot2.data[0] as NotificationChk;
+                  print("@@@@@@@@@@ lastestTime ${latestTime.uploadtime}");
+                  print("@@@@@@@@@@ docTime ${DateTime.parse(doc.data()['time'].toDate().toString())}");
+                  print("@@@@@@@@@@ compareTime ${DateTime.parse(doc.data()['time'].toDate().toString()).isAfter(latestTime.uploadtime)}");
+                  // 현재 내부DB에 저장된 최근 알림보다 더 최신 알림이면 insert
+                  if(!DateTime.parse(doc.data()['time'].toDate().toString()).isAfter(latestTime.uploadtime)){
+                    // p.insertNotification(NotificationChk(
+                    //   firestoreid: doc.id,
+                    //   readChecked: 'false',
+                    //   uploadtime:
+                    //       DateTime.parse(doc.data()['time'].toDate().toString())));
+                  }
+
+                  // // 아직 내부 DB에 아무것도 없음 밑에꺼 돌리면 다 들어감
+                  // p.insertNotification(NotificationChk(
+                  //     firestoreid: doc.id,
+                  //     readChecked: 'false',
+                  //     uploadtime:
+                  //         DateTime.parse(doc.data()['time'].toDate().toString())));
+                }
+                return ListView.builder(
+                  key: PageStorageKey("any_text_here"),
+                  scrollDirection: Axis.vertical,
+                  controller: _scrollController,
+                  shrinkWrap: true,
+                  itemCount: mappedData.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return makeCard(
+                        mappedData[index], documentSnapshot1[index].id);
+                  },
+                );
             }
-            return ListView.builder(
-              key: PageStorageKey("any_text_here"),
-              scrollDirection: Axis.vertical,
-              controller: _scrollController,
-              shrinkWrap: true,
-              itemCount: mappedData.length,
-              itemBuilder: (BuildContext context, int index) {
-                return makeCard(mappedData[index], documentSnapshot1[index].id);
-              },
-            );
-        }
+          },
+        );
       },
     );
   }
@@ -113,7 +133,7 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
         Provider.of<AppDatabase>(context).notificationChksDao;
 
     return StreamBuilder<mf.QueryRow>(
-      stream: p.watchsingleNotification(id),
+      stream: p.watchsingleNotification(id, true),
       builder: (context, snapshot) {
         print("@@@@@@@@ hasdata = ${snapshot.hasData}");
         return Card(
@@ -125,10 +145,19 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
             child: GestureDetector(
               onTap: () {
                 if (!snapshot.hasData) {
+                  p.updateNotification(NotificationChk(
+                      readChecked: 'true',
+                      firestoreid: id,
+                      uploadtime: DateTime.parse(
+                          mappedData['time'].toDate().toString())));
                   // p.insertNotification(NotificationChk(firestoreid: id));
                 } else {
                   // // 추후에 삭제해야함
-                  // p.deleteNotification(NotificationChk(firestoreid: id));
+                  p.updateNotification(NotificationChk(
+                      readChecked: 'false',
+                      firestoreid: id,
+                      uploadtime: DateTime.parse(
+                          mappedData['time'].toDate().toString())));
                 }
               },
               child: ListTile(

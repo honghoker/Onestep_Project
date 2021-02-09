@@ -64,7 +64,8 @@ class SearchsDao extends DatabaseAccessor<AppDatabase> with _$SearchsDaoMixin {
 class NotificationChks extends Table {
   TextColumn get firestoreid => text()();
   DateTimeColumn get uploadtime => dateTime().nullable()();
-  BoolColumn get readChecked => boolean()();
+  // BoolColumn get readChecked => boolean()();
+  TextColumn get readChecked => text()();
 
   @override
   Set<Column> get primaryKey => {firestoreid};
@@ -83,9 +84,31 @@ class NotificationChksDao extends DatabaseAccessor<AppDatabase>
           ..orderBy([
             (t) =>
                 OrderingTerm(expression: t.uploadtime, mode: OrderingMode.desc),
-          ]))
+          ])
+          ..limit(1, offset: 0))
         .watch();
   }
+
+  Stream<List<NotificationChk>> watchNotificationAll() {
+    return (select(notificationChks)
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.uploadtime, mode: OrderingMode.desc),
+          ])
+          ..where((t) => t.readChecked.equals('false'))
+          )
+        .watch();
+  }
+
+
+  // Stream<List<NotificationChk>> watchNotificationAll() =>
+  //     select(notificationChks).watch();
+
+  // Stream<QueryRow> watchNotificationAll(bool type) =>
+  //     customSelect(
+  //       "SELECT * FROM notification_chks WHERE read_checked LIKE '$type'",
+  //       readsFrom: {notificationChks},
+  //     ).watchSingle();
 
   Future insertNotification(NotificationChk notificationChk) =>
       into(notificationChks).insert(notificationChk);
@@ -93,10 +116,15 @@ class NotificationChksDao extends DatabaseAccessor<AppDatabase>
   Future deleteNotification(NotificationChk notificationChk) =>
       delete(notificationChks).delete(notificationChk);
 
-  Stream<QueryRow> watchsingleNotification(String firestoreid) => customSelect(
-        "SELECT * FROM notification_chks WHERE firestoreid LIKE '$firestoreid'",
+  Future updateNotification(NotificationChk notificationChk) =>
+      update(notificationChks).replace(notificationChk);
+
+  Stream<QueryRow> watchsingleNotification(String firestoreid, bool type) =>
+      customSelect(
+        "SELECT * FROM notification_chks WHERE firestoreid LIKE '$firestoreid' AND read_checked = '$type'",
         readsFrom: {notificationChks},
       ).watchSingle();
+
 
   deleteAllNotification() => delete(notificationChks).go();
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:onestep/BoardLib/BoardComment/CommentInBoardContent.dart';
 import 'package:onestep/BoardLib/CreateAlterBoard/parentState.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -86,6 +87,7 @@ class BoardData {
           "boardId": boardId,
           "scrabUserList": scrabUserList ?? [],
           "favoriteUserList": favoriteUserList ?? [],
+          "commentUserUidList": []
         })
         .whenComplete(() => true)
         .then((value) => true)
@@ -174,7 +176,7 @@ class Comment {
   String COMMENT_COLLECTION_NAME = "Comment";
   final String uid;
   final String text;
-  final String reportCount;
+  final int reportCount;
   var createDate;
   var lastAlterDate;
   final int favoriteCount;
@@ -193,14 +195,16 @@ class Comment {
       this.text,
       this.boardDocumentId,
       this.boardId});
-  Future toFireStore(BuildContext context) async {
-    return await FirebaseFirestore.instance
+  Future toFireStore(BuildContext context,
+      {bool isUnderCommentSave, String commentDocumentId}) async {
+    isUnderCommentSave = isUnderCommentSave ?? false;
+    var _db = FirebaseFirestore.instance
         .collection("Board")
         .doc(boardId)
         .collection(boardId)
         .doc(boardDocumentId)
-        .collection(COMMENT_COLLECTION_NAME)
-        .add({
+        .collection(COMMENT_COLLECTION_NAME);
+    Map<String, dynamic> _saveData = {
       "uid": FirebaseApi.getId(),
       "text": text ?? "",
       "createDate": Timestamp.fromDate(DateTime.now()),
@@ -211,10 +215,92 @@ class Comment {
       "favoriteCount": 0,
       "favoriteUserList": [],
       "reportCount": 0,
+      "isDelete": false,
+      "deleteDate": null,
+    };
+    return !isUnderCommentSave
+        ? await _db.add(_saveData).then((value) {
+            if (value.runtimeType == DocumentReference) {
+              return true;
+            }
+          })
+        : await _db
+            .doc(commentDocumentId)
+            .collection(COMMENT_COLLECTION_NAME)
+            .add(_saveData)
+            .then((value) {
+            if (value.runtimeType == DocumentReference) {
+              return true;
+            }
+          });
+  }
+
+  Future _saveUidInBoardField(
+      DocumentSnapshot documentSnapshot, String currentUid) async {
+    Map _data = documentSnapshot.data();
+    List _commentList = documentSnapshot.data()["commentList"];
+
+    if (!_commentList.contains(currentUid)) {
+      return await FirebaseFirestore.instance
+          .collection("Board")
+          .doc(boardId)
+          .collection(boardId)
+          .doc(boardDocumentId)
+          .update({"commentList": _data["commentList"].add(currentUid)})
+          .catchError((onError) {
+            print("catchError ");
+          })
+          .then((value) => print("Something error null pointer or.. "))
+          .whenComplete(() => true);
+    }
+  }
+
+  getUnderComment(
+      String boardId, String currentBoardId, String commentId) async {
+    var _result;
+    await FirebaseFirestore.instance
+        .collection("Board")
+        .doc(boardId)
+        .collection(boardId)
+        .doc(currentBoardId)
+        .collection(COMMENT_COLLECTION_NAME)
+        .doc(commentId)
+        .collection(COMMENT_COLLECTION_NAME)
+        .get()
+        .catchError((onError) {
+      print(onError.toString() + "Under comment");
     }).then((value) {
-      if (value.runtimeType == DocumentReference) {
-        return true;
-      }
+      _result = value;
     });
+
+    return _result;
   }
 }
+
+// class UnderComment extends Comment {
+//   UnderComment(
+//       {String createDate,
+//       String uid,
+//       var lastAlterDate,
+//       String text,
+//       int reportCount,
+//       int favoriteCount,
+//       List favoriteUserList,
+//       String name,
+//       String boardId,
+//       String boardDocumentId})
+//       : super(
+//             createDate: createDate,
+//             uid: uid,
+//             favoriteCount: favoriteCount,
+//             favoriteUserList: favoriteUserList,
+//             lastAlterDate: lastAlterDate,
+//             name: name,
+//             reportCount: reportCount,
+//             text: text,
+//             boardDocumentId: boardDocumentId,
+//             boardId: boardId);
+//   getUnderComment(String boardDocumentId) {
+
+//   }
+// }

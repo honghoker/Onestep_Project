@@ -5,6 +5,7 @@ import 'homeHotBoardBody.dart';
 import 'homeNoticeBody.dart';
 import 'homeNotificationPage.dart';
 import 'homeSearchResultPage.dart';
+import 'message/messagePage.dart';
 
 class HomeWidget extends StatefulWidget {
   @override
@@ -50,13 +51,13 @@ class _HomeWidgetState extends State<HomeWidget> {
                       color: Colors.black,
                       onPressed: () {
                         // 알림으로 넘어가는 부분
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => HomeNotificationPage(),
-                        ));
-                        // 쪽지 form 보려고 test
                         // Navigator.of(context).push(MaterialPageRoute(
-                        //   builder: (context) => MessagePage(),
+                        //   builder: (context) => HomeNotificationPage(),
                         // ));
+                        // 쪽지 form 보려고 test
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => MessagePage(),
+                        ));
                       },
                     ),
                     StreamBuilder(

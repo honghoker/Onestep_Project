@@ -153,7 +153,7 @@ class _MessagePageState extends State<MessagePage> {
                       height: 10,
                     ),
                     Text(
-                      "Custom Alert Dialog",
+                      "Title",
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontFamily: "Roboto",
@@ -164,7 +164,7 @@ class _MessagePageState extends State<MessagePage> {
                       height: 20,
                     ),
                     Text(
-                      "This is a message inside your custom Alert Dialog!\nFeel free to change it to fit your needs.",
+                      "Content",
                       style: TextStyle(
                         fontFamily: "Roboto",
                         fontWeight: FontWeight.w400,

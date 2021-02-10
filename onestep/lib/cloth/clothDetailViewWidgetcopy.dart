@@ -1,28 +1,28 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
+import 'package:onestep/api/favorite_api.dart';
+import 'package:onestep/cloth/clothModifyWidget.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
-import 'package:onestep/moor/moor_database.dart';
+import 'package:onestep/favorite/animations/favoriteanimation.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
 import 'package:onestep/profile/profileWidget.dart';
 import 'package:onestep/profile/provider/userProductProvider.dart';
 import 'package:onestep/profile/userProductWidget.dart';
 
-import 'animations/favoriteanimation.dart';
 import 'package:provider/provider.dart';
 import 'package:onestep/api/firebase_api.dart';
 
 import 'clothitem.dart';
+import 'models/product.dart';
 
 class ClothDetailViewWidgetcopy extends StatefulWidget {
-  final Product product;
+  final String docId;
 
-  const ClothDetailViewWidgetcopy({Key key, this.product}) : super(key: key);
+  const ClothDetailViewWidgetcopy({Key key, this.docId}) : super(key: key);
 
   @override
   _ClothDetailViewWidgetcopyState createState() =>
@@ -31,13 +31,11 @@ class ClothDetailViewWidgetcopy extends StatefulWidget {
 
 class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
   List _imageItem = new List();
-  TextEditingController _textcontroller;
-  TextEditingController priceEditingController;
+  TextEditingController _favoriteTextController;
+  TextEditingController _priceEditingController;
   Product _product;
   @override
   void initState() {
-    _imageItem.addAll(jsonDecode(widget.product.images));
-
     // dynamic link
     initDynamicLinks();
     super.initState();
@@ -100,7 +98,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
             .collection("users")
             .doc(FirebaseApi.getId())
             .collection("favorites")
-            .where("productid", isEqualTo: this.widget.product.firestoreid)
+            .where("productid", isEqualTo: this.widget.docId)
             .snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           switch (snapshot.connectionState) {
@@ -110,29 +108,18 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
               bool chk = snapshot.data.docs.length == 0 ? false : true;
               return GestureDetector(
                 onTap: () {
-                  int favorites = int.tryParse(_textcontroller.text);
+                  int favorites = int.tryParse(_favoriteTextController.text);
 
                   if (!chk) {
-                    FirebaseFirestore.instance
-                        .collection("users")
-                        .doc(FirebaseApi.getId())
-                        .collection("favorites")
-                        .doc(DateTime.now().millisecondsSinceEpoch.toString())
-                        .set({"productid": this.widget.product.firestoreid});
-
+                    FavoriteApi.insertFavorite(this.widget.docId);
+                    FavoriteAnimation().showFavoriteDialog(context);
                     favorites++;
                   } else {
-                    FirebaseFirestore.instance
-                        .collection("users")
-                        .doc(FirebaseApi.getId())
-                        .collection("favorites")
-                        .doc(snapshot.data.docs[0].id)
-                        .delete();
+                    FavoriteApi.deleteFavorite(
+                        snapshot.data.docs[0].id, this.widget.docId);
                     favorites--;
                   }
-                  FavoriteAnimation().incdecProductFavorites(
-                      !chk, context, this.widget.product.firestoreid);
-                  _textcontroller.text = (favorites).toString();
+                  _favoriteTextController.text = (favorites).toString();
                 },
                 child: Icon(
                   !chk ? Icons.favorite_border : Icons.favorite,
@@ -146,19 +133,19 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
   Future<DocumentSnapshot> getProduct() async {
     return FirebaseFirestore.instance
         .collection("products")
-        .doc(widget.product.firestoreid)
+        .doc(widget.docId)
         .get();
   }
 
-  void incProductViews(int views) {
+  void incProductViews() {
     // 조회수 증가
     try {
       FirebaseFirestore.instance
           .collection("products")
-          .doc(widget.product.firestoreid)
+          .doc(widget.docId)
           .update(
         {
-          'views': views,
+          'views': FieldValue.increment(1),
         },
       );
     } catch (e) {}
@@ -276,11 +263,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                         title: snapshot.data.docs[index].data()['title'],
                         category: snapshot.data.docs[index].data()['category'],
                         price: snapshot.data.docs[index].data()['price'],
-                        hide: snapshot.data.docs[index].data()['hide'] ? 1 : 0,
-                        deleted:
-                            snapshot.data.docs[index].data()['deleted'] ? 1 : 0,
-                        images: jsonEncode(
-                            snapshot.data.docs[index].data()['images']),
+                        images: snapshot.data.docs[index].data()['images'],
                       ),
                     );
                   },
@@ -337,7 +320,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
             child: Column(
               children: <Widget>[
                 TextField(
-                  controller: priceEditingController,
+                  controller: _priceEditingController,
                   enableInteractiveSelection: false,
                   readOnly: true,
                   decoration: InputDecoration(
@@ -413,7 +396,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                     Container(
                       width: 30,
                       child: TextField(
-                        controller: _textcontroller,
+                        controller: _favoriteTextController,
                         enableInteractiveSelection: false,
                         readOnly: true,
                         decoration: InputDecoration(
@@ -482,12 +465,23 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
       case '신고하기':
         break;
       case '수정하기':
+        Navigator.of(context)
+            .push(
+          MaterialPageRoute(
+            builder: (context) => ClothModifyWidget(product: this._product),
+          ),
+        )
+            .then((value) {
+          if (value == "OK") {
+            setState(() {});
+          }
+        });
         break;
       case '끌올하기':
         if (DateTime.now().difference(_product.bumptime).inHours >= 1) {
           Navigator.of(context).pushNamed(
             '/BumpProduct',
-            arguments: {"PRODUCT": widget.product},
+            arguments: {"PRODUCT": widget.docId},
           ).then(
             (value) {
               print("detail");
@@ -500,15 +494,17 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
 
         break;
       case '숨김':
+        // 확인 취소 다이얼로그 띄우기
         FirebaseFirestore.instance
             .collection("products")
-            .doc(widget.product.firestoreid)
+            .doc(widget.docId)
             .update({'hide': true});
         break;
       case '삭제':
+        // 확인 취소 다이얼로그 띄우기
         FirebaseFirestore.instance
             .collection("products")
-            .doc(widget.product.firestoreid)
+            .doc(widget.docId)
             .update({'deleted': true});
         break;
     }
@@ -529,11 +525,12 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
             //   FirebaseApi.getId(),
             //   widget.product.uid,
             // );
+
             NotificationManager.navigateToChattingRoom(
               context,
               FirebaseApi.getId(),
-              widget.product.uid,
-              widget.product.firestoreid,
+              this._product.uid,
+              this._product.firestoreid,
             );
             //Navigator.of(context).pop();
           },
@@ -580,12 +577,12 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
             SizedBox(
               width: 100,
               child: Text(
-                "${widget.product.price}원",
+                "${this._product.price}원",
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
             ),
             Expanded(child: Container()),
-            if (widget.product.uid != FirebaseApi.getId()) bottomChatWidget(),
+            if (this._product.uid != FirebaseApi.getId()) bottomChatWidget(),
           ],
         ),
       ),
@@ -597,7 +594,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
       onSelected: handleClick,
       itemBuilder: (BuildContext context) {
         var menuItem = List<String>();
-        if (FirebaseApi.getId() == widget.product.uid)
+        if (FirebaseApi.getId() == this._product.uid)
           menuItem.addAll({'끌올하기', '수정하기', '새로고침', '숨김', '삭제'});
         else {
           menuItem.addAll({'새로고침', '신고하기'});
@@ -759,11 +756,17 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
               } else {
                 _product =
                     Product.fromJson(snapshot.data.data(), snapshot.data.id);
-                priceEditingController =
-                    TextEditingController(text: widget.product.price + "원");
-                _textcontroller = TextEditingController(
-                    text: snapshot.data.data()['favorites'].toString());
-                incProductViews(snapshot.data.data()['views'] + 1);
+                _imageItem = snapshot.data.data()['images'];
+                _priceEditingController =
+                    TextEditingController(text: this._product.price + "원");
+
+                List<dynamic> favorite =
+                    snapshot.data.data()['favoriteUserList'];
+                int favoritecount = favorite == null ? 0 : favorite.length;
+                _favoriteTextController =
+                    TextEditingController(text: favoritecount.toString());
+
+                incProductViews(); // 조회수 증가
                 return Scaffold(
                   appBar: AppBar(
                     iconTheme: IconThemeData(

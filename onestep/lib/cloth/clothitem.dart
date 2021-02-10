@@ -1,10 +1,10 @@
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:onestep/api/favorite_api.dart';
 import 'package:onestep/api/firebase_api.dart';
-import 'package:onestep/moor/moor_database.dart';
-import 'animations/favoriteanimation.dart';
+import 'package:onestep/cloth/models/product.dart';
+import 'package:onestep/favorite/animations/favoriteanimation.dart';
 
 class ClothItem extends StatefulWidget {
   final Product product;
@@ -59,27 +59,13 @@ class _ClothItemState extends State<ClothItem> {
                   children: <Widget>[
                     GestureDetector(
                       onTap: () {
-                        FavoriteAnimation().incdecProductFavorites(
-                            !chk, context, this.widget.product.firestoreid);
-
                         if (!chk) {
-                          FirebaseFirestore.instance
-                              .collection("users")
-                              .doc(FirebaseApi.getId())
-                              .collection("favorites")
-                              .doc(DateTime.now()
-                                  .millisecondsSinceEpoch
-                                  .toString())
-                              .set({
-                            "productid": this.widget.product.firestoreid
-                          });
+                          FavoriteApi.insertFavorite(
+                              this.widget.product.firestoreid);
+                          FavoriteAnimation().showFavoriteDialog(context);
                         } else {
-                          FirebaseFirestore.instance
-                              .collection("users")
-                              .doc(FirebaseApi.getId())
-                              .collection("favorites")
-                              .doc(snapshot.data.docs[0].id)
-                              .delete();
+                          FavoriteApi.deleteFavorite(snapshot.data.docs[0].id,
+                              this.widget.product.firestoreid);
                         }
                       },
                       child: Icon(
@@ -97,35 +83,26 @@ class _ClothItemState extends State<ClothItem> {
   }
 
   Widget getImage() {
-    // print(widget.product.images);
-    // List<String> result = a.split(",");
-    // print("@@@ 0 ${result[0]}");
+    var img = widget.product.images;
 
-    var img = jsonDecode(widget.product.images);
-
-    // print("next = ${img}");
-
-    return Container();
-    // return Image.network(img[0]);
-    // return ExtendedImage.network(
-    //   result[0].toString(),
-    //   width: MediaQuery.of(context).size.width,
-    //   height: MediaQuery.of(context).size.height,
-    //   fit: BoxFit.cover,
-    //   cache: true,
-    // );
+    return ExtendedImage.network(
+      img[0],
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      fit: BoxFit.cover,
+      cache: true,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     double coverSize = 110;
-    // var img = jsonDecode(widget.product.images);
-    // print(img);
+
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushNamed(
           '/DetailProduct',
-          arguments: {"PRODUCT": widget.product},
+          arguments: {"PRODUCTID": widget.product.firestoreid},
         ).then((value) {
           print("clothitem");
         });

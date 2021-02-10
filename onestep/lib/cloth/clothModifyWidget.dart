@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:onestep/api/firebase_api.dart';
-import 'package:onestep/moor/moor_database.dart';
+import 'package:onestep/cloth/models/product.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:random_string/random_string.dart';
@@ -29,7 +30,7 @@ class _ClothModifyWidgetState extends State<ClothModifyWidget>
   TextEditingController _explainTextEditingController;
   int _imageCount = 0;
   List<Asset> _imageList = List<Asset>();
-
+  List<dynamic> _initImageList = [];
   String _selectedCategoryItem;
   List<String> _dropdownCategoryItems;
 
@@ -37,15 +38,21 @@ class _ClothModifyWidgetState extends State<ClothModifyWidget>
   void initState() {
     _dropdownCategoryItems =
         Provider.of<Category>(context, listen: false).getCategoryItems();
-    widget.product.images;
+
     _titleTextEditingController =
         TextEditingController(text: widget.product.title);
     _priceTextEditingController =
         TextEditingController(text: widget.product.price);
+    _selectedCategoryItem = widget.product.category;
     _explainTextEditingController =
         TextEditingController(text: widget.product.explain);
-
+    initImageList();
     super.initState();
+  }
+
+  void initImageList() {
+    _initImageList = this.widget.product.images;
+    _imageCount = _initImageList.length;
   }
 
   BoxDecoration myBoxDecoration() {
@@ -57,27 +64,114 @@ class _ClothModifyWidgetState extends State<ClothModifyWidget>
     );
   }
 
+  List<Widget> imageMerge() {
+    List<Widget> result1 = _initImageList
+        .map<Widget>(
+          (data) => Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Stack(
+              children: [
+                Card(
+                  child: ExtendedImage.network(
+                    data,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    cache: true,
+                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: ClipOval(
+                    child: Material(
+                      color: Colors.grey, // button color
+                      child: InkWell(
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 15,
+                          ),
+                        ),
+                        onTap: () {
+                          setState(() {
+                            _imageCount = --_imageCount;
+                            _initImageList.remove(data);
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
+        .toList();
+
+    List<Widget> result2 = _imageList
+        .map<Widget>(
+          (data) => Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Stack(
+              children: [
+                Card(
+                  child: AssetThumb(
+                    asset: data,
+                    width: 60,
+                    height: 60,
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: ClipOval(
+                    child: Material(
+                      color: Colors.grey, // button color
+                      child: InkWell(
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 15,
+                          ),
+                        ),
+                        onTap: () {
+                          setState(() {
+                            _imageCount = --_imageCount;
+                            _imageList.remove(data);
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
+        .toList();
+
+    result1.addAll(result2);
+
+    return result1;
+  }
+
   Widget setImageList() {
-    return _imageList.isEmpty
+    return _initImageList.isEmpty && _imageList.isEmpty
         ? Container()
         : Container(
             height: 80,
             width: MediaQuery.of(context).size.width,
-            child: ListView.builder(
+            child: ListView(
               scrollDirection: Axis.horizontal,
-              itemCount: _imageList.length,
-              itemBuilder: (BuildContext context, int index) {
-                return new Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Card(
-                    child: AssetThumb(
-                      asset: _imageList[index],
-                      width: 60,
-                      height: 60,
-                    ),
-                  ),
-                );
-              },
+              children: imageMerge(),
             ),
           );
   }
@@ -86,7 +180,7 @@ class _ClothModifyWidgetState extends State<ClothModifyWidget>
     List<Asset> _resultList = List<Asset>();
 
     _resultList = await MultiImagePicker.pickImages(
-      maxImages: 5,
+      maxImages: 5 - _initImageList.length,
       enableCamera: true,
       selectedAssets: _imageList,
       cupertinoOptions: CupertinoOptions(
@@ -105,64 +199,25 @@ class _ClothModifyWidgetState extends State<ClothModifyWidget>
 
     if (_resultList.isEmpty) return;
     setState(() {
-      _imageCount = _resultList.length;
+      _imageCount = _resultList.length + _initImageList.length;
       _imageList.clear();
       _imageList = _resultList;
     });
   }
-  // void getImage() async {
-  //   try {
-  //     Map<Permission, PermissionStatus> _statuses = await permissionRequest();
-  //     if (!(_statuses.containsValue("PermissionStatus.granted") ||
-  //         _statuses.containsValue("PermissionStatus.restricted") ||
-  //         _statuses.containsValue("PermissionStatus.permanentlyDenied"))) {
-  //       List<Asset> _resultList = List<Asset>();
-
-  //       _resultList = await MultiImagePicker.pickImages(
-  //         maxImages: 5,
-  //         enableCamera: true,
-  //         selectedAssets: _imageList,
-  //         cupertinoOptions: CupertinoOptions(
-  //           takePhotoIcon: "chat",
-  //         ),
-  //         materialOptions: MaterialOptions(
-  //           // actionBarTitle: "앨범",
-  //           actionBarColor: "#abcdef",
-  //           actionBarTitleColor: "#000000",
-  //           statusBarColor: "#000000",
-  //           // allViewTitle: "전체사진",
-  //           useDetailsView: true,
-  //           selectCircleStrokeColor: "#000000",
-  //         ),
-  //       );
-
-  //       if (_resultList.isEmpty) return;
-  //       setState(() {
-  //         _imageCount = _resultList.length;
-  //         _imageList.clear();
-  //         _imageList = _resultList;
-  //       });
-  //     }
-  //   } catch (e) {
-  //     print(e.toString());
-  //   }
-  // }
 
   Widget imageAddWidget() {
     return Row(
       children: <Widget>[
         GestureDetector(
           onTap: () {
-            // getImage();
             checkCamStorePermission(getImage);
-            print("getImage()");
           },
           child: Container(
             width: 60,
             height: 60,
             margin: const EdgeInsets.all(20.0),
             padding: const EdgeInsets.all(5.0),
-            decoration: myBoxDecoration(), //       <--- BoxDecoration here
+            decoration: myBoxDecoration(),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -196,7 +251,7 @@ class _ClothModifyWidgetState extends State<ClothModifyWidget>
     } else if (_explainTextEditingController.text.trim() == "") {
       _scaffoldKey.currentState
           .showSnackBar(SnackBar(content: Text("설명을 입력해주세요.")));
-    } else if (_imageList.length < 1) {
+    } else if (_initImageList.length + _imageList.length < 1) {
       _scaffoldKey.currentState
           .showSnackBar(SnackBar(content: Text("물품을 등록하려면 한장 이상의 사진이 필요합니다.")));
     } else {
@@ -204,6 +259,7 @@ class _ClothModifyWidgetState extends State<ClothModifyWidget>
       yyDialog.show();
       List _imgUriarr = [];
 
+      _imgUriarr.addAll(_initImageList);
       for (var imaged in _imageList) {
         StorageReference storageReference = FirebaseStorage.instance
             .ref()
@@ -215,20 +271,16 @@ class _ClothModifyWidgetState extends State<ClothModifyWidget>
         _imgUriarr.add(downloadURL);
       }
 
-      FirebaseFirestore.instance.collection('products').add({
-        'uid': FirebaseApi.getId(),
+      FirebaseFirestore.instance
+          .collection('products')
+          .doc(this.widget.product.firestoreid)
+          .update({
         'price': _priceTextEditingController.text,
         'title': _titleTextEditingController.text,
         'category': _selectedCategoryItem,
         'explain': _explainTextEditingController.text,
         'images': _imgUriarr,
-        'favorites': 0,
-        'hide': false,
-        'deleted': false,
-        'views': 0,
-        'uploadtime': DateTime.now(),
         'updatetime': DateTime.now(),
-        'bumptime': DateTime.now(),
       }).whenComplete(() {
         if (Navigator.canPop(context)) {
           yyDialog.dismiss();
@@ -238,8 +290,8 @@ class _ClothModifyWidgetState extends State<ClothModifyWidget>
         }
       }).catchError((value) {
         print(value);
-        _scaffoldKey.currentState.showSnackBar(
-            SnackBar(content: Text("물품을 등록하려면 두장 이상의 사진이 필요합니다.")));
+        _scaffoldKey.currentState
+            .showSnackBar(SnackBar(content: Text("Error")));
       });
     }
   }
@@ -314,38 +366,6 @@ class _ClothModifyWidgetState extends State<ClothModifyWidget>
         uploadProduct();
       }
     });
-    // await YYDialog().build(context)
-    //   ..width = 220
-    //   ..borderRadius = 4.0
-    //   ..text(
-    //     padding: EdgeInsets.all(25.0),
-    //     alignment: Alignment.center,
-    //     text: "물품을 등록할까요?",
-    //     color: Colors.black,
-    //     fontSize: 14.0,
-    //     fontWeight: FontWeight.w500,
-    //   )
-    //   ..divider()
-    //   ..doubleButton(
-    //     padding: EdgeInsets.only(top: 10.0),
-    //     gravity: Gravity.center,
-    //     withDivider: true,
-    //     text1: "확인",
-    //     color1: Colors.redAccent,
-    //     fontSize1: 14.0,
-    //     fontWeight1: FontWeight.bold,
-    //     onTap1: () {
-    //       return false;
-    //     },
-    //     text2: "취소",
-    //     color2: Colors.redAccent,
-    //     fontSize2: 14.0,
-    //     fontWeight2: FontWeight.bold,
-    //     onTap2: () {
-    //       return true;
-    //     },
-    //   )
-    //   ..show();
   }
 
   @override

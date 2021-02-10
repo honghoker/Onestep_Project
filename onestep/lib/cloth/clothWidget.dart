@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/clothAddWidget.dart';
-import 'package:onestep/cloth/providers/favoriteProvider.dart';
+
 import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:onestep/favorite/favoriteWidget.dart';
+import 'package:onestep/favorite/providers/favoriteProvider.dart';
 import 'package:onestep/search/provider/searchProvider.dart';
 import 'package:onestep/search/widget/searchProductBoardWidget.dart';
 import 'package:provider/provider.dart';

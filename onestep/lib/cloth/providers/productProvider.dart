@@ -1,14 +1,12 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
-import 'package:onestep/moor/moor_database.dart';
+import 'package:onestep/cloth/models/product.dart';
 
 class ProuductProvider with ChangeNotifier {
   final _productsSnapshot = <DocumentSnapshot>[];
   String _errorMessage = '';
-  int documentLimit = 9;
+  int documentLimit = 12;
   bool _hasNext = true;
   bool _isFetchingUsers = false;
 
@@ -24,14 +22,34 @@ class ProuductProvider with ChangeNotifier {
           title: product['title'],
           category: product['category'],
           price: product['price'],
-          hide: product['hide'] ? 1 : 0,
-          deleted: product['deleted'] ? 1 : 0,
-          images: jsonEncode(product['images']),
+          hide: product['hide'],
+          deleted: product['deleted'],
+          images: product['images'],
         );
       }).toList();
 
-  Future fetchNextProducts(String category) async {
+  Future fetchProducts(String category) async {
     if (_isFetchingUsers) return;
+    _isFetchingUsers = true;
+    _hasNext = true;
+    _productsSnapshot.clear();
+    try {
+      final snap = await FirebaseApi.getProducts(
+        documentLimit,
+        category,
+        startAfter: null,
+      );
+      _productsSnapshot.addAll(snap.docs);
+      if (snap.docs.length < documentLimit) _hasNext = false;
+      notifyListeners();
+    } catch (error) {
+      notifyListeners();
+    }
+    _isFetchingUsers = false;
+  }
+
+  Future fetchNextProducts(String category) async {
+    if (_isFetchingUsers || !_hasNext) return;
     _isFetchingUsers = true;
 
     try {
@@ -50,25 +68,6 @@ class ProuductProvider with ChangeNotifier {
       notifyListeners();
     }
 
-    _isFetchingUsers = false;
-  }
-
-  Future fetchProducts(String category) async {
-    if (_isFetchingUsers) return;
-    _isFetchingUsers = true;
-    _productsSnapshot.clear();
-    try {
-      final snap = await FirebaseApi.getProducts(
-        documentLimit,
-        category,
-        startAfter: null,
-      );
-      _productsSnapshot.addAll(snap.docs);
-      if (snap.docs.length < documentLimit) _hasNext = false;
-      notifyListeners();
-    } catch (error) {
-      notifyListeners();
-    }
     _isFetchingUsers = false;
   }
 }

@@ -1,14 +1,12 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
-import 'package:onestep/moor/moor_database.dart';
+import 'package:onestep/cloth/models/product.dart';
 
 class MyProductProvider with ChangeNotifier {
   final _productsSnapshot = <DocumentSnapshot>[];
   String _errorMessage = '';
-  int documentLimit = 9;
+  int documentLimit = 12;
   bool _hasNext = true;
   bool _isFetchingUsers = false;
 
@@ -24,9 +22,9 @@ class MyProductProvider with ChangeNotifier {
           title: product['title'],
           category: product['category'],
           price: product['price'],
-          hide: product['hide'] ? 1 : 0,
-          deleted: product['deleted'] ? 1 : 0,
-          images: jsonEncode(product['images']),
+          hide: product['hide'],
+          deleted: product['deleted'],
+          images: product['images'],
         );
       }).toList();
 

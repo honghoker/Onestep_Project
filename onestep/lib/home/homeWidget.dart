@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:onestep/home/test.dart';
 import 'package:onestep/search/provider/searchProvider.dart';
 import 'package:onestep/search/widget/searchAllWidget.dart';
 import 'package:provider/provider.dart';
@@ -56,10 +55,6 @@ class _HomeWidgetState extends State<HomeWidget> {
                       // Navigator.of(context).push(MaterialPageRoute(
                       //   builder: (context) => MessagePage(),
                       // ));
-
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => Test(),
-                      ));
                     },
                   ),
                   Positioned(

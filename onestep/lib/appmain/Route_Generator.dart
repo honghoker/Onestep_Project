@@ -63,7 +63,7 @@ class RouteGenerator {
 
       case 'DetailProduct':
         _pageWidget = ClothDetailViewWidgetcopy(
-          product: arguments['PRODUCT'],
+          docId: arguments['PRODUCTID'],
         );
         break;
 

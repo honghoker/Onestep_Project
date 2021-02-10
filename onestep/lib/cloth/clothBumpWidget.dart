@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:onestep/cloth/models/product.dart';
 import 'package:onestep/cloth/providers/productProvider.dart';
-import 'package:onestep/moor/moor_database.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
 import 'package:provider/provider.dart';
 
@@ -78,7 +78,7 @@ class _ClothBumpWidgetState extends State<ClothBumpWidget> {
                         maxHeight: MediaQuery.of(context).size.width * 0.28,
                       ),
                       child: ExtendedImage.network(
-                        jsonDecode(widget.product.images)[0],
+                        widget.product.images[0],
                         width: 80,
                         height: 80,
                         fit: BoxFit.cover,
@@ -139,7 +139,7 @@ class _ClothBumpWidgetState extends State<ClothBumpWidget> {
               leading: ClipRRect(
                 borderRadius: BorderRadius.circular(10.0),
                 child: ExtendedImage.network(
-                  jsonDecode(widget.product.images)[0],
+                  widget.product.images[0],
                   width: 60,
                   height: 100,
                   fit: BoxFit.cover,

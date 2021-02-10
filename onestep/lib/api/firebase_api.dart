@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 class FirebaseApi {
   static String getId() {
     final FirebaseAuth _auth = FirebaseAuth.instance;
-    print(_auth.currentUser.uid + "uid 출력");
+    // print(_auth.currentUser.uid + "uid 출력");
     return _auth.currentUser.uid;
   }
 
@@ -116,48 +116,5 @@ class FirebaseApi {
     } else {
       return refProducts.startAfterDocument(startAfter).get();
     }
-  }
-
-  static Future<QuerySnapshot> getUsersFavorite(
-    int limit, {
-    DocumentSnapshot startAfter,
-  }) async {
-    var refProducts;
-    refProducts = FirebaseFirestore.instance
-        .collection("users")
-        .doc(FirebaseApi.getId())
-        .collection("favorites");
-
-    if (startAfter == null) {
-      return refProducts.get();
-    } else {
-      return refProducts.startAfterDocument(startAfter).get();
-    }
-  }
-
-  static Future<DocumentSnapshot> getFavoriteProducts(
-    String productid, {
-    DocumentSnapshot startAfter,
-  }) async {
-    var refProducts;
-    refProducts =
-        FirebaseFirestore.instance.collection("products").doc(productid);
-
-    if (startAfter == null) {
-      return refProducts.get();
-    } else {
-      return refProducts.startAfterDocument(startAfter).get();
-    }
-  }
-
-  void incdecProductFavorites(bool chk, String uid) {
-    // 찜 증가, 감소
-    try {
-      FirebaseFirestore.instance.collection("products").doc(uid).update(
-        {
-          'favorites': chk ? FieldValue.increment(1) : FieldValue.increment(-1),
-        },
-      );
-    } catch (e) {}
   }
 }

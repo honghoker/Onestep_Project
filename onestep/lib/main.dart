@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:onestep/cloth/providers/favoriteProvider.dart';
 import 'package:onestep/cloth/providers/myProductProvider.dart';
+import 'package:onestep/favorite/providers/favoriteProvider.dart';
 import 'package:onestep/profile/provider/userProductProvider.dart';
 import 'package:onestep/search/provider/searchProvider.dart';
 

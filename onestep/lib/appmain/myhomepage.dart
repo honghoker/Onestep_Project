@@ -107,7 +107,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
             bottomNavigationBar: BottomNavigationBar(
-              fixedColor: Colors.pink,
+              // fixedColor: Colors.pink,
+              fixedColor: Color.fromRGBO(0, 100, 0, 1),
               currentIndex: _currentIndex,
               onTap: (int index) => setState(() => _currentIndex = index),
               type: BottomNavigationBarType.fixed,

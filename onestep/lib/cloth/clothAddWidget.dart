@@ -99,43 +99,6 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
       _imageList = _resultList;
     });
   }
-  // void getImage() async {
-  //   try {
-  //     Map<Permission, PermissionStatus> _statuses = await permissionRequest();
-  //     if (!(_statuses.containsValue("PermissionStatus.granted") ||
-  //         _statuses.containsValue("PermissionStatus.restricted") ||
-  //         _statuses.containsValue("PermissionStatus.permanentlyDenied"))) {
-  //       List<Asset> _resultList = List<Asset>();
-
-  //       _resultList = await MultiImagePicker.pickImages(
-  //         maxImages: 5,
-  //         enableCamera: true,
-  //         selectedAssets: _imageList,
-  //         cupertinoOptions: CupertinoOptions(
-  //           takePhotoIcon: "chat",
-  //         ),
-  //         materialOptions: MaterialOptions(
-  //           // actionBarTitle: "앨범",
-  //           actionBarColor: "#abcdef",
-  //           actionBarTitleColor: "#000000",
-  //           statusBarColor: "#000000",
-  //           // allViewTitle: "전체사진",
-  //           useDetailsView: true,
-  //           selectCircleStrokeColor: "#000000",
-  //         ),
-  //       );
-
-  //       if (_resultList.isEmpty) return;
-  //       setState(() {
-  //         _imageCount = _resultList.length;
-  //         _imageList.clear();
-  //         _imageList = _resultList;
-  //       });
-  //     }
-  //   } catch (e) {
-  //     print(e.toString());
-  //   }
-  // }
 
   Widget imageAddWidget() {
     return Row(
@@ -144,7 +107,6 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
           onTap: () {
             // getImage();
             checkCamStorePermission(getImage);
-            print("getImage()");
           },
           child: Container(
             width: 60,
@@ -206,7 +168,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
 
       FirebaseFirestore.instance
           .collection('products')
-          .doc(DateTime.now().toString())
+          .doc(DateTime.now().millisecondsSinceEpoch.toString())
           .set({
         'uid': FirebaseApi.getId(),
         'price': _priceTextEditingController.text,
@@ -229,9 +191,8 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
           SystemNavigator.pop();
         }
       }).catchError((value) {
-        print(value);
-        _scaffoldKey.currentState.showSnackBar(
-            SnackBar(content: Text("물품을 등록하려면 두장 이상의 사진이 필요합니다.")));
+        _scaffoldKey.currentState
+            .showSnackBar(SnackBar(content: Text("Error")));
       });
     }
   }

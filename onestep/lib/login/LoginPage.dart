@@ -200,18 +200,31 @@ class _LoginScreenState extends State<LoginScreen> {
             "photoUrl", documentSnapshots[0]["photoUrl"]);
         await preferences.setString("aboutMe", documentSnapshots[0]["aboutMe"]);
       }
-      Fluttertoast.showToast(msg: "로그인 완료");
+
+      // Fluttertoast.showToast(msg: "로그인 완료");
+      Fluttertoast.showToast(
+          msg: "userlevel = ${documentSnapshots[0]["userLevel"]}");
 
       this.setState(() {
         isLoading = false;
       });
       
-      // 회원가입으로 넘어가는 navigator
-      Navigator.of(context).pushNamed('/JoinPage?UID=${firebaseUser.uid}');
+      // // 회원가입으로 넘어가는 navigator
+      // Navigator.of(context).pushNamed('/JoinPage?UID=${firebaseUser.uid}');
 
-      // 찬섭이형 예시 코드 여기 확인
-      // Navigator.of(context)
-      //     .pushReplacementNamed('/MainPage?UID=${firebaseUser.uid}');
+      // // 찬섭이형 예시 코드 여기 확인
+      // // Navigator.of(context)
+      // //     .pushReplacementNamed('/MainPage?UID=${firebaseUser.uid}');
+
+      // userLevel 이 0 이면 회원가입으로 1 이면 이미 회원가입 완료한 사람
+      if (documentSnapshots[0]["userLevel"] == 0) {
+        // 회원가입으로 넘어가는 navigator
+        Navigator.of(context).pushNamed('/JoinPage?UID=${firebaseUser.uid}');
+      } else {
+        // 메인으로 넘어감
+        Navigator.of(context)
+            .pushReplacementNamed('/MainPage?UID=${firebaseUser.uid}');
+      }
 
       Fluttertoast.showToast(msg: 'uid 하단' + currentUser.uid);
     }

@@ -85,7 +85,7 @@ class _JoinScreenState extends State<JoinScreen> {
     FirebaseFirestore.instance
         .collection("users")
         .doc("$currentUserId")
-        .update({"userEmail": email, "nickName": nickName});
+        .update({"userEmail": email, "nickName": nickName, "userLevel": 1});
   }
 
   Future getRandomNumber() async {
@@ -191,15 +191,15 @@ class _JoinScreenState extends State<JoinScreen> {
                         decoration: InputDecoration(
                           hintText: "이메일",
                           enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: _isEmailUnderLine == true
-                                    ? Colors.grey
-                                    : Colors.red)),
-                        focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: _isEmailUnderLine == true
-                                    ? Colors.grey
-                                    : Colors.red)),
+                              borderSide: BorderSide(
+                                  color: _isEmailUnderLine == true
+                                      ? Colors.grey
+                                      : Colors.red)),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: _isEmailUnderLine == true
+                                      ? Colors.grey
+                                      : Colors.red)),
                           suffix: _isEmailChecked
                               ? GestureDetector(
                                   child: Text("확인완료"),
@@ -236,11 +236,13 @@ class _JoinScreenState extends State<JoinScreen> {
                   child: Container(
                     width: 300,
                     child: TextField(
+                      maxLength: 8,
                       controller: nicknameController,
                       onChanged: (text) {
                         tempNickName = text;
                       },
                       decoration: InputDecoration(
+                        counterText: "",
                         hintText: "닉네임",
                         enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(

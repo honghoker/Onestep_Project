@@ -251,14 +251,15 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
     final FirebaseFirestore _db = FirebaseFirestore.instance;
     String _boardID = boardData.boardId.toString();
     String _documentID = boardData.documentId.toString();
+    print("documentId " + _documentID);
+    print("boardId " + _boardID);
     return _db
         .collection("Board")
         .doc(_boardID)
         .collection(_boardID)
         .doc(_documentID)
         .collection(COMMENT_COLLECTION_NAME)
-        .where("field")
-        .orderBy("createDate")
+        // .orderBy("createDate")
         .get();
   }
 
@@ -813,8 +814,23 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
   }
 
   Widget createCommentListMethod() {
+    final FirebaseFirestore _db = FirebaseFirestore.instance;
+    String _boardID = boardData.boardId.toString();
+    String _documentID = boardData.documentId.toString();
+    print("documentId " + _documentID);
+    print("boardId " + _boardID);
     return FutureBuilder(
-      future: futureBuilderFetchRefreshMethod(refreshType: REFRESH_COMMENT),
+      // future: futureBuilderFetchRefreshMethod(refreshType: REFRESH_COMMENT),
+
+      future: FirebaseFirestore.instance
+          .collection("Board")
+          .doc(_boardID)
+          .collection(_boardID)
+          .doc(_documentID)
+          .collection(COMMENT_COLLECTION_NAME)
+          // .orderBy("createDate")
+          .get(),
+      // future: _commentFetchDataMethod(),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -836,6 +852,7 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
                 )
               ]));
             } else {
+              print(snapshot.data.docs.length);
               return _commentContainerMethod(snapshot.data);
             }
         }

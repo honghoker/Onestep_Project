@@ -52,9 +52,9 @@ class _MyHomePageState extends State<Boardmain> {
   }
 
   listViewFABCallback(bool isScrlDirectUp) {
-    setState(() {
-      _hideFAB = isScrlDirectUp;
-    });
+    print("HERE");
+
+    _hideFAB = isScrlDirectUp;
   }
 
   @override

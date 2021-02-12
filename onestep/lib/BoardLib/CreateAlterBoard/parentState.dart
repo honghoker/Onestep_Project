@@ -315,8 +315,9 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
     await saveData();
     TipDialogHelper.dismiss();
     TipDialogHelper.success("저장 완료!");
-    await Future.delayed(Duration(seconds: 3));
-    Navigator.pop(context, true);
+    //ERROR
+    // await Future.delayed(Duration(seconds: 3))
+    //     .then((value) => Navigator.pop(context, true));
   }
 
   Future saveData() async {

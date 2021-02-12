@@ -38,27 +38,29 @@ abstract class _BoardListParentState<T extends StatefulWidget>
   List<FreeBoardList> boardDataList;
   @override
   void initState() {
+    super.initState();
+    setFabCallBack();
     isScrollDirectionUp = true;
     _scrollController = new ScrollController();
     _scrollController.addListener(() {
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.forward) {
         if (isScrollDirectionUp == true) {
-          isScrollDirectionUp = false;
-          fabCallback(isScrollDirectionUp);
+          print(isScrollDirectionUp.toString() + "forward");
+          // isScrollDirectionUp = false;
+          fabCallback(!isScrollDirectionUp);
         }
       } else {
         if (_scrollController.position.userScrollDirection ==
             ScrollDirection.reverse) {
           if (isScrollDirectionUp == false) {
-            isScrollDirectionUp = true;
-            fabCallback(isScrollDirectionUp);
+            print(isScrollDirectionUp.toString() + "reverse");
+            // isScrollDirectionUp = true;
+            fabCallback(!isScrollDirectionUp);
           }
         }
       }
     });
-
-    super.initState();
   }
 
   @override

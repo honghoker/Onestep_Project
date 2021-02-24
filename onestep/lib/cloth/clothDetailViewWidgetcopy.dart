@@ -328,8 +328,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                   ),
                   style: TextStyle(
                     fontSize: 20,
-                    // fontWeight: FontWeight.w500,
-                    fontFamily: 'GothicA1_ExtraBold',
+                    fontWeight: FontWeight.w500,
                     color: Color(0xFF333333),
                   ),
                 ),
@@ -341,7 +340,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 20,
-                      fontFamily: 'GothicA1_Bold',
+                      fontWeight: FontWeight.w500,
                       color: Color(0xFF333333),
                     ),
                   ),
@@ -480,14 +479,10 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
         break;
       case '끌올하기':
         if (DateTime.now().difference(_product.bumptime).inHours >= 1) {
-          Navigator.of(context).pushNamed('/BumpProduct', arguments: {
-            "PRODUCT": Product(
-              firestoreid: widget.docId,
-              title: this._product.title,
-              price: this._product.price,
-              images: this._product.images,
-            )
-          }).then(
+          Navigator.of(context).pushNamed(
+            '/BumpProduct',
+            arguments: {"PRODUCT": widget.docId},
+          ).then(
             (value) {
               print("detail");
               if (value == "OK") Navigator.pop(context);

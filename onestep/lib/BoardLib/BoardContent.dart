@@ -710,8 +710,7 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
           .doc(_documentID)
           .update({
         "favoriteCount": favorite_data["favoriteUserList"].length + 1,
-        "favoriteUserList": favorite_data["favoriteUserList"]
-          ..add(boardData.uid)
+        "favoriteUserList": favorite_data["favoriteUserList"]..add(currentUID)
       });
     } else {
       String _boardID = boardData.boardId.toString();
@@ -724,7 +723,7 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
           .update({
         "favoriteCount": favorite_data["favoriteUserList"].length - 1,
         "favoriteUserList": favorite_data["favoriteUserList"]
-          ..remove(boardData.uid)
+          ..remove(currentUID)
       });
     }
     return !isLike;
@@ -846,7 +845,7 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
     );
   }
 
-  String _commentNameMethod(QuerySnapshot snapshot) {
+  String _commentNameMethod(var snapshot) {
     List commentList;
     String name = '';
     if (boardContentSnapshot != null) {
@@ -854,7 +853,7 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
       if (commentList.isNotEmpty) {
         for (int i = 0; i < commentList.length; i++) {
           String uid = commentList[i];
-          if (uid == currentUID) {
+          if (uid == snapshot["uid"]) {
             name = "익명 " + (i + 1).toString();
             break;
           }
@@ -862,6 +861,7 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
       } else
         name = "익명 1";
     }
+    print("here" + name);
     return name;
   }
 
@@ -978,16 +978,17 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
       {bool isUnderComment, String parentCommentId}) {
     isUnderComment = isUnderComment ?? false;
     int _commentLength = snapshot.size;
-    String _commentName = _commentNameMethod(snapshot);
+
     Widget _commentWidget;
     List<Widget> _commentContainerList = [];
     List widgetList = [];
     //Create Comment Widget
 
     for (int i = 0; i < _commentLength; i++) {
-      widgetList.add(ObjectKey(i));
       var _commentData = snapshot.docs[i];
+      widgetList.add(ObjectKey(i));
       bool wasClickedLikeButton = false;
+      String _commentName = _commentNameMethod(_commentData);
       bool isDeleted = _commentData["isDelete"] ?? false;
       bool deletedWithInDay;
       if (_commentData["favoriteUserList"] !=

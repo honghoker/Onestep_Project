@@ -1,25 +1,28 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
+import 'package:onestep/api/favorite_api.dart';
+import 'package:onestep/cloth/clothModifyWidget.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
-import 'package:onestep/login/KakaoShareManager.dart';
-import 'package:onestep/moor/moor_database.dart';
+import 'package:onestep/favorite/animations/favoriteanimation.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
-import 'package:moor_flutter/moor_flutter.dart' as mf;
+import 'package:onestep/profile/profileWidget.dart';
+import 'package:onestep/profile/provider/userProductProvider.dart';
+import 'package:onestep/profile/userProductWidget.dart';
 
-import 'animations/favoriteanimation.dart';
 import 'package:provider/provider.dart';
 import 'package:onestep/api/firebase_api.dart';
-import 'package:kakao_flutter_sdk/all.dart';
+
+import 'clothitem.dart';
+import 'models/product.dart';
 
 class ClothDetailViewWidgetcopy extends StatefulWidget {
-  final Product product;
+  final String docId;
 
-  const ClothDetailViewWidgetcopy({Key key, this.product}) : super(key: key);
+  const ClothDetailViewWidgetcopy({Key key, this.docId}) : super(key: key);
 
   @override
   _ClothDetailViewWidgetcopyState createState() =>
@@ -28,12 +31,11 @@ class ClothDetailViewWidgetcopy extends StatefulWidget {
 
 class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
   List _imageItem = new List();
-  TextEditingController _textcontroller;
-
+  TextEditingController _favoriteTextController;
+  TextEditingController _priceEditingController;
+  Product _product;
   @override
   void initState() {
-    _imageItem.addAll(jsonDecode(widget.product.images));
-
     // dynamic link
     initDynamicLinks();
     super.initState();
@@ -102,59 +104,186 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
   }
 
   Widget setFavorite() {
-    ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
+    return StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection("users")
+            .doc(FirebaseApi.getId())
+            .collection("favorites")
+            .where("productid", isEqualTo: this.widget.docId)
+            .snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Container();
+            default:
+              bool chk = snapshot.data.docs.length == 0 ? false : true;
+              return GestureDetector(
+                onTap: () {
+                  int favorites = int.tryParse(_favoriteTextController.text);
 
-    return StreamBuilder<mf.QueryRow>(
-      stream: p.watchsingleProduct(this.widget.product.firestoreid),
-      builder: (BuildContext context, AsyncSnapshot<mf.QueryRow> snapshot) {
+                  if (!chk) {
+                    FavoriteApi.insertFavorite(this.widget.docId);
+                    FavoriteAnimation().showFavoriteDialog(context);
+                    favorites++;
+                  } else {
+                    FavoriteApi.deleteFavorite(
+                        snapshot.data.docs[0].id, this.widget.docId);
+                    favorites--;
+                  }
+                  _favoriteTextController.text = (favorites).toString();
+                },
+                child: Icon(
+                  !chk ? Icons.favorite_border : Icons.favorite,
+                  color: Colors.pink,
+                ),
+              );
+          }
+        });
+  }
+
+  Future<DocumentSnapshot> getProduct() async {
+    return FirebaseFirestore.instance
+        .collection("products")
+        .doc(widget.docId)
+        .get();
+  }
+
+  void incProductViews() {
+    // 조회수 증가
+    try {
+      FirebaseFirestore.instance
+          .collection("products")
+          .doc(widget.docId)
+          .update(
+        {
+          'views': FieldValue.increment(1),
+        },
+      );
+    } catch (e) {}
+  }
+
+  Widget getUserName() {
+    return FutureBuilder(
+      future: FirebaseFirestore.instance
+          .collection("users")
+          .doc(this._product.uid)
+          .get(),
+      builder:
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             return Text("");
           default:
-            return GestureDetector(
-              onTap: () {
-                int favorites = int.tryParse(_textcontroller.text);
-                bool chk = !snapshot.hasData;
-                if (chk) {
-                  p.insertProduct(this.widget.product);
-                  favorites++;
-                } else {
-                  p.deleteProduct(this.widget.product);
-                  favorites--;
-                }
-                FavoriteAnimation().incdecProductFavorites(
-                    chk, context, this.widget.product.firestoreid);
-                _textcontroller.text = (favorites).toString();
-              },
-              child: Icon(
-                !snapshot.hasData ? Icons.favorite_border : Icons.favorite,
-                color: Colors.pink,
-              ),
+            return Text(
+              snapshot.data['nickname'],
+              style: TextStyle(fontWeight: FontWeight.w500),
             );
         }
       },
     );
   }
 
-  Future<DocumentSnapshot> getProduct() async {
-    return FirebaseFirestore.instance
-        .collection("products")
-        .doc(widget.product.firestoreid)
-        .get();
-  }
+  Widget getUserProducts() {
+    var _size = MediaQuery.of(context).size;
+    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.0;
+    final double _itemWidth = _size.width / 2;
 
-  void incProductViews(int views) {
-    // 조회수 증가
-    try {
-      FirebaseFirestore.instance
-          .collection("products")
-          .doc(widget.product.firestoreid)
-          .update(
-        {
-          'views': views,
-        },
-      );
-    } catch (e) {}
+    return FutureBuilder<QuerySnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('products')
+          .where('uid', isEqualTo: this._product.uid)
+          .where('bumptime', isNotEqualTo: this._product.bumptime)
+          .where('deleted', isEqualTo: false)
+          .where('hide', isEqualTo: false)
+          .orderBy('bumptime', descending: true)
+          .limit(4)
+          .get(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return new Text("");
+          default:
+            if (snapshot.data.docs.isEmpty) {
+              return Text("");
+            }
+            return Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      '판매 상품',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF333333),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => Consumer<UserProductProvider>(
+                              builder: (context, userProductProvider, _) =>
+                                  UserProductWidget(
+                                userProductProvider: userProductProvider,
+                                uid: _product.uid,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            '더보기',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF666666),
+                            ),
+                          ),
+                          Icon(
+                            Icons.keyboard_arrow_right,
+                            size: 20,
+                            color: Color(0xFF999999),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                GridView.builder(
+                  shrinkWrap: true,
+                  itemCount: snapshot.data.size,
+                  physics: NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    childAspectRatio: _itemWidth > _itemHeight
+                        ? (_itemHeight / _itemWidth)
+                        : (_itemWidth / _itemHeight),
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                  ),
+                  itemBuilder: (context, index) {
+                    return ClothItem(
+                      product: Product(
+                        firestoreid: snapshot.data.docs[index].id,
+                        uid: snapshot.data.docs[index].data()['uid'],
+                        title: snapshot.data.docs[index].data()['title'],
+                        category: snapshot.data.docs[index].data()['category'],
+                        price: snapshot.data.docs[index].data()['price'],
+                        images: snapshot.data.docs[index].data()['images'],
+                      ),
+                    );
+                  },
+                ),
+              ],
+            );
+        }
+      },
+    );
   }
 
   Widget renderBody(AsyncSnapshot<DocumentSnapshot> snapshot) {
@@ -186,112 +315,154 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
               ),
               itemCount: _imageItem.length,
               itemBuilder: (BuildContext context, int index) {
-                return Image.network(
+                return ExtendedImage.network(
                   _imageItem[index],
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
                   fit: BoxFit.cover,
+                  cache: true,
+                  borderRadius: BorderRadius.all(Radius.circular(30.0)),
                 );
               },
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(5.0),
-            child: Text(
-              "${snapshot.data.data()['price']}원",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF333333),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Text(
-              "${snapshot.data.data()['title']}",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF333333),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Row(
+            child: Column(
               children: <Widget>[
-                Icon(
-                  Icons.local_offer,
-                  color: Colors.grey,
-                  size: 17,
+                TextField(
+                  controller: _priceEditingController,
+                  enableInteractiveSelection: false,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                  ),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF333333),
+                  ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 2.0),
-                ),
-                Text("${snapshot.data.data()['category']}"),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Row(
-              children: <Widget>[
-                Icon(
-                  Icons.access_time,
-                  color: Colors.grey,
-                  size: 15,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 2.0),
-                ),
-                Text("${getDiffTime(snapshot.data.data()['uploadtime'])}"),
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                ),
-                Icon(
-                  Icons.remove_red_eye,
-                  color: Colors.grey,
-                  size: 15,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 2.0),
-                ),
-                Text("${snapshot.data.data()['views']}"),
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                ),
-                Icon(
-                  Icons.favorite,
-                  color: Colors.grey,
-                  size: 15,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 2.0),
-                ),
-                Container(
-                  width: 30,
-                  child: TextField(
-                    controller: _textcontroller,
-                    enableInteractiveSelection: false,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "${snapshot.data.data()['title']}",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF333333),
                     ),
                   ),
                 ),
-
-                // Text("${snapshot.data.data()['favorites']}"),
-                // dtdtdtdtd
+                SizedBox(height: 10),
+                Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.local_offer,
+                      color: Colors.grey,
+                      size: 17,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 2.0),
+                    ),
+                    Text("${snapshot.data.data()['category']}"),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.access_time,
+                      color: Colors.grey,
+                      size: 15,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 2.0),
+                    ),
+                    Text("${getDiffTime(snapshot.data.data()['uploadtime'])}"),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                    ),
+                    Icon(
+                      Icons.remove_red_eye,
+                      color: Colors.grey,
+                      size: 15,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 2.0),
+                    ),
+                    Text("${snapshot.data.data()['views']}"),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                    ),
+                    Icon(
+                      Icons.favorite,
+                      color: Colors.grey,
+                      size: 15,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 2.0),
+                    ),
+                    Container(
+                      width: 30,
+                      child: TextField(
+                        controller: _favoriteTextController,
+                        enableInteractiveSelection: false,
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Divider(),
+                SizedBox(height: 10),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "${snapshot.data.data()['explain']}",
+                  ),
+                ),
+                SizedBox(height: 10),
+                Divider(),
+                SizedBox(
+                  height: 80,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ProfileWidget(
+                                  uid: _product.uid,
+                                )),
+                      );
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: AssetImage('images/profile.png'),
+                                fit: BoxFit.cover),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        getUserName(),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                getUserProducts(),
               ],
             ),
-          ),
-          Divider(),
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Text("${snapshot.data.data()['explain']}"),
           ),
         ],
       ),
@@ -305,28 +476,85 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
       case '신고하기':
         break;
       case '수정하기':
+        Navigator.of(context)
+            .push(
+          MaterialPageRoute(
+            builder: (context) => ClothModifyWidget(product: this._product),
+          ),
+        )
+            .then((value) {
+          if (value == "OK") {
+            setState(() {});
+          }
+        });
         break;
       case '끌올하기':
-        DateTime.now();
+        if (DateTime.now().difference(_product.bumptime).inHours >= 1) {
+          Navigator.of(context).pushNamed('/BumpProduct', arguments: {
+            "PRODUCT": Product(
+              firestoreid: widget.docId,
+              title: this._product.title,
+              price: this._product.price,
+              images: this._product.images,
+            )
+          }).then(
+            (value) {
+              print("detail");
+              if (value == "OK") Navigator.pop(context);
+            },
+          );
+        } else {
+          print("끌올 불가 메세지 출력");
+        }
 
-        FirebaseFirestore.instance
-            .collection("products")
-            .doc(widget.product.firestoreid)
-            .update({'bumptime': DateTime.now()});
         break;
       case '숨김':
+        // 확인 취소 다이얼로그 띄우기
         FirebaseFirestore.instance
             .collection("products")
-            .doc(widget.product.firestoreid)
+            .doc(widget.docId)
             .update({'hide': true});
         break;
       case '삭제':
+        // 확인 취소 다이얼로그 띄우기
         FirebaseFirestore.instance
             .collection("products")
-            .doc(widget.product.firestoreid)
+            .doc(widget.docId)
             .update({'deleted': true});
         break;
     }
+  }
+
+  Widget bottomChatWidget() {
+    return Padding(
+      padding: EdgeInsets.only(right: 10.0),
+      child: SizedBox(
+        width: 150,
+        child: RaisedButton(
+          onPressed: () {
+            // FirebaseChatController()
+            //     .createChatingRoomToFirebaseStorage(
+            //   false,
+            //   widget.product.firestoreid,
+            //   widget.product.title,
+            //   FirebaseApi.getId(),
+            //   widget.product.uid,
+            // );
+
+            NotificationManager.navigateToChattingRoom(
+              context,
+              FirebaseApi.getId(),
+              this._product.uid,
+              this._product.firestoreid,
+            );
+            //Navigator.of(context).pop();
+          },
+          color: Colors.pink,
+          textColor: Colors.white,
+          child: Text('채팅'),
+        ),
+      ),
+    );
   }
 
   Widget bottomNavigator() {
@@ -364,39 +592,12 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
             SizedBox(
               width: 100,
               child: Text(
-                "${widget.product.price}원",
+                "${this._product.price}원",
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
             ),
             Expanded(child: Container()),
-            Padding(
-              padding: EdgeInsets.only(right: 10.0),
-              child: SizedBox(
-                width: 150,
-                child: RaisedButton(
-                  onPressed: () {
-                    // FirebaseChatController()
-                    //     .createChatingRoomToFirebaseStorage(
-                    //   false,
-                    //   widget.product.firestoreid,
-                    //   widget.product.title,
-                    //   FirebaseApi.getId(),
-                    //   widget.product.uid,
-                    // );
-                    NotificationManager.navigateToChattingRoom(
-                      context,
-                      FirebaseApi.getId(),
-                      widget.product.uid,
-                      widget.product.firestoreid,
-                    );
-                    //Navigator.of(context).pop();
-                  },
-                  color: Colors.pink,
-                  textColor: Colors.white,
-                  child: Text('채팅'),
-                ),
-              ),
-            )
+            if (this._product.uid != FirebaseApi.getId()) bottomChatWidget(),
           ],
         ),
       ),
@@ -408,7 +609,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
       onSelected: handleClick,
       itemBuilder: (BuildContext context) {
         var menuItem = List<String>();
-        if (FirebaseApi.getId() == widget.product.uid)
+        if (FirebaseApi.getId() == this._product.uid)
           menuItem.addAll({'끌올하기', '수정하기', '새로고침', '숨김', '삭제'});
         else {
           menuItem.addAll({'새로고침', '신고하기'});
@@ -586,9 +787,19 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                   ),
                 );
               } else {
-                _textcontroller = TextEditingController(
-                    text: snapshot.data.data()['favorites'].toString());
-                incProductViews(snapshot.data.data()['views'] + 1);
+                _product =
+                    Product.fromJson(snapshot.data.data(), snapshot.data.id);
+                _imageItem = snapshot.data.data()['images'];
+                _priceEditingController =
+                    TextEditingController(text: this._product.price + "원");
+
+                List<dynamic> favorite =
+                    snapshot.data.data()['favoriteUserList'];
+                int favoritecount = favorite == null ? 0 : favorite.length;
+                _favoriteTextController =
+                    TextEditingController(text: favoritecount.toString());
+
+                incProductViews(); // 조회수 증가
                 return Scaffold(
                   appBar: AppBar(
                     iconTheme: IconThemeData(

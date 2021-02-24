@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:onestep/cloth/providers/productSearchProvider.dart';
+import 'package:moor/moor.dart' as mf;
+import 'package:onestep/cloth/clothitem.dart';
 import 'package:onestep/moor/moor_database.dart';
+import 'package:onestep/search/provider/searchProvider.dart';
 import 'package:provider/provider.dart';
 
-import 'clothitem.dart';
-
-class ClothSearchResultPage extends StatefulWidget {
-  final ProuductSearchProvider prouductSearchProvider;
-
-  const ClothSearchResultPage({
+class SearchProductBoardWidget extends StatefulWidget {
+  final SearchProvider searchProvider;
+  final String type; // Product, Board
+  const SearchProductBoardWidget({
     Key key,
-    this.prouductSearchProvider,
+    this.searchProvider,
+    this.type,
   }) : super(key: key);
   @override
-  _ClothSearchResultPageState createState() => _ClothSearchResultPageState();
+  _SearchProductBoardWidgetState createState() =>
+      _SearchProductBoardWidgetState();
 }
 
-class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
+class _SearchProductBoardWidgetState extends State<SearchProductBoardWidget> {
   String tempSearchValue = "";
   TextEditingController _textController;
   bool _isSearchMode = true;
@@ -40,55 +42,61 @@ class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
 
     return Padding(
       padding: const EdgeInsets.only(top: 10),
-      child: StreamBuilder<List<Search>>(
+      child: StreamBuilder<List<mf.QueryRow>>(
         stream: p.watchSearchs(),
-        builder: (BuildContext context, AsyncSnapshot<List<Search>> snapshot) {
-          if (snapshot.data == null) return new Text(""); // 이거 안넣어주면 오류남
-          SizedBox(
-            height: 5,
-          );
-          return SizedBox(
-            height: 50,
-            child: ListView.builder(
-              itemCount: snapshot.data.length,
-              physics: ClampingScrollPhysics(),
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (BuildContext context, int index) {
-                return Card(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  child: InkWell(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        left: 10,
-                        right: 10,
-                        top: 5,
-                        bottom: 5,
+        builder:
+            (BuildContext context, AsyncSnapshot<List<mf.QueryRow>> snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Text("");
+            default:
+              if (!snapshot.hasData) return Text("");
+              SizedBox(height: 5);
+              return SizedBox(
+                height: 50,
+                child: ListView.builder(
+                  itemCount: snapshot.data.length,
+                  physics: ClampingScrollPhysics(),
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Card(
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
                       ),
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                            "${snapshot.data[snapshot.data.length - (index + 1)].title}",
-                            style: TextStyle(),
-                            textAlign: TextAlign.center),
+                      child: InkWell(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            left: 10,
+                            right: 10,
+                            top: 5,
+                            bottom: 5,
+                          ),
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text("${snapshot.data[index].data['title']}",
+                                style: TextStyle(),
+                                textAlign: TextAlign.center),
+                          ),
+                        ),
+                        onTap: () {
+                          print("searchClick");
+                          String text = snapshot.data[index].data['title'];
+                          FocusScope.of(context).unfocus();
+
+                          widget.searchProvider.searchProducts(text);
+
+                          setState(() {
+                            _isSearchMode = false;
+                            _textController.text = text;
+                          });
+                        },
                       ),
-                    ),
-                    onTap: () {
-                      print("searchClick");
-                      FocusScope.of(context).unfocus();
-                      setState(() {
-                        _isSearchMode = false;
-                        _textController.text = snapshot
-                            .data[snapshot.data.length - (index + 1)].title;
-                      });
-                    },
-                  ),
-                );
-              },
-            ),
-          );
+                    );
+                  },
+                ),
+              );
+          }
         },
       ),
     );
@@ -120,16 +128,35 @@ class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
                 onSubmitted: (text) {
                   // 2글자 제한
                   if (text.trim().length >= 2) {
-                    print(text);
-                    widget.prouductSearchProvider.searchProducts(text);
-                    search = Search(title: text);
+                    this.widget.type == 'product'
+                        ? widget.searchProvider.searchProducts(text)
+                        : "board 검색";
+
+                    search =
+                        Search(title: text, id: null, time: DateTime.now());
+                    p
+                        .customSelect(
+                            "SELECT * FROM Searchs WHERE title LIKE '$text'")
+                        .getSingle()
+                        .then((value) => {
+                              if (value != null)
+                                {
+                                  p.updateSearch(Search.fromJson(value.data)
+                                      .copyWith(
+                                          time: DateTime.now())), // 시간 update
+                                }
+                              else
+                                {
+                                  p.insertSearch(search),
+                                }
+                            });
+
                     setState(() {
                       _isSearchMode = false;
-                      if (text.trim().toString() != "") p.insertSearch(search);
                       // _isAutoFocus = false;
                     });
                   } else {
-                    print("2글자 미만 제한 예외처리");
+                    print("두 글자 이상 입력해주세요. 팝업");
                   }
                 },
                 onChanged: (text) {
@@ -144,7 +171,6 @@ class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
                       padding: const EdgeInsets.only(bottom: 3),
                       child: Icon(Icons.search),
                     ),
-                    // icon: Icon(Icons.search),
                     suffixIcon: _textController.text != ""
                         ? IconButton(
                             icon: Icon(Icons.clear),
@@ -155,41 +181,36 @@ class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
                             },
                           )
                         : null,
-                    hintText: "장터나 게시판을 검색해보세요!"),
+                    hintText: this.widget.type == 'product'
+                        ? "찾고 싶은 상품을 검색해보세요."
+                        : "게시판의 글을 검색해보세요."),
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: Container(
-                child: Text("취소", style: TextStyle(fontSize: 15)),
-              ),
-            ),
-          )
         ],
       ),
     );
   }
 
-  Widget renderBody(double itemWidth, double itemHeight) {
+  Widget renderProductBody() {
+    var _size = MediaQuery.of(context).size;
+    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.0;
+    final double _itemWidth = _size.width / 2;
+
     return GridView(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       padding: EdgeInsets.symmetric(horizontal: 15),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        childAspectRatio: itemWidth > itemHeight
-            ? (itemHeight / itemWidth)
-            : (itemWidth / itemHeight),
+        childAspectRatio: _itemWidth > _itemHeight
+            ? (_itemHeight / _itemWidth)
+            : (_itemWidth / _itemHeight),
         crossAxisCount: 3,
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
       ),
       children: [
-        ...widget.prouductSearchProvider.products
+        ...widget.searchProvider.products
             .map(
               (product) => ClothItem(
                 product: product,
@@ -200,19 +221,20 @@ class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
     );
   }
 
+  Widget renderBoardBody() {
+    return Container();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // final TextEditingController _textController = TextEditingController(text: tempSearchValue);
-    var _size = MediaQuery.of(context).size;
-    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.0;
-    final double _itemWidth = _size.width / 2;
-
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: appbar(),
         body: _isSearchMode == false
-            ? renderBody(_itemWidth, _itemHeight)
+            ? this.widget.type == 'product'
+                ? renderProductBody()
+                : renderBoardBody()
             : Column(
                 children: [
                   Padding(

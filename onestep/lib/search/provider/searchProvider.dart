@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/cloth/models/product.dart';
 
-class ProuductProvider with ChangeNotifier {
+class SearchProvider with ChangeNotifier {
   final _productsSnapshot = <DocumentSnapshot>[];
   String _errorMessage = '';
-  int documentLimit = 12;
+  int documentLimit = 9;
   bool _hasNext = true;
   bool _isFetchingUsers = false;
 
@@ -25,13 +25,38 @@ class ProuductProvider with ChangeNotifier {
           hide: product['hide'],
           deleted: product['deleted'],
           images: product['images'],
+          bumptime: DateTime.fromMillisecondsSinceEpoch(
+              product['bumptime'].millisecondsSinceEpoch),
         );
-      }).toList();
+      }).toList()
+        ..sort((key1, key2) => key2.bumptime.compareTo(key1.bumptime));
+
+  Future fetchNextProducts(String category) async {
+    if (_isFetchingUsers) return;
+    _isFetchingUsers = true;
+
+    try {
+      final snap = await FirebaseApi.getProducts(
+        documentLimit,
+        category,
+        startAfter:
+            _productsSnapshot.isNotEmpty ? _productsSnapshot.last : null,
+      );
+      _productsSnapshot.addAll(snap.docs);
+
+      if (snap.docs.length < documentLimit) _hasNext = false;
+      notifyListeners();
+    } catch (error) {
+      _errorMessage = error.toString();
+      notifyListeners();
+    }
+
+    _isFetchingUsers = false;
+  }
 
   Future fetchProducts(String category) async {
     if (_isFetchingUsers) return;
     _isFetchingUsers = true;
-    _hasNext = true;
     _productsSnapshot.clear();
     try {
       final snap = await FirebaseApi.getProducts(
@@ -48,14 +73,14 @@ class ProuductProvider with ChangeNotifier {
     _isFetchingUsers = false;
   }
 
-  Future fetchNextProducts(String category) async {
-    if (_isFetchingUsers || !_hasNext) return;
+  Future searchProducts(String search) async {
+    if (_isFetchingUsers) return;
     _isFetchingUsers = true;
-
+    _productsSnapshot.clear();
     try {
-      final snap = await FirebaseApi.getProducts(
+      final snap = await FirebaseApi.getSearchProducts(
         documentLimit,
-        category,
+        search,
         startAfter:
             _productsSnapshot.isNotEmpty ? _productsSnapshot.last : null,
       );

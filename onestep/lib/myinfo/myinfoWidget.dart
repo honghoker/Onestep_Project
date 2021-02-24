@@ -3,10 +3,9 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:onestep/api/firebase_api.dart';
-import 'package:onestep/home/notificationPage.dart';
-import 'package:random_string/random_string.dart';
+import 'package:onestep/cloth/providers/myProductProvider.dart';
+import 'package:onestep/myinfo/myinfoMyWrite.dart';
+import 'package:provider/provider.dart';
 
 class MyinfoWidget extends StatefulWidget {
   @override

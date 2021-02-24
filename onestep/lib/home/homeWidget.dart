@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:onestep/moor/moor_database.dart';
-import 'package:onestep/report/reportController.dart';
+import 'package:onestep/search/provider/searchProvider.dart';
+import 'package:onestep/search/widget/searchAllWidget.dart';
 import 'package:provider/provider.dart';
+
 import 'homeHotBoardBody.dart';
 import 'homeNoticeBody.dart';
-import 'homeNotificationPage.dart';
-import 'homeSearchResultPage.dart';
-import 'message/messagePage.dart';
 
 class HomeWidget extends StatefulWidget {
   @override
@@ -16,43 +14,47 @@ class HomeWidget extends StatefulWidget {
 class _HomeWidgetState extends State<HomeWidget> {
   @override
   Widget build(BuildContext context) {
-    NotificationChksDao p =
-        Provider.of<AppDatabase>(context).notificationChksDao;
 
+NotificationChksDao p =
+        Provider.of<AppDatabase>(context).notificationChksDao;
     return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Text("홈", style: TextStyle(color: Colors.black)),
-          actions: <Widget>[
-            Row(
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.search),
-                  color: Colors.black,
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => HomeSearchResultPage(),
-                    ));
-                  },
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: Stack(children: [
-                    IconButton(
-                      icon: Icon(Icons.notifications_none),
-                      color: Colors.black,
-                      onPressed: () {
-                        // 알림으로 넘어가는 부분
-                        // Navigator.of(context).push(MaterialPageRoute(
-                        //   builder: (context) => HomeNotificationPage(),
-                        // ));
-                        // 쪽지 form 보려고 test
-                        // Navigator.of(context).push(MaterialPageRoute(
-                        //   builder: (context) => MessagePage(),
-                        // ));
-                      },
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Text("홈", style: TextStyle(color: Colors.black)),
+        actions: <Widget>[
+          Row(
+            children: <Widget>[
+              IconButton(
+                icon: Icon(Icons.search),
+                color: Colors.black,
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Consumer<SearchProvider>(
+                      builder: (context, searchProvider, _) => SearchAllWidget(
+                        searchProvider: searchProvider,
+                      ),
                     ),
-                    StreamBuilder(
+                  ));
+                },
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: Stack(children: [
+                  IconButton(
+                    icon: Icon(Icons.notifications_none),
+                    color: Colors.black,
+                    onPressed: () {
+                      // 알림으로 넘어가는 부분
+                      //   Navigator.of(context).push(MaterialPageRoute(
+                      //   builder: (context) => HomeNotificationPage(),
+                      // ));
+                      // 쪽지 form 보려고 test
+                      // Navigator.of(context).push(MaterialPageRoute(
+                      //   builder: (context) => MessagePage(),
+                      // ));
+                    },
+                  ),
+                   StreamBuilder(
                         stream: p.watchNotificationAll(),
                         builder: (context, snapshot) {
                           switch (snapshot.connectionState) {
@@ -84,13 +86,24 @@ class _HomeWidgetState extends State<HomeWidget> {
                                       ),
                               );
                           }
-                        })
-                  ]),
-                ),
-              ],
-            ),
-          ],
-          backgroundColor: Colors.white,
+                        }),
+                ]),
+              ),
+            ],
+          ),
+        ],
+        backgroundColor: Colors.white,
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              HomeNoticeBody(),
+              HomeHotBoardBody(),
+              // HomeImagesBody(_itemWidth, _itemHeight),
+            ],
+          ),
         ),
         body: SingleChildScrollView(
           child: Container(

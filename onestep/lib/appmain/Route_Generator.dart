@@ -4,6 +4,9 @@ import 'package:flutter/foundation.dart' as foundation;
 import 'package:onestep/login/joinPage.dart';
 import '../BoardLib/CreateAlterBoard/parentState.dart';
 import '../BoardLib/boardContent.dart';
+import '../cloth/clothWidget.dart';
+import '../cloth/clothBumpWidget.dart';
+import '../cloth/clothDetailViewWidgetcopy.dart';
 import 'package:path/path.dart' as p;
 import 'package:onestep/appmain/myhomepage.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
@@ -40,6 +43,9 @@ class RouteGenerator {
         // Navigator.of(context).pushNamed('/BoardContent',arguments: {"BOARD_DATA": boardDataList[index]}); 으로 사용
         _pageWidget = MyHomePage();
         break;
+      case 'ProductWidget':
+        _pageWidget = ClothWidget();
+        break;
 
       case 'BoardContent':
         // Navigator.of(context).pushNamed('/BoardContent?INDEX=$index&BOARD_NAME="current"') -> arguments['INDEX'] = index, arguments['BOARD_NAME'] = "current"
@@ -65,6 +71,17 @@ class RouteGenerator {
         _pageWidget = CustomImageViewer(
           index: arguments["INDEX"],
           galleryItems: arguments["IMAGES"],
+        );
+        break;
+      case 'DetailProduct':
+        _pageWidget = ClothDetailViewWidgetcopy(
+          docId: arguments['PRODUCTID'],
+        );
+        break;
+
+      case 'BumpProduct':
+        _pageWidget = ClothBumpWidget(
+          product: arguments['PRODUCT'],
         );
         break;
     }

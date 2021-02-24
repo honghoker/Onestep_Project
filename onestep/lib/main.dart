@@ -3,12 +3,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/providers/myProductProvider.dart';
 import 'package:onestep/favorite/providers/favoriteProvider.dart';
+import 'package:onestep/moor/moor_database.dart';
 import 'package:onestep/profile/provider/userProductProvider.dart';
 import 'package:onestep/search/provider/searchProvider.dart';
 
 import 'appmain/Route_Generator.dart';
 
-import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
 
 import 'appmain/myhomepage.dart';
@@ -17,7 +17,6 @@ import 'cloth/providers/productProvider.dart';
 
 import 'login/CheckAuth.dart';
 import 'login/LoginPage.dart';
-import 'BoardLib/BoardProvi/boardClass.dart';
 import 'BoardLib/BoardProvi/boardProvider.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -28,6 +27,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        Provider<AppDatabase>.value(value: new AppDatabase()),
         Provider<Category>.value(value: new Category()),
         ChangeNotifierProvider<ProuductProvider>.value(
             value: new ProuductProvider()),

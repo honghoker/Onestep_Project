@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onestep/moor/moor_database.dart';
 import 'package:onestep/search/provider/searchProvider.dart';
 import 'package:onestep/search/widget/searchAllWidget.dart';
 import 'package:provider/provider.dart';
@@ -14,8 +15,7 @@ class HomeWidget extends StatefulWidget {
 class _HomeWidgetState extends State<HomeWidget> {
   @override
   Widget build(BuildContext context) {
-
-NotificationChksDao p =
+    NotificationChksDao p =
         Provider.of<AppDatabase>(context).notificationChksDao;
     return Scaffold(
       appBar: AppBar(
@@ -54,39 +54,39 @@ NotificationChksDao p =
                       // ));
                     },
                   ),
-                   StreamBuilder(
-                        stream: p.watchNotificationAll(),
-                        builder: (context, snapshot) {
-                          switch (snapshot.connectionState) {
-                            case ConnectionState.waiting:
-                              return Positioned(
-                                top: 8,
-                                right: 10,
-                                child: Icon(
-                                  // check 다 했으면 아이콘이 없는 쪽으로 코드 변경
-                                  Icons.brightness_1,
-                                  color: Colors.white,
-                                  size: 15,
-                                ),
-                              );
+                  StreamBuilder(
+                      stream: p.watchNotificationAll(),
+                      builder: (context, snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.waiting:
+                            return Positioned(
+                              top: 8,
+                              right: 10,
+                              child: Icon(
+                                // check 다 했으면 아이콘이 없는 쪽으로 코드 변경
+                                Icons.brightness_1,
+                                color: Colors.white,
+                                size: 15,
+                              ),
+                            );
 
-                            default:
-                              List<NotificationChk> notiList = snapshot.data;
-                              bool chk = notiList.isEmpty;
+                          default:
+                            List<NotificationChk> notiList = snapshot.data;
+                            bool chk = notiList.isEmpty;
 
-                              return Positioned(
-                                top: 8,
-                                right: 10,
-                                child: chk
-                                    ? Container()
-                                    : Icon(
-                                        Icons.brightness_1,
-                                        color: Colors.red,
-                                        size: 15,
-                                      ),
-                              );
-                          }
-                        }),
+                            return Positioned(
+                              top: 8,
+                              right: 10,
+                              child: chk
+                                  ? Container()
+                                  : Icon(
+                                      Icons.brightness_1,
+                                      color: Colors.red,
+                                      size: 15,
+                                    ),
+                            );
+                        }
+                      }),
                 ]),
               ),
             ],
@@ -105,16 +105,7 @@ NotificationChksDao p =
             ],
           ),
         ),
-        body: SingleChildScrollView(
-          child: Container(
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                HomeNoticeBody(),
-                HomeHotBoardBody(),
-              ],
-            ),
-          ),
-        ));
+      ),
+    );
   }
 }

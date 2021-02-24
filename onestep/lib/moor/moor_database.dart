@@ -3,12 +3,11 @@ import 'package:moor_flutter/moor_flutter.dart';
 part 'moor_database.g.dart';
 
 class Searchs extends Table {
-  IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text()();
   DateTimeColumn get time => dateTime()();
 
   @override
-  Set<Column> get primaryKey => {id};
+  Set<Column> get primaryKey => {title};
 }
 
 @UseDao(tables: [Searchs])

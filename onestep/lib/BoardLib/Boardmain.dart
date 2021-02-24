@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardProvider.dart';
-import 'package:onestep/BoardLib/secondPageView.dart';
 import 'package:onestep/BoardLib/BoardList/boardListView.dart';
 import 'package:path/path.dart' as p;
 import 'package:onestep/BoardLib/CustomException/customThrow.dart';

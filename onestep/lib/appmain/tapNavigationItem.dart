@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onestep/BoardLib/BoardProvi/boardProvider.dart';
 import 'package:onestep/BoardLib/Boardmain.dart';
 import 'package:onestep/cloth/clothWidget.dart';
 import 'package:onestep/cloth/providers/productProvider.dart';
@@ -34,7 +35,11 @@ class TabNavigationItem {
           title: Text("장터"),
         ),
         TabNavigationItem(
-          page: Boardmain(),
+          page: Consumer<BoardProvider>(
+            builder: (context, boardProvider, _) => Boardmain(
+              boardProvider: boardProvider,
+            ),
+          ),
           icon: Icon(Icons.list),
           title: Text("게시판"),
         ),

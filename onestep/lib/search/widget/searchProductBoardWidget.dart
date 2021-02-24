@@ -132,8 +132,7 @@ class _SearchProductBoardWidgetState extends State<SearchProductBoardWidget> {
                         ? widget.searchProvider.searchProducts(text)
                         : "board 검색";
 
-                    search =
-                        Search(title: text, id: null, time: DateTime.now());
+                    search = Search(title: text, time: DateTime.now());
                     p
                         .customSelect(
                             "SELECT * FROM Searchs WHERE title LIKE '$text'")

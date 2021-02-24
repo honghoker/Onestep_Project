@@ -145,15 +145,25 @@ class _ClothItemState extends State<ClothItem> {
             SizedBox(
               height: 15,
               child: Align(
-                child: Text(
-                  "${widget.product.price.toString()}",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF333333),
-                  ),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      "${widget.product.price.toString()}",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        // fontWeight: FontWeight.w500,
+                        fontFamily: 'GothicA1_ExtraBold',
+                        color: Color(0xFF333333),
+                      ),
+                    ),
+                    Text(
+                      "원",
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
                 ),
                 alignment: Alignment.centerLeft,
               ),
@@ -167,7 +177,7 @@ class _ClothItemState extends State<ClothItem> {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w200,
+                    fontFamily: 'GothicA1_SemiBold',
                     color: Color(0xFF333333),
                   ),
                 ),
@@ -183,7 +193,8 @@ class _ClothItemState extends State<ClothItem> {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w200,
+                    // fontWeight: FontWeight.w200,
+                    fontFamily: 'GothicA1_Regular',
                     color: Color(0xFF333333),
                   ),
                 ),

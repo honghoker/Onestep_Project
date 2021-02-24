@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:onestep/api/firebase_api.dart';
+import 'package:onestep/cloth/categoryWidget.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:random_string/random_string.dart';
@@ -339,9 +340,11 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
                   maxLength: 20,
                 ),
               ),
+
               Container(
                 margin: EdgeInsets.all(10),
                 child: TextField(
+                  maxLength: 11,
                   controller: _priceTextEditingController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [
@@ -350,9 +353,50 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: '가격',
+                    counterText: "",
                   ),
                 ),
               ),
+
+              Container(
+                margin: EdgeInsets.all(10),
+                width: MediaQuery.of(context).size.width,
+                height: 60,
+                alignment: Alignment.centerLeft,
+                decoration: BoxDecoration(
+                  border: Border.all(width: 1.0, color: Colors.grey),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(4.0),
+                  ),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(5.0),
+                  child: Text(
+                    "카테고리 선택",
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.all(10),
+                child: TextField(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => CategoryWidget()),
+                    );
+                  },
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: '카테고리',
+                  ),
+                  readOnly: true,
+                ),
+              ),
+
               Container(
                 margin: EdgeInsets.all(10),
                 child: InputDecorator(
@@ -395,6 +439,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
                   ),
                 ),
               ),
+              // TextFormField(controller: ,),
             ],
           ),
         ),

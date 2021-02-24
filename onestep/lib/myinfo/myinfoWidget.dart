@@ -159,7 +159,17 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
                           width: double.infinity,
                           child: RaisedButton(
                             child: Text("프로필 보기"),
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) =>
+                                    Consumer<MyProductProvider>(
+                                  builder: (context, myProductProvider, _) =>
+                                      MyinfoMyWrite(
+                                    myProductProvider: myProductProvider,
+                                  ),
+                                ),
+                              ));
+                            },
                           ),
                         ),
                         Padding(

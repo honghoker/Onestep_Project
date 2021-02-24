@@ -147,9 +147,9 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
               onTap: () {
                 if (!snapshot.hasData) {
                   // 상세뷰 이동
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) =>
-                          NoticeDetailView("Notification", id)));
+                  // Navigator.of(context).push(MaterialPageRoute(
+                  //     builder: (context) =>
+                  //         NoticeDetailView("Notification", id)));
                   p.updateNotification(NotificationChk(
                       readChecked: 'true',
                       firestoreid: id,
@@ -158,9 +158,9 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
                           mappedData['time'].toDate().toString())));
                 } else {
                   // 상세뷰 이동
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) =>
-                          NoticeDetailView("Notification", id)));
+                  // Navigator.of(context).push(MaterialPageRoute(
+                  //     builder: (context) =>
+                  //         NoticeDetailView("Notification", id)));
                   // 추후에 삭제해야함
                   p.updateNotification(NotificationChk(
                       readChecked: 'false',

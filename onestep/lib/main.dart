@@ -71,7 +71,10 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(primaryColor: Colors.grey, accentColor: Colors.grey),
+      theme: ThemeData(
+          primaryColor: Colors.grey,
+          accentColor: Colors.grey,
+          fontFamily: 'GothicA1_Medium'),
       onGenerateRoute: RouteGenerator.generateRoute,
       initialRoute: '/',
       title: '앱메인',

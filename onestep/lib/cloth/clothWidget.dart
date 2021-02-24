@@ -136,8 +136,10 @@ class _ClothWidgetState extends State<ClothWidget> {
   }
 
   Future<void> _refreshPage() async {
-    widget.productProvider
-        .fetchProducts(_category.getCategoryItems()[_headerindex]);
+    setState(() {
+      widget.productProvider
+          .fetchProducts(_category.getCategoryItems()[_headerindex]);
+    });
   }
 
   @override

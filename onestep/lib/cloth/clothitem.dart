@@ -153,8 +153,7 @@ class _ClothItemState extends State<ClothItem> {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 12,
-                        // fontWeight: FontWeight.w500,
-                        fontFamily: 'GothicA1_ExtraBold',
+                        fontWeight: FontWeight.w500,
                         color: Color(0xFF333333),
                       ),
                     ),
@@ -177,7 +176,7 @@ class _ClothItemState extends State<ClothItem> {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
-                    fontFamily: 'GothicA1_SemiBold',
+                    fontWeight: FontWeight.w400,
                     color: Color(0xFF333333),
                   ),
                 ),
@@ -193,8 +192,7 @@ class _ClothItemState extends State<ClothItem> {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
-                    // fontWeight: FontWeight.w200,
-                    fontFamily: 'GothicA1_Regular',
+                    fontWeight: FontWeight.w200,
                     color: Color(0xFF333333),
                   ),
                 ),

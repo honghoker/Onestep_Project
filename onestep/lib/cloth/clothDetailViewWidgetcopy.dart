@@ -328,8 +328,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                   ),
                   style: TextStyle(
                     fontSize: 20,
-                    // fontWeight: FontWeight.w500,
-                    fontFamily: 'GothicA1_ExtraBold',
+                    fontWeight: FontWeight.w500,
                     color: Color(0xFF333333),
                   ),
                 ),
@@ -341,7 +340,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 20,
-                      fontFamily: 'GothicA1_Bold',
+                      fontWeight: FontWeight.w400,
                       color: Color(0xFF333333),
                     ),
                   ),

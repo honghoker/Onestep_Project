@@ -48,7 +48,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
       print(deepLink.path);
 
       if (deepLink != null) {
-        // do something
+        _handleDynamicLink(deepLink);
       }
     }, onError: (OnLinkErrorException e) async {
       print('onLinkError');
@@ -62,7 +62,18 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
     print(deepLink);
 
     if (deepLink != null) {
-      // do something
+      _handleDynamicLink(deepLink);
+    }
+  }
+
+  void _handleDynamicLink(Uri deepLink) {
+    switch (deepLink.path) {
+      case "/join_family":
+        // 여기 부분이 자세히 보기 클릭하면 그 상품으로 가는 Navigator 가 들어가야 하는데 test 한번 해보고
+        // 안되면 어케 그 상품 상세보기로 넘어가는지 생각해보기
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ClothDetailViewWidgetcopy(),
+        ));
     }
   }
 

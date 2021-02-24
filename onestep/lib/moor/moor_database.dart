@@ -64,7 +64,7 @@ class SearchsDao extends DatabaseAccessor<AppDatabase> with _$SearchsDaoMixin {
 class NotificationChks extends Table {
   TextColumn get firestoreid => text()();
   DateTimeColumn get uploadtime => dateTime().nullable()();
-  // BoolColumn get readChecked => boolean()();
+  TextColumn get entireChecked => text()();
   TextColumn get readChecked => text()();
 
   @override
@@ -99,16 +99,6 @@ class NotificationChksDao extends DatabaseAccessor<AppDatabase>
           )
         .watch();
   }
-
-
-  // Stream<List<NotificationChk>> watchNotificationAll() =>
-  //     select(notificationChks).watch();
-
-  // Stream<QueryRow> watchNotificationAll(bool type) =>
-  //     customSelect(
-  //       "SELECT * FROM notification_chks WHERE read_checked LIKE '$type'",
-  //       readsFrom: {notificationChks},
-  //     ).watchSingle();
 
   Future insertNotification(NotificationChk notificationChk) =>
       into(notificationChks).insert(notificationChk);

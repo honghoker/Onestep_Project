@@ -84,6 +84,8 @@ class _MyHomePageState extends State<Boardmain> {
           : FloatingActionButton(
               backgroundColor: Colors.black,
               onPressed: () {
+                //  신고 test
+                // print("여기");
                 print(_boardCategory.toString());
                 Navigator.of(context).pushNamed('/CreateBoard',
                     arguments: {"CURRENTBOARD": _boardCategory});

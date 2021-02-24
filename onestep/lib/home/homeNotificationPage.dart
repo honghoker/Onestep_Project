@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
+import 'package:onestep/home/noticeDetailView.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:provider/provider.dart';
 import 'package:moor_flutter/moor_flutter.dart' as mf;
@@ -34,11 +34,6 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
   @override
   void initState() {
     super.initState();
-    // keepScrollOffset
-    // _scrollController.keepScrollOffset
-    // _scrollController.addListener(() {
-    //   print('offset = ${_scrollController.offset}');
-    // });
   }
 
   Widget makeBody(BuildContext context) {
@@ -87,25 +82,31 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
                   // 홈에서 빨간 버튼, 안읽은 알림 확인 내부 DB 다 돌려서 check 필드
                   // 1개라도 false 있으면 빨간색 띄우기
 
-                  NotificationChk latestTime =  snapshot2.data[0] as NotificationChk;
-                  print("@@@@@@@@@@ lastestTime ${latestTime.uploadtime}");
-                  print("@@@@@@@@@@ docTime ${DateTime.parse(doc.data()['time'].toDate().toString())}");
-                  print("@@@@@@@@@@ compareTime ${DateTime.parse(doc.data()['time'].toDate().toString()).isAfter(latestTime.uploadtime)}");
+                  // // 아직 내부 DB에 아무것도 없음 밑에꺼 돌리면 다 들어감
+                  // p.insertNotification(NotificationChk(
+                  //     firestoreid: doc.id,
+                  //     readChecked: 'false',
+                  //     entireChecked: doc.data()['notiEntire'].toString(),
+                  //     uploadtime: DateTime.parse(
+                  //         doc.data()['time'].toDate().toString())));
+
+                  NotificationChk latestTime =
+                      snapshot2.data[0] as NotificationChk;
+                  print("lastestTime ${latestTime.uploadtime}");
+                  print(
+                      "docTime ${DateTime.parse(doc.data()['time'].toDate().toString())}");
+                  print(
+                      "compareTime ${DateTime.parse(doc.data()['time'].toDate().toString()).isAfter(latestTime.uploadtime)}");
+
                   // 현재 내부DB에 저장된 최근 알림보다 더 최신 알림이면 insert
-                  if(!DateTime.parse(doc.data()['time'].toDate().toString()).isAfter(latestTime.uploadtime)){
+                  if (!DateTime.parse(doc.data()['time'].toDate().toString())
+                      .isAfter(latestTime.uploadtime)) {
                     // p.insertNotification(NotificationChk(
                     //   firestoreid: doc.id,
                     //   readChecked: 'false',
                     //   uploadtime:
                     //       DateTime.parse(doc.data()['time'].toDate().toString())));
                   }
-
-                  // // 아직 내부 DB에 아무것도 없음 밑에꺼 돌리면 다 들어감
-                  // p.insertNotification(NotificationChk(
-                  //     firestoreid: doc.id,
-                  //     readChecked: 'false',
-                  //     uploadtime:
-                  //         DateTime.parse(doc.data()['time'].toDate().toString())));
                 }
                 return ListView.builder(
                   key: PageStorageKey("any_text_here"),
@@ -135,7 +136,7 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
     return StreamBuilder<mf.QueryRow>(
       stream: p.watchsingleNotification(id, true),
       builder: (context, snapshot) {
-        print("@@@@@@@@ hasdata = ${snapshot.hasData}");
+        print("hasdata = ${snapshot.hasData}");
         return Card(
           elevation: 8.0,
           margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
@@ -145,17 +146,26 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
             child: GestureDetector(
               onTap: () {
                 if (!snapshot.hasData) {
+                  // 상세뷰 이동
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          NoticeDetailView("Notification", id)));
                   p.updateNotification(NotificationChk(
                       readChecked: 'true',
                       firestoreid: id,
+                      entireChecked: mappedData['notiEntire'].toString(),
                       uploadtime: DateTime.parse(
                           mappedData['time'].toDate().toString())));
-                  // p.insertNotification(NotificationChk(firestoreid: id));
                 } else {
-                  // // 추후에 삭제해야함
+                  // 상세뷰 이동
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          NoticeDetailView("Notification", id)));
+                  // 추후에 삭제해야함
                   p.updateNotification(NotificationChk(
                       readChecked: 'false',
                       firestoreid: id,
+                      entireChecked: mappedData['notiEntire'].toString(),
                       uploadtime: DateTime.parse(
                           mappedData['time'].toDate().toString())));
                 }
@@ -169,7 +179,11 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
                         border: Border(
                             right:
                                 BorderSide(width: 1.0, color: Colors.white24))),
-                    child: Icon(Icons.autorenew, color: Colors.white),
+                    child: mappedData['notiEntire'] == true
+                        // 개인공지
+                        ? Icon(Icons.autorenew, color: Colors.white)
+                        // 전체공지
+                        : Icon(Icons.error_outline, color: Colors.white),
                   ),
                   title: Text(
                     "${mappedData['notiTitle']}",
@@ -199,11 +213,9 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
     );
   }
 
-  // final _scaffoldKey = new GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // key: _scaffoldKey,
       appBar: AppBar(
         title: Text("알림", style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,

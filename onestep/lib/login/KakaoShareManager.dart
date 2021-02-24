@@ -3,7 +3,7 @@
 // ios 따로 추가해야함
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
-import 'package:flutter/src/widgets/async.dart';
+import 'package:flutter/material.dart';
 import 'package:kakao_flutter_sdk/all.dart';
 import 'package:share/share.dart';
 
@@ -28,45 +28,6 @@ class KakaoShareManager {
     bool installed = await isKakaoTalkInstalled();
     return installed;
   }
-
-  // void shareMyCode() async {
-  //   try {
-  //     var template = _getTemplate();
-  //     var uri = await LinkClient.instance.defaultWithTalk(template);
-  //     await LinkClient.instance.launchKakaoTalk(uri);
-  //   } catch (error) {
-  //     print(error.toString());
-  //   }
-  // }
-
-  // DefaultTemplate _getTemplate() {
-  //   // title
-  //   String title = "title";
-  //   // image
-  //   Uri imageLink = Uri.parse(
-  //       "http://mud-kage.kakao.co.kr/dn/Q2iNx/btqgeRgV54P/VLdBs9cvyn8BJXB3o7N8UK/kakaolink40_original.png");
-  //   Link link = Link(
-  //       webUrl: Uri.parse("https://developers.kakao.com"),
-  //       mobileWebUrl: Uri.parse("https://developers.kakao.com"));
-
-  //   Content content = Content(
-  //     title,
-  //     imageLink,
-  //     link,
-  //   );
-
-  //   FeedTemplate template = FeedTemplate(content,
-  //       // 하트 이런거
-  //       // social: Social(likeCount: 286, commentCount: 45, sharedCount: 845),
-  //       buttons: [
-  //         // Button("웹으로 보기",
-  //         //     Link(webUrl: Uri.parse("https://developers.kakao.com"))),
-  //         Button("자세히 보기",
-  //             Link(webUrl: Uri.parse("https://developers.kakao.com"))),
-  //       ]);
-
-  //   return template;
-  // }
 
   void shareMyCode(
       String code, AsyncSnapshot<DocumentSnapshot> snapshot, imageItem) async {
@@ -96,7 +57,7 @@ class KakaoShareManager {
       String code, AsyncSnapshot<DocumentSnapshot> snapshot, imageItem) async {
     final DynamicLinkParameters parameters = DynamicLinkParameters(
       uriPrefix: 'https://onestep.page.link',
-      link: Uri.parse('https://onestep.page.link/join_family?code=${code}'),
+      link: Uri.parse('https://onestep.page.link/join_family?code=$code'),
       androidParameters: AndroidParameters(
         packageName: 'com.example.onestep',
         minimumVersion: 1,
@@ -114,9 +75,8 @@ class KakaoShareManager {
 
   DefaultTemplate _getTemplate(Uri dynamicLink, String code,
       AsyncSnapshot<DocumentSnapshot> snapshot, imageItem) {
+        
     // title에 내용, image 넘겨받아야함
-    // String title = "one step";
-
     String title = "${snapshot.data.data()['title']}";
     Uri imageLink = Uri.parse(imageItem);
 

@@ -1,9 +1,6 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:mailer/mailer.dart';
-import 'package:mailer/smtp_server/gmail.dart';
+import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/login/AuthPage.dart';
 
 class JoinScreen extends StatefulWidget {
@@ -25,7 +22,6 @@ class _JoinScreenState extends State<JoinScreen> {
   bool _isNickNameUnderLine = true;
   String tempNickName = "";
   String tempEmail = "";
-  var checkPassword;
   TextEditingController emailController;
   TextEditingController nicknameController;
 
@@ -48,6 +44,7 @@ class _JoinScreenState extends State<JoinScreen> {
   // 중복확인 firebase db 수정
   // 지금은 db에 있으면 확인완료 뜸
   authEmailNickNameCheck(String text, int flag) async {
+    // email
     if (flag == 1) {
       _isEmailChecked = false;
       QuerySnapshot ref = await FirebaseFirestore.instance
@@ -63,7 +60,9 @@ class _JoinScreenState extends State<JoinScreen> {
         _isEmailUnderLine = docRef.isEmpty;
         print("docRef.isEmpty 2 = ${docRef.isNotEmpty}");
       });
-    } else {
+    }
+    // nickname
+    else {
       _isNickNameChecked = false;
       QuerySnapshot ref = await FirebaseFirestore.instance
           .collection('users')
@@ -84,58 +83,8 @@ class _JoinScreenState extends State<JoinScreen> {
   void updateUser(String email, String nickName) {
     FirebaseFirestore.instance
         .collection("users")
-        .doc("$currentUserId")
+        .doc(FirebaseApi.getId())
         .update({"userEmail": email, "nickName": nickName, "userLevel": 1});
-  }
-
-  Future getRandomNumber() async {
-    var _random = Random();
-    var numMin = 0x30;
-    var charMax = 0x5A;
-    var skipCharacter = [0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F, 0x40];
-    var checkNumber = [];
-
-    while (checkNumber.length <= 6) {
-      var tmp = numMin + _random.nextInt(charMax - numMin);
-      // skip 안됌..
-      if (skipCharacter.contains(skipCharacter)) {
-        continue;
-      }
-      checkNumber.add(tmp);
-    }
-    return String.fromCharCodes(checkNumber.cast<int>());
-  }
-
-  // mail 수정
-  sendMail() async {
-    // 공용 mail 만들어야함
-    String _username = 'leedool3003@gmail.com';
-    String _password = 'alstjsdl421!';
-
-    final _smtpServer = gmail(_username, _password);
-
-    final message = Message()
-      ..from = Address(_username)
-      ..recipients.add(
-          '5414030@stu.kmu.ac.kr') // 받는사람 email -> 계명대 @stu.kmu.ac.kr 인지 확인해서 보내는 예외처리 해야함
-      // ..ccRecipients.addAll(['destCc1@example.com', 'destCc2@example.com'])
-      // ..bccRecipients.add(Address('bccAddress@example.com'))
-      ..subject =
-          'Test Dart Mailer library :: 😀 :: ${DateTime.now().add(Duration(hours: 9))}' // title
-      // ..text = 'This is the plain text.\nThis is line 2 of the text part.'
-      ..html =
-          "<h1>Test</h1>\n<p>Hey! Here's some $checkPassword</p>\n본 인증 코드는 5분동안 유효합니다. "; // body of the email
-
-    try {
-      // final sendReport = await send(message, _smtpServer,timeout: Duration(hours: 60));
-      final sendReport = await send(message, _smtpServer);
-      print('Message sent: ' + sendReport.toString());
-    } on MailerException catch (e) {
-      print('Message not sent.');
-      for (var p in e.problems) {
-        print('Problem: ${p.code}: ${p.msg}');
-      }
-    }
   }
 
   @override
@@ -296,19 +245,11 @@ class _JoinScreenState extends State<JoinScreen> {
                           width: 100,
                           child: RaisedButton(
                               onPressed: () async {
-                                checkPassword = await getRandomNumber();
-                                print("password = $checkPassword");
-                                // this is send mail
-                                // sendMail();
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (BuildContext context) =>
-                                            AuthScreen(
-                                                currentUserId,
-                                                checkPassword,
-                                                DateTime.now()
-                                                    .add(Duration(hours: 9)))));
+                                            AuthScreen()));
                               },
                               child: Text("하러가기"))),
                     ],
@@ -332,8 +273,8 @@ class _JoinScreenState extends State<JoinScreen> {
                         } else {
                           // 일단 넘어가게해놈
                           print("실패");
-                          Navigator.of(context).pushReplacementNamed(
-                              '/MainPage?UID=$currentUserId');
+                          // Navigator.of(context).pushReplacementNamed(
+                          //     '/MainPage?UID=$currentUserId');
                         }
                       },
                       child: Text("가입완료"),

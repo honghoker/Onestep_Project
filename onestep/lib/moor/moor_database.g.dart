@@ -944,10 +944,12 @@ class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
 class NotificationChk extends DataClass implements Insertable<NotificationChk> {
   final String firestoreid;
   final DateTime uploadtime;
+  final String entireChecked;
   final String readChecked;
   NotificationChk(
       {@required this.firestoreid,
       this.uploadtime,
+      @required this.entireChecked,
       @required this.readChecked});
   factory NotificationChk.fromData(
       Map<String, dynamic> data, GeneratedDatabase db,
@@ -955,12 +957,13 @@ class NotificationChk extends DataClass implements Insertable<NotificationChk> {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
     final dateTimeType = db.typeSystem.forDartType<DateTime>();
-    final boolType = db.typeSystem.forDartType<bool>();
     return NotificationChk(
       firestoreid: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}firestoreid']),
       uploadtime: dateTimeType
           .mapFromDatabaseResponse(data['${effectivePrefix}uploadtime']),
+      entireChecked: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}entire_checked']),
       readChecked: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}read_checked']),
     );
@@ -973,6 +976,9 @@ class NotificationChk extends DataClass implements Insertable<NotificationChk> {
     }
     if (!nullToAbsent || uploadtime != null) {
       map['uploadtime'] = Variable<DateTime>(uploadtime);
+    }
+    if (!nullToAbsent || entireChecked != null) {
+      map['entire_checked'] = Variable<String>(entireChecked);
     }
     if (!nullToAbsent || readChecked != null) {
       map['read_checked'] = Variable<String>(readChecked);
@@ -988,6 +994,9 @@ class NotificationChk extends DataClass implements Insertable<NotificationChk> {
       uploadtime: uploadtime == null && nullToAbsent
           ? const Value.absent()
           : Value(uploadtime),
+      entireChecked: entireChecked == null && nullToAbsent
+          ? const Value.absent()
+          : Value(entireChecked),
       readChecked: readChecked == null && nullToAbsent
           ? const Value.absent()
           : Value(readChecked),
@@ -1000,6 +1009,7 @@ class NotificationChk extends DataClass implements Insertable<NotificationChk> {
     return NotificationChk(
       firestoreid: serializer.fromJson<String>(json['firestoreid']),
       uploadtime: serializer.fromJson<DateTime>(json['uploadtime']),
+      entireChecked: serializer.fromJson<String>(json['entireChecked']),
       readChecked: serializer.fromJson<String>(json['readChecked']),
     );
   }
@@ -1009,15 +1019,20 @@ class NotificationChk extends DataClass implements Insertable<NotificationChk> {
     return <String, dynamic>{
       'firestoreid': serializer.toJson<String>(firestoreid),
       'uploadtime': serializer.toJson<DateTime>(uploadtime),
+      'entireChecked': serializer.toJson<String>(entireChecked),
       'readChecked': serializer.toJson<String>(readChecked),
     };
   }
 
   NotificationChk copyWith(
-          {String firestoreid, DateTime uploadtime, bool readChecked}) =>
+          {String firestoreid,
+          DateTime uploadtime,
+          String entireChecked,
+          String readChecked}) =>
       NotificationChk(
         firestoreid: firestoreid ?? this.firestoreid,
         uploadtime: uploadtime ?? this.uploadtime,
+        entireChecked: entireChecked ?? this.entireChecked,
         readChecked: readChecked ?? this.readChecked,
       );
   @override
@@ -1025,6 +1040,7 @@ class NotificationChk extends DataClass implements Insertable<NotificationChk> {
     return (StringBuffer('NotificationChk(')
           ..write('firestoreid: $firestoreid, ')
           ..write('uploadtime: $uploadtime, ')
+          ..write('entireChecked: $entireChecked, ')
           ..write('readChecked: $readChecked')
           ..write(')'))
         .toString();
@@ -1032,39 +1048,48 @@ class NotificationChk extends DataClass implements Insertable<NotificationChk> {
 
   @override
   int get hashCode => $mrjf($mrjc(
-      firestoreid.hashCode, $mrjc(uploadtime.hashCode, readChecked.hashCode)));
+      firestoreid.hashCode,
+      $mrjc(uploadtime.hashCode,
+          $mrjc(entireChecked.hashCode, readChecked.hashCode))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is NotificationChk &&
           other.firestoreid == this.firestoreid &&
           other.uploadtime == this.uploadtime &&
+          other.entireChecked == this.entireChecked &&
           other.readChecked == this.readChecked);
 }
 
 class NotificationChksCompanion extends UpdateCompanion<NotificationChk> {
   final Value<String> firestoreid;
   final Value<DateTime> uploadtime;
+  final Value<String> entireChecked;
   final Value<String> readChecked;
   const NotificationChksCompanion({
     this.firestoreid = const Value.absent(),
     this.uploadtime = const Value.absent(),
+    this.entireChecked = const Value.absent(),
     this.readChecked = const Value.absent(),
   });
   NotificationChksCompanion.insert({
     @required String firestoreid,
     this.uploadtime = const Value.absent(),
+    @required String entireChecked,
     @required String readChecked,
   })  : firestoreid = Value(firestoreid),
+        entireChecked = Value(entireChecked),
         readChecked = Value(readChecked);
   static Insertable<NotificationChk> custom({
     Expression<String> firestoreid,
     Expression<DateTime> uploadtime,
+    Expression<String> entireChecked,
     Expression<String> readChecked,
   }) {
     return RawValuesInsertable({
       if (firestoreid != null) 'firestoreid': firestoreid,
       if (uploadtime != null) 'uploadtime': uploadtime,
+      if (entireChecked != null) 'entire_checked': entireChecked,
       if (readChecked != null) 'read_checked': readChecked,
     });
   }
@@ -1072,10 +1097,12 @@ class NotificationChksCompanion extends UpdateCompanion<NotificationChk> {
   NotificationChksCompanion copyWith(
       {Value<String> firestoreid,
       Value<DateTime> uploadtime,
-      Value<bool> readChecked}) {
+      Value<String> entireChecked,
+      Value<String> readChecked}) {
     return NotificationChksCompanion(
       firestoreid: firestoreid ?? this.firestoreid,
       uploadtime: uploadtime ?? this.uploadtime,
+      entireChecked: entireChecked ?? this.entireChecked,
       readChecked: readChecked ?? this.readChecked,
     );
   }
@@ -1089,6 +1116,9 @@ class NotificationChksCompanion extends UpdateCompanion<NotificationChk> {
     if (uploadtime.present) {
       map['uploadtime'] = Variable<DateTime>(uploadtime.value);
     }
+    if (entireChecked.present) {
+      map['entire_checked'] = Variable<String>(entireChecked.value);
+    }
     if (readChecked.present) {
       map['read_checked'] = Variable<String>(readChecked.value);
     }
@@ -1100,6 +1130,7 @@ class NotificationChksCompanion extends UpdateCompanion<NotificationChk> {
     return (StringBuffer('NotificationChksCompanion(')
           ..write('firestoreid: $firestoreid, ')
           ..write('uploadtime: $uploadtime, ')
+          ..write('entireChecked: $entireChecked, ')
           ..write('readChecked: $readChecked')
           ..write(')'))
         .toString();
@@ -1138,6 +1169,20 @@ class $NotificationChksTable extends NotificationChks
     );
   }
 
+  final VerificationMeta _entireCheckedMeta =
+      const VerificationMeta('entireChecked');
+  GeneratedTextColumn _entireChecked;
+  @override
+  GeneratedTextColumn get entireChecked =>
+      _entireChecked ??= _constructEntireChecked();
+  GeneratedTextColumn _constructEntireChecked() {
+    return GeneratedTextColumn(
+      'entire_checked',
+      $tableName,
+      false,
+    );
+  }
+
   final VerificationMeta _readCheckedMeta =
       const VerificationMeta('readChecked');
   GeneratedTextColumn _readChecked;
@@ -1153,7 +1198,8 @@ class $NotificationChksTable extends NotificationChks
   }
 
   @override
-  List<GeneratedColumn> get $columns => [firestoreid, uploadtime, readChecked];
+  List<GeneratedColumn> get $columns =>
+      [firestoreid, uploadtime, entireChecked, readChecked];
   @override
   $NotificationChksTable get asDslTable => this;
   @override
@@ -1178,6 +1224,14 @@ class $NotificationChksTable extends NotificationChks
           _uploadtimeMeta,
           uploadtime.isAcceptableOrUnknown(
               data['uploadtime'], _uploadtimeMeta));
+    }
+    if (data.containsKey('entire_checked')) {
+      context.handle(
+          _entireCheckedMeta,
+          entireChecked.isAcceptableOrUnknown(
+              data['entire_checked'], _entireCheckedMeta));
+    } else if (isInserting) {
+      context.missing(_entireCheckedMeta);
     }
     if (data.containsKey('read_checked')) {
       context.handle(

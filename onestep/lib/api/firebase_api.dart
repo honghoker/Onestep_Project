@@ -8,7 +8,6 @@ class FirebaseApi {
     return _auth.currentUser.uid;
   }
 
-
   // getUniId 쓰는법
   // onPressed: () async{
   //   String test;

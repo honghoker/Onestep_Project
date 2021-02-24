@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:onestep/moor/moor_database.dart';
+import 'package:onestep/report/reportController.dart';
 import 'package:provider/provider.dart';
 import 'homeHotBoardBody.dart';
 import 'homeNoticeBody.dart';
@@ -12,18 +13,9 @@ class HomeWidget extends StatefulWidget {
   _HomeWidgetState createState() => _HomeWidgetState();
 }
 
-final List<String> imgList = [
-  "https://cdn.pixabay.com/photo/2020/09/01/06/10/lake-5534341__340.jpg",
-  "https://cdn.pixabay.com/photo/2019/09/24/09/58/marrakech-4500910__340.jpg",
-  "https://cdn.pixabay.com/photo/2019/12/02/07/07/autumn-4667080__340.jpg"
-];
-
 class _HomeWidgetState extends State<HomeWidget> {
   @override
   Widget build(BuildContext context) {
-    var _size = MediaQuery.of(context).size;
-    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 1.9;
-    final double _itemWidth = _size.width / 2;
     NotificationChksDao p =
         Provider.of<AppDatabase>(context).notificationChksDao;
 
@@ -51,9 +43,9 @@ class _HomeWidgetState extends State<HomeWidget> {
                       color: Colors.black,
                       onPressed: () {
                         // 알림으로 넘어가는 부분
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => HomeNotificationPage(),
-                        ));
+                        // Navigator.of(context).push(MaterialPageRoute(
+                        //   builder: (context) => HomeNotificationPage(),
+                        // ));
                         // 쪽지 form 보려고 test
                         // Navigator.of(context).push(MaterialPageRoute(
                         //   builder: (context) => MessagePage(),
@@ -107,7 +99,6 @@ class _HomeWidgetState extends State<HomeWidget> {
               children: <Widget>[
                 HomeNoticeBody(),
                 HomeHotBoardBody(),
-                // HomeImagesBody(_itemWidth, _itemHeight),
               ],
             ),
           ),

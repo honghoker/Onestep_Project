@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:onestep/BoardLib/BoardProvi/boardProvider.dart';
 import 'package:onestep/BoardLib/CustomException/customThrow.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/rendering.dart';
@@ -11,38 +12,68 @@ import 'package:flutter/material.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardClass.dart';
 import 'package:onestep/BoardLib/CreateAlterBoard/parentState.dart';
 
-class FreeBoard extends StatefulWidget {
+class BoardList extends StatefulWidget {
+  final BoardCategory boardCategory;
+  final BoardProvider boardProvider;
   final Function callback;
-  FreeBoard({Key key, this.callback}) : super(key: key);
+  BoardList({Key key, this.callback, this.boardProvider, this.boardCategory})
+      : super(key: key);
   @override
-  _FreeBoardState createState() => _FreeBoardState();
+  _BoardListState createState() => _BoardListState();
 }
 
-class _FreeBoardState extends _BoardListParentState<FreeBoard> {
+class _BoardListState extends _BoardListParentState<BoardList> {
   @override
   setBoardData() => Provider.of<List<FreeBoardList>>(context, listen: false);
 
   @override
-  setFabCallBack() {
-    fabCallback = widget.callback;
-  }
+  setFabCallBack() => fabCallback = widget.callback;
+
+  @override
+  setProvider() => boardProvider = widget.boardProvider;
+
+  @override
+  setBoardCategory() => boardCategory = widget.boardCategory;
 }
 
 abstract class _BoardListParentState<T extends StatefulWidget>
     extends State<T> {
   setFabCallBack();
   setBoardData();
+  setProvider();
+  setBoardCategory();
+  BoardCategory boardCategory;
   Function fabCallback;
+  BoardProvider boardProvider;
   ScrollController _scrollController;
   bool isScrollDirectionUp;
   List<FreeBoardList> boardDataList;
+  var _lastRow = 0;
+  final FETCH_ROW = 8;
+  var stream;
   @override
   void initState() {
     super.initState();
+    //Floating Action Button hide and show
     setFabCallBack();
+    //Set Provider child class
+    setProvider();
+    //Set board Category in child class
+    setBoardCategory();
+    boardProvider.fetchNextProducts(boardCategory != null
+        ? boardCategory.categoryEN
+        : BoardCategory.Free.categoryEN);
     isScrollDirectionUp = true;
-    _scrollController = new ScrollController();
+    _scrollController = new ScrollController(keepScrollOffset: true);
     _scrollController.addListener(() {
+      print("set new Stream");
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        boardProvider.fetchNextProducts(boardCategory != null
+            ? boardCategory.categoryEN
+            : BoardCategory.Free.categoryEN);
+      }
+
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.forward) {
         if (isScrollDirectionUp == true) {
@@ -68,72 +99,35 @@ abstract class _BoardListParentState<T extends StatefulWidget>
     super.dispose();
   }
 
-  _getData() async {
-    boardDataList = Provider.of<List<FreeBoardList>>(context);
-    return boardDataList;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _getData(),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-            case ConnectionState.waiting:
-              return Center(child: CupertinoActivityIndicator());
-            default:
-              if (snapshot.hasError) {
-                return Center(
-                    child: Column(children: [
-                  Text("데이터 불러오기에 실패하였습니다. 네트워크 연결상태를 확인하여 주십시오."),
-                  IconButton(
-                    icon: Icon(Icons.refresh),
-                    onPressed: () {
-                      setState(() {});
-                    },
-                  )
-                ]));
-              } else if (!snapshot.hasData) {
-                return Center(child: CupertinoActivityIndicator());
-              } else {
-                if (boardDataList.length == 0) {
-                  return Center(child: Text("새 게시글로 시작해보세요!"));
-                } else {
-                  return Container(
-                      child: ListView.builder(
-                          controller: _scrollController,
-                          //PageStorageKey is Keepping ListView scroll position when switching pageview
-                          key: PageStorageKey<String>("value"),
-                          //Bottom Padding
-                          padding: const EdgeInsets.only(
-                              bottom: kFloatingActionButtonMargin + 60),
-                          itemCount: boardDataList.length,
-                          itemBuilder: (context, index) =>
-                              _buildListCard(context, index)));
-                }
-              }
-          }
-        });
-    // boardDataList = setBoardData();
-    // return boardDataList == null
-    //     ? CupertinoActivityIndicator()
-    //     : Container(
-    //         child: ListView.builder(
-    //             controller: _scrollController,
-    //             //PageStorageKey is Keepping ListView scroll position when switching pageview
-    //             key: PageStorageKey<String>("value"),
-    //             //Bottom Padding
-    //             padding: const EdgeInsets.only(
-    //                 bottom: kFloatingActionButtonMargin + 60),
-    //             itemCount: boardDataList.length,
-    //             itemBuilder: (context, index) =>
-    //                 _buildListCard(context, index)));
+    if (boardProvider != null) {
+      if (boardProvider.boards.isNotEmpty) {
+        return Container(
+            child: ListView.builder(
+                controller: _scrollController,
+                //PageStorageKey is Keepping ListView scroll position when switching pageview
+                key: PageStorageKey<String>("value"),
+                //Bottom Padding
+                padding: const EdgeInsets.only(
+                    bottom: kFloatingActionButtonMargin + 60),
+                itemCount: boardProvider.boards.length,
+                itemBuilder: (context, index) {
+                  final currentRow = (index + 1) ~/ FETCH_ROW;
+                  if (_lastRow != currentRow) {
+                    _lastRow = currentRow;
+                  }
+                  return _buildListCard(
+                      context, index, boardProvider.boards[index]);
+                }));
+      } else
+        return Center(child: Text("새 게시글로 시작해보세요!"));
+    } else {
+      return Center(child: Text(BoardProvider().errorMessage));
+    }
   }
 
-  Widget _buildListCard(BuildContext context, int index) {
-    // print(temp
-    //     .id); //SOMETING//SOMETING//SOMETING//SOMETING//SOMETING//SOMETING//SOMETING//SOMETING
+  Widget _buildListCard(BuildContext context, int index, var boardData) {
     return Card(
       child: Padding(
           padding: const EdgeInsets.all(1.0),
@@ -144,13 +138,14 @@ abstract class _BoardListParentState<T extends StatefulWidget>
               //Click Event
               onTap: () {
                 Navigator.of(context).pushNamed('/BoardContent',
-                    arguments: {"BOARD_DATA": boardDataList[index]});
+                    arguments: {"BOARD_DATA": boardData});
               },
               child: Column(
                 children: <Widget>[
-                  firstColumnLine(index),
-                  secondColumnLine(index),
-                  thirdColumnLine(index)
+                  firstColumnLine(boardData),
+                  secondColumnLine(boardData),
+                  thirdColumnLine(boardData)
+
                   // Container:() => show_icon_favorite(a);
 
                   // Expanded(child: Text('dd')),
@@ -162,20 +157,20 @@ abstract class _BoardListParentState<T extends StatefulWidget>
     );
   }
 
-  firstColumnLine(int index) {
+  firstColumnLine(var boardData) {
     return Container(
         child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         //Title Container
-        titleContainerMethod(title: boardDataList[index].title ?? ""),
+        titleContainerMethod(title: boardData.title ?? ""),
         // _commentCountMethod(index)
       ],
     ));
   }
 
-  secondColumnLine(int index) {
-    String _checkCate = boardDataList[index].contentCategory.split('.')[1];
+  secondColumnLine(var boardData) {
+    String _checkCate = boardData.contentCategory.split('.')[1];
     String category;
     if (_checkCate == ContentCategory.QUESTION.toString().split('.')[1]) {
       category = ContentCategory.QUESTION.category;
@@ -206,7 +201,7 @@ abstract class _BoardListParentState<T extends StatefulWidget>
           child: Container(
               margin: const EdgeInsets.only(left: 5),
               width: 300,
-              child: Text(boardDataList[index].textContent ?? "",
+              child: Text(boardData.textContent ?? "",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: Colors.black, fontSize: 13))),
@@ -215,7 +210,7 @@ abstract class _BoardListParentState<T extends StatefulWidget>
     );
   }
 
-  thirdColumnLine(int index) {
+  thirdColumnLine(var boardData) {
     return Container(
         child: Row(children: <Widget>[
       Expanded(
@@ -228,7 +223,7 @@ abstract class _BoardListParentState<T extends StatefulWidget>
           Container(
             padding: EdgeInsets.only(left: 3),
             child: Text(
-              boardDataList[index].favoriteCount.toString(),
+              boardData.favoriteCount.toString(),
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 14,
@@ -241,7 +236,7 @@ abstract class _BoardListParentState<T extends StatefulWidget>
                 color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
           ),
           Container(
-            child: _setDateTimeText(boardDataList[index].createDate, index),
+            child: _setDateTimeText(boardData.createDate, boardData),
           ),
           Spacer(),
           Container(
@@ -253,7 +248,7 @@ abstract class _BoardListParentState<T extends StatefulWidget>
           Container(
             padding: EdgeInsets.only(left: 3),
             margin: EdgeInsets.only(right: 3),
-            child: Text(boardDataList[index].watchCount.toString()),
+            child: Text(boardData.watchCount.toString()),
           )
         ],
         // Icon(Icons.favorite), child: Text('Date')
@@ -261,7 +256,7 @@ abstract class _BoardListParentState<T extends StatefulWidget>
     ]));
   }
 
-  _setDateTimeText(DateTime dateTime, int index) {
+  _setDateTimeText(DateTime dateTime, var boardData) {
     String resultText;
     DateTime today = DateTime.now();
     today =

@@ -74,4 +74,27 @@ class FirebaseApi {
       );
     } catch (e) {}
   }
+
+  static Future<QuerySnapshot> getBoard(
+    // 장터 상품 불러오기
+    int limit,
+    String boardName, {
+    DocumentSnapshot startAfter,
+  }) async {
+    var refProducts;
+
+    refProducts = FirebaseFirestore.instance
+        .collection('Board')
+        .doc(boardName)
+        .collection(boardName)
+        // .where("hide", isEqualTo: false)
+        .orderBy("createDate", descending: true)
+        .limit(limit);
+
+    if (startAfter == null) {
+      return refProducts.get();
+    } else {
+      return refProducts.startAfterDocument(startAfter).get();
+    }
+  }
 }

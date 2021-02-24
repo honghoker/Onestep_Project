@@ -22,7 +22,6 @@ final FirebaseAuth _auth = FirebaseAuth.instance;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  BoardProvider _boardDB = BoardProvider();
   runApp(
     MultiProvider(
       providers: [
@@ -32,12 +31,7 @@ void main() async {
             value: new ProuductProvider()),
         ChangeNotifierProvider<ProuductSearchProvider>.value(
             value: new ProuductSearchProvider()),
-        StreamProvider<List<FreeBoardList>>.value(
-            value: _boardDB.getFreeBoard(),
-            catchError: (context, error) {
-              print(error);
-              return null;
-            }),
+        ChangeNotifierProvider<BoardProvider>.value(value: new BoardProvider()),
         Provider<User>.value(
           value: _auth.currentUser,
         ),

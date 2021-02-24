@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onestep/BoardLib/BoardProvi/boardProvider.dart';
 import 'package:onestep/cloth/clothWidget.dart';
 import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:onestep/home/homeWidget.dart';
@@ -32,7 +33,10 @@ class _MyHomePageState extends State<MyHomePage> {
         productProvider: productProvider,
       ),
     ),
-    Boardmain(),
+    Consumer<BoardProvider>(
+        builder: (context, boardProvider, _) => Boardmain(
+              boardProvider: boardProvider,
+            )),
 //    NotificationMain(),
     ChatMainPage(),
     MyinfoWidget(),

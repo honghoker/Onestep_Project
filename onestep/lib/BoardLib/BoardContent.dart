@@ -161,18 +161,15 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
   }
 
   Future<void> watchCountUpdate() async {
-    if (currentUID != boardData.uid) {
-      final FirebaseFirestore _db = FirebaseFirestore.instance;
-      String _boardID = boardData.boardId.toString();
-      String _documentID = boardData.documentId.toString();
-      _db
-          .collection("Board")
-          .doc(_boardID)
-          .collection(_boardID)
-          .doc(_documentID)
-          .update({"watchCount": boardData.watchCount + 1});
-      _db.disableNetwork();
-    }
+    final FirebaseFirestore _db = FirebaseFirestore.instance;
+    String _boardID = boardData.boardId.toString();
+    String _documentID = boardData.documentId.toString();
+    _db
+        .collection("Board")
+        .doc(_boardID)
+        .collection(_boardID)
+        .doc(_documentID)
+        .update({"watchCount": boardData.watchCount + 1});
   }
 
   futureBuilderFetchRefreshMethod(
@@ -820,17 +817,7 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
     print("documentId " + _documentID);
     print("boardId " + _boardID);
     return FutureBuilder(
-      // future: futureBuilderFetchRefreshMethod(refreshType: REFRESH_COMMENT),
-
-      future: FirebaseFirestore.instance
-          .collection("Board")
-          .doc(_boardID)
-          .collection(_boardID)
-          .doc(_documentID)
-          .collection(COMMENT_COLLECTION_NAME)
-          // .orderBy("createDate")
-          .get(),
-      // future: _commentFetchDataMethod(),
+      future: futureBuilderFetchRefreshMethod(refreshType: REFRESH_COMMENT),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -852,7 +839,6 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
                 )
               ]));
             } else {
-              print(snapshot.data.docs.length);
               return _commentContainerMethod(snapshot.data);
             }
         }

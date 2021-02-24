@@ -144,8 +144,12 @@ class FreeBoardList extends BoardData {
             imageCommentList: imageCommentList,
             boardId: boardId);
 
-  factory FreeBoardList.fromFireStore(DocumentSnapshot snapshot) {
-    Map _boardData = snapshot.data();
+  factory FreeBoardList.fromFireStore(var snapshot) {
+    var _boardData;
+    if (snapshot.runtimeType == DocumentSnapshot)
+      _boardData = snapshot.data();
+    else if (snapshot.runtimeType == QueryDocumentSnapshot)
+      _boardData = snapshot;
 
     return FreeBoardList(
         title: _boardData["title"],

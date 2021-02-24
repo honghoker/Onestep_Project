@@ -1,17 +1,42 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:onestep/api/firebase_api.dart';
 import 'boardClass.dart';
 
-class BoardProvider {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+class BoardProvider with ChangeNotifier {
+  final _productsSnapshot = <DocumentSnapshot>[];
+  String _errorMessage = "Board Provider RuntimeError";
+  int documentLimit = 8;
+  bool _hasNext = true;
+  bool _isFetchingUsers = false;
 
-  Stream<List<FreeBoardList>> getFreeBoard() {
-    return _db
-        .collection("Board")
-        .doc("Board_Free")
-        .collection("Board_Free")
-        .orderBy("createDate", descending: true)
-        .snapshots()
-        .map((list) =>
-            list.docs.map((doc) => FreeBoardList.fromFireStore(doc)).toList());
+  String get errorMessage => _errorMessage;
+  bool get hasNext => _hasNext;
+
+  List<BoardData> get boards => _productsSnapshot.map((snap) {
+        return BoardData.fromFireStore(snap);
+      }).toList();
+
+  Future fetchNextProducts(String boardName) async {
+    if (_isFetchingUsers) return;
+    _isFetchingUsers = true;
+
+    try {
+      final snap = await FirebaseApi.getBoard(
+        documentLimit,
+        boardName,
+        startAfter:
+            _productsSnapshot.isNotEmpty ? _productsSnapshot.last : null,
+      );
+      _productsSnapshot.addAll(snap.docs);
+
+      if (snap.docs.length < documentLimit) _hasNext = false;
+      notifyListeners();
+    } catch (error) {
+      _errorMessage = error.toString();
+      notifyListeners();
+    }
+
+    _isFetchingUsers = false;
   }
 }

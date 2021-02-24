@@ -5,6 +5,7 @@ import 'package:onestep/BoardLib/boardMain.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:onestep/PermissionLib/customPermisson.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardClass.dart';
+import 'package:onestep/api/firebase_api.dart';
 import 'package:tip_dialog/tip_dialog.dart';
 import 'package:onestep/BoardLib/CustomException/customThrow.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -312,9 +313,14 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
 
   _saveDataInFirestore() async {
     TipDialogHelper.loading("저장 중입니다.\n 잠시만 기다려주세요.");
-    await saveData();
-    TipDialogHelper.dismiss();
-    TipDialogHelper.success("저장 완료!");
+    await saveData().then((value) => null).whenComplete(() {
+      print(FirebaseApi.getId());
+      // TipDialogHelper.dismiss();
+      // TipDialogHelper.success("저장 완료!");
+      Navigator.pop(context);
+    });
+    // TipDialogHelper.dismiss();
+    // TipDialogHelper.success("저장 완료!");
     //ERROR
     // await Future.delayed(Duration(seconds: 3))
     //     .then((value) => Navigator.pop(context, true));

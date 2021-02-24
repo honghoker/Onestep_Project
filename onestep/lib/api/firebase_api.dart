@@ -8,6 +8,47 @@ class FirebaseApi {
     return _auth.currentUser.uid;
   }
 
+
+  // getUniId 쓰는법
+  // onPressed: () async{
+  //   String test;
+  //   await FirebaseApi.getUniId().then((value) => test = value);
+  //   print("$test");
+  // },
+  static Future<String> getUniId() async {
+    DocumentSnapshot dsUser = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseApi.getId())
+        .get();
+    String userUni = dsUser.data()['userUniversity'];
+    DocumentSnapshot dsUni = await FirebaseFirestore.instance
+        .collection('university')
+        .doc(userUni)
+        .get();
+    // print("${dsUni.data()['uni_name']}");
+    return dsUni.data()['uni_name'];
+  }
+  
+  // static String getUniId() {
+  //   String result;
+  //   String userUni;
+  //   Future<DocumentSnapshot> dsUser = FirebaseFirestore.instance
+  //       .collection('users')
+  //       .doc(FirebaseApi.getId())
+  //       .get();
+  //   dsUser.then((value) async => userUni = await value.data()['userUniversity']
+  //       // print("sex sibal ${value.data()['userUniversity']}")
+  //       );
+
+  //   print("userUni@ = $userUni");
+  //   Future<DocumentSnapshot> dsUni =
+  //       FirebaseFirestore.instance.collection('university').doc(userUni).get();
+  //   dsUni.then((value) async => result = await value.data()['uni_name']);
+  //   print("result = $result");
+  //   // print("${dsUni.data()['uni_name']}");
+  //   return result;
+  // }
+
   static Future<QuerySnapshot> getProducts(
     // 장터 상품 불러오기
     int limit,

@@ -791,16 +791,13 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
 }
 
 class Search extends DataClass implements Insertable<Search> {
-  final int id;
   final String title;
-  Search({@required this.id, @required this.title});
+  Search({@required this.title});
   factory Search.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
     return Search(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       title:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}title']),
     );
@@ -808,9 +805,6 @@ class Search extends DataClass implements Insertable<Search> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<int>(id);
-    }
     if (!nullToAbsent || title != null) {
       map['title'] = Variable<String>(title);
     }
@@ -819,7 +813,6 @@ class Search extends DataClass implements Insertable<Search> {
 
   SearchsCompanion toCompanion(bool nullToAbsent) {
     return SearchsCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       title:
           title == null && nullToAbsent ? const Value.absent() : Value(title),
     );
@@ -829,7 +822,6 @@ class Search extends DataClass implements Insertable<Search> {
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Search(
-      id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
     );
   }
@@ -837,56 +829,44 @@ class Search extends DataClass implements Insertable<Search> {
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
     };
   }
 
-  Search copyWith({int id, String title}) => Search(
-        id: id ?? this.id,
+  Search copyWith({String title}) => Search(
         title: title ?? this.title,
       );
   @override
   String toString() {
-    return (StringBuffer('Search(')
-          ..write('id: $id, ')
-          ..write('title: $title')
-          ..write(')'))
+    return (StringBuffer('Search(')..write('title: $title')..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(id.hashCode, title.hashCode));
+  int get hashCode => $mrjf(title.hashCode);
   @override
   bool operator ==(dynamic other) =>
-      identical(this, other) ||
-      (other is Search && other.id == this.id && other.title == this.title);
+      identical(this, other) || (other is Search && other.title == this.title);
 }
 
 class SearchsCompanion extends UpdateCompanion<Search> {
-  final Value<int> id;
   final Value<String> title;
   const SearchsCompanion({
-    this.id = const Value.absent(),
     this.title = const Value.absent(),
   });
   SearchsCompanion.insert({
-    this.id = const Value.absent(),
     @required String title,
   }) : title = Value(title);
   static Insertable<Search> custom({
-    Expression<int> id,
     Expression<String> title,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (title != null) 'title': title,
     });
   }
 
-  SearchsCompanion copyWith({Value<int> id, Value<String> title}) {
+  SearchsCompanion copyWith({Value<String> title}) {
     return SearchsCompanion(
-      id: id ?? this.id,
       title: title ?? this.title,
     );
   }
@@ -894,9 +874,6 @@ class SearchsCompanion extends UpdateCompanion<Search> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
@@ -906,7 +883,6 @@ class SearchsCompanion extends UpdateCompanion<Search> {
   @override
   String toString() {
     return (StringBuffer('SearchsCompanion(')
-          ..write('id: $id, ')
           ..write('title: $title')
           ..write(')'))
         .toString();
@@ -917,15 +893,6 @@ class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
   final GeneratedDatabase _db;
   final String _alias;
   $SearchsTable(this._db, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedIntColumn _id;
-  @override
-  GeneratedIntColumn get id => _id ??= _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        hasAutoIncrement: true, declaredAsPrimaryKey: true);
-  }
-
   final VerificationMeta _titleMeta = const VerificationMeta('title');
   GeneratedTextColumn _title;
   @override
@@ -939,7 +906,7 @@ class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
   }
 
   @override
-  List<GeneratedColumn> get $columns => [id, title];
+  List<GeneratedColumn> get $columns => [title];
   @override
   $SearchsTable get asDslTable => this;
   @override
@@ -951,9 +918,6 @@ class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
-    }
     if (data.containsKey('title')) {
       context.handle(
           _titleMeta, title.isAcceptableOrUnknown(data['title'], _titleMeta));
@@ -964,7 +928,7 @@ class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {title};
   @override
   Search map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -977,21 +941,291 @@ class $SearchsTable extends Searchs with TableInfo<$SearchsTable, Search> {
   }
 }
 
+class NotificationChk extends DataClass implements Insertable<NotificationChk> {
+  final String firestoreid;
+  final DateTime uploadtime;
+  final String readChecked;
+  NotificationChk(
+      {@required this.firestoreid,
+      this.uploadtime,
+      @required this.readChecked});
+  factory NotificationChk.fromData(
+      Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    final dateTimeType = db.typeSystem.forDartType<DateTime>();
+    final boolType = db.typeSystem.forDartType<bool>();
+    return NotificationChk(
+      firestoreid: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}firestoreid']),
+      uploadtime: dateTimeType
+          .mapFromDatabaseResponse(data['${effectivePrefix}uploadtime']),
+      readChecked: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}read_checked']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || firestoreid != null) {
+      map['firestoreid'] = Variable<String>(firestoreid);
+    }
+    if (!nullToAbsent || uploadtime != null) {
+      map['uploadtime'] = Variable<DateTime>(uploadtime);
+    }
+    if (!nullToAbsent || readChecked != null) {
+      map['read_checked'] = Variable<String>(readChecked);
+    }
+    return map;
+  }
+
+  NotificationChksCompanion toCompanion(bool nullToAbsent) {
+    return NotificationChksCompanion(
+      firestoreid: firestoreid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(firestoreid),
+      uploadtime: uploadtime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(uploadtime),
+      readChecked: readChecked == null && nullToAbsent
+          ? const Value.absent()
+          : Value(readChecked),
+    );
+  }
+
+  factory NotificationChk.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return NotificationChk(
+      firestoreid: serializer.fromJson<String>(json['firestoreid']),
+      uploadtime: serializer.fromJson<DateTime>(json['uploadtime']),
+      readChecked: serializer.fromJson<String>(json['readChecked']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'firestoreid': serializer.toJson<String>(firestoreid),
+      'uploadtime': serializer.toJson<DateTime>(uploadtime),
+      'readChecked': serializer.toJson<String>(readChecked),
+    };
+  }
+
+  NotificationChk copyWith(
+          {String firestoreid, DateTime uploadtime, bool readChecked}) =>
+      NotificationChk(
+        firestoreid: firestoreid ?? this.firestoreid,
+        uploadtime: uploadtime ?? this.uploadtime,
+        readChecked: readChecked ?? this.readChecked,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('NotificationChk(')
+          ..write('firestoreid: $firestoreid, ')
+          ..write('uploadtime: $uploadtime, ')
+          ..write('readChecked: $readChecked')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(
+      firestoreid.hashCode, $mrjc(uploadtime.hashCode, readChecked.hashCode)));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is NotificationChk &&
+          other.firestoreid == this.firestoreid &&
+          other.uploadtime == this.uploadtime &&
+          other.readChecked == this.readChecked);
+}
+
+class NotificationChksCompanion extends UpdateCompanion<NotificationChk> {
+  final Value<String> firestoreid;
+  final Value<DateTime> uploadtime;
+  final Value<String> readChecked;
+  const NotificationChksCompanion({
+    this.firestoreid = const Value.absent(),
+    this.uploadtime = const Value.absent(),
+    this.readChecked = const Value.absent(),
+  });
+  NotificationChksCompanion.insert({
+    @required String firestoreid,
+    this.uploadtime = const Value.absent(),
+    @required String readChecked,
+  })  : firestoreid = Value(firestoreid),
+        readChecked = Value(readChecked);
+  static Insertable<NotificationChk> custom({
+    Expression<String> firestoreid,
+    Expression<DateTime> uploadtime,
+    Expression<String> readChecked,
+  }) {
+    return RawValuesInsertable({
+      if (firestoreid != null) 'firestoreid': firestoreid,
+      if (uploadtime != null) 'uploadtime': uploadtime,
+      if (readChecked != null) 'read_checked': readChecked,
+    });
+  }
+
+  NotificationChksCompanion copyWith(
+      {Value<String> firestoreid,
+      Value<DateTime> uploadtime,
+      Value<bool> readChecked}) {
+    return NotificationChksCompanion(
+      firestoreid: firestoreid ?? this.firestoreid,
+      uploadtime: uploadtime ?? this.uploadtime,
+      readChecked: readChecked ?? this.readChecked,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (firestoreid.present) {
+      map['firestoreid'] = Variable<String>(firestoreid.value);
+    }
+    if (uploadtime.present) {
+      map['uploadtime'] = Variable<DateTime>(uploadtime.value);
+    }
+    if (readChecked.present) {
+      map['read_checked'] = Variable<String>(readChecked.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotificationChksCompanion(')
+          ..write('firestoreid: $firestoreid, ')
+          ..write('uploadtime: $uploadtime, ')
+          ..write('readChecked: $readChecked')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $NotificationChksTable extends NotificationChks
+    with TableInfo<$NotificationChksTable, NotificationChk> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $NotificationChksTable(this._db, [this._alias]);
+  final VerificationMeta _firestoreidMeta =
+      const VerificationMeta('firestoreid');
+  GeneratedTextColumn _firestoreid;
+  @override
+  GeneratedTextColumn get firestoreid =>
+      _firestoreid ??= _constructFirestoreid();
+  GeneratedTextColumn _constructFirestoreid() {
+    return GeneratedTextColumn(
+      'firestoreid',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _uploadtimeMeta = const VerificationMeta('uploadtime');
+  GeneratedDateTimeColumn _uploadtime;
+  @override
+  GeneratedDateTimeColumn get uploadtime =>
+      _uploadtime ??= _constructUploadtime();
+  GeneratedDateTimeColumn _constructUploadtime() {
+    return GeneratedDateTimeColumn(
+      'uploadtime',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _readCheckedMeta =
+      const VerificationMeta('readChecked');
+  GeneratedTextColumn _readChecked;
+  @override
+  GeneratedTextColumn get readChecked =>
+      _readChecked ??= _constructReadChecked();
+  GeneratedTextColumn _constructReadChecked() {
+    return GeneratedTextColumn(
+      'read_checked',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [firestoreid, uploadtime, readChecked];
+  @override
+  $NotificationChksTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'notification_chks';
+  @override
+  final String actualTableName = 'notification_chks';
+  @override
+  VerificationContext validateIntegrity(Insertable<NotificationChk> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('firestoreid')) {
+      context.handle(
+          _firestoreidMeta,
+          firestoreid.isAcceptableOrUnknown(
+              data['firestoreid'], _firestoreidMeta));
+    } else if (isInserting) {
+      context.missing(_firestoreidMeta);
+    }
+    if (data.containsKey('uploadtime')) {
+      context.handle(
+          _uploadtimeMeta,
+          uploadtime.isAcceptableOrUnknown(
+              data['uploadtime'], _uploadtimeMeta));
+    }
+    if (data.containsKey('read_checked')) {
+      context.handle(
+          _readCheckedMeta,
+          readChecked.isAcceptableOrUnknown(
+              data['read_checked'], _readCheckedMeta));
+    } else if (isInserting) {
+      context.missing(_readCheckedMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {firestoreid};
+  @override
+  NotificationChk map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return NotificationChk.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $NotificationChksTable createAlias(String alias) {
+    return $NotificationChksTable(_db, alias);
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $ProductsTable _products;
   $ProductsTable get products => _products ??= $ProductsTable(this);
   $SearchsTable _searchs;
   $SearchsTable get searchs => _searchs ??= $SearchsTable(this);
+  $NotificationChksTable _notificationChks;
+  $NotificationChksTable get notificationChks =>
+      _notificationChks ??= $NotificationChksTable(this);
   ProductsDao _productsDao;
   ProductsDao get productsDao =>
       _productsDao ??= ProductsDao(this as AppDatabase);
   SearchsDao _searchsDao;
   SearchsDao get searchsDao => _searchsDao ??= SearchsDao(this as AppDatabase);
+  NotificationChksDao _notificationChksDao;
+  NotificationChksDao get notificationChksDao =>
+      _notificationChksDao ??= NotificationChksDao(this as AppDatabase);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [products, searchs];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [products, searchs, notificationChks];
 }
 
 // **************************************************************************
@@ -1003,4 +1237,8 @@ mixin _$ProductsDaoMixin on DatabaseAccessor<AppDatabase> {
 }
 mixin _$SearchsDaoMixin on DatabaseAccessor<AppDatabase> {
   $SearchsTable get searchs => attachedDatabase.searchs;
+}
+mixin _$NotificationChksDaoMixin on DatabaseAccessor<AppDatabase> {
+  $NotificationChksTable get notificationChks =>
+      attachedDatabase.notificationChks;
 }

@@ -26,6 +26,7 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _isEmailUnderLine = true;
   String tempEmail = "";
   bool _isAuthNumber = true;
+  bool _isEmailDupliCheck = false;
 
   _AuthScreenState(this.currentUserId, this.checkPassword, this.sendTime);
 
@@ -52,7 +53,7 @@ class _AuthScreenState extends State<AuthScreen> {
     FirebaseFirestore.instance
         .collection('users')
         .doc("$currentUserId")
-        .update({"authUniversity": true});
+        .update({"userUniversityEmail": true});
   }
 
   Future getRandomNumber() async {
@@ -108,16 +109,26 @@ class _AuthScreenState extends State<AuthScreen> {
     // connection.close();
   }
 
+  //
   authEmailNickNameCheck(String text) async {
     _isEmailChecked = false;
-    if (text.contains("@stu.kmu.ac.kr")) {
+    QuerySnapshot ref = await FirebaseFirestore.instance
+        .collection('users')
+        .where("userUniversityEmail", isEqualTo: text)
+        .get();
+
+    List<QueryDocumentSnapshot> docRef = ref.docs;
+
+    if (text.contains("@stu.kmu.ac.kr") && docRef.isEmpty) {
       setState(() {
         _isEmailChecked = true;
         _isEmailUnderLine = true;
+        _isEmailDupliCheck = true;
       });
     } else {
       setState(() {
         _isEmailUnderLine = false;
+        _isEmailDupliCheck = false;
       });
     }
   }
@@ -218,13 +229,106 @@ class _AuthScreenState extends State<AuthScreen> {
                           ),
                           Offstage(
                             child: Padding(
-                              padding: const EdgeInsets.fromLTRB(0, 15, 50, 0),
-                              child: Text(
-                                "이메일 형식이 잘못되었거나 중복입니다.",
-                                style: TextStyle(color: Colors.red),
+                                padding:
+                                    const EdgeInsets.fromLTRB(0, 15, 50, 0),
+                                child: Text(
+                                  "이메일 형식이 잘못되었거나 중복입니다.",
+                                  style: TextStyle(color: Colors.red),
+                                )),
+                            offstage: _isEmailUnderLine == true ? true : false,
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                            child: Container(
+                              width: 300,
+                              child: RaisedButton(
+                                onPressed: () async {
+                                  checkPassword = await getRandomNumber();
+                                  if (_isEmailChecked == true) {
+                                    setState(() {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        10.0)),
+                                            title: Column(
+                                              children: <Widget>[
+                                                new Text(""),
+                                              ],
+                                            ),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Center(
+                                                  child: Text(
+                                                    "인증번호가 메일로 전송되었습니다",
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            actions: <Widget>[
+                                              new FlatButton(
+                                                child: new Text("확인"),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        });
+                                      // sendMail();
+                                      // sendTime = DateTime.now()
+                                      //     .add(Duration(hours: 9));
+                                    });
+                                  } else {
+                                    showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        10.0)),
+                                            title: Column(
+                                              children: <Widget>[
+                                                new Text(""),
+                                              ],
+                                            ),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Center(
+                                                  child: Text(
+                                                    "이메일 중복확인을 해주세요",
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            actions: <Widget>[
+                                              new FlatButton(
+                                                child: new Text("확인"),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        });
+                                  }
+                                },
+                                child: Text("전송"),
                               ),
                             ),
-                            offstage: _isEmailUnderLine == true ? true : false,
                           ),
                           Container(
                             width: 300,
@@ -266,9 +370,45 @@ class _AuthScreenState extends State<AuthScreen> {
                                 onPressed: () async {
                                   checkPassword = await getRandomNumber();
                                   setState(() {
+                                    showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        10.0)),
+                                            title: Column(
+                                              children: <Widget>[
+                                                new Text(""),
+                                              ],
+                                            ),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Center(
+                                                  child: Text(
+                                                    "인증번호가 재전송 되었습니다.",
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            actions: <Widget>[
+                                              new FlatButton(
+                                                child: new Text("확인"),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        });
                                     // sendMail();
-                                    sendTime =
-                                        DateTime.now().add(Duration(hours: 9));
+                                    // sendTime =
+                                    //     DateTime.now().add(Duration(hours: 9));
                                   });
                                 },
                                 child: Text("재전송"),

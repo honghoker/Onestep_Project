@@ -122,7 +122,7 @@ class _ClothSearchResultPageState extends State<ClothSearchResultPage> {
                   if (text.trim().length >= 2) {
                     print(text);
                     widget.prouductSearchProvider.searchProducts(text);
-                    search = Search(title: text, id: null);
+                    search = Search(title: text);
                     setState(() {
                       _isSearchMode = false;
                       if (text.trim().toString() != "") p.insertSearch(search);

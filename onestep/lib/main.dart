@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:onestep/login/joinPage.dart';
 
 import 'appmain/Route_Generator.dart';
 
@@ -61,6 +62,7 @@ class _MyAppState extends State<MyApp> {
       initialRoute: '/',
       title: '앱메인',
       debugShowCheckedModeBanner: false,
+      // home:JoinScreen(currentUserId: "test",),
       home: _auth.currentUser != null ? MyHomePage() : LoginScreen(),
     );
   }

@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:moor/moor.dart' as mf;
+import 'package:onestep/cloth/clothitem.dart';
 import 'package:onestep/moor/moor_database.dart';
+import 'package:onestep/search/provider/searchProvider.dart';
 import 'package:provider/provider.dart';
 
-class HomeSearchResultPage extends StatefulWidget {
+class SearchAllWidget extends StatefulWidget {
+  final SearchProvider searchProvider;
+
+  const SearchAllWidget({Key key, this.searchProvider}) : super(key: key);
   @override
-  _HomeSearchResultPageState createState() => _HomeSearchResultPageState();
+  _SearchAllWidgetState createState() => _SearchAllWidgetState();
 }
 
-class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
+class _SearchAllWidgetState extends State<SearchAllWidget> {
   String tempSearchValue = "";
   TextEditingController _textController;
   bool _isSearchMode = true;
@@ -31,9 +37,10 @@ class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
 
     return Padding(
       padding: const EdgeInsets.only(top: 10),
-      child: StreamBuilder<List<Search>>(
+      child: StreamBuilder<List<mf.QueryRow>>(
         stream: p.watchSearchs(),
-        builder: (BuildContext context, AsyncSnapshot<List<Search>> snapshot) {
+        builder:
+            (BuildContext context, AsyncSnapshot<List<mf.QueryRow>> snapshot) {
           if (snapshot.data == null) return new Text(""); // 이거 안넣어주면 오류남
           SizedBox(
             height: 5,
@@ -60,18 +67,20 @@ class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
                       ),
                       child: Align(
                         alignment: Alignment.center,
-                        child: Text(
-                            "${snapshot.data[snapshot.data.length - (index + 1)].title}",
-                            style: TextStyle(),
-                            textAlign: TextAlign.center),
+                        child: Text("${snapshot.data[index].data['title']}",
+                            style: TextStyle(), textAlign: TextAlign.center),
                       ),
                     ),
                     onTap: () {
                       print("searchClick");
+                      String text = snapshot.data[index].data['title'];
+                      FocusScope.of(context).unfocus();
+
+                      widget.searchProvider.searchProducts(text);
+
                       setState(() {
                         _isSearchMode = false;
-                        _textController.text = snapshot
-                            .data[snapshot.data.length - (index + 1)].title;
+                        _textController.text = text;
                       });
                     },
                   ),
@@ -84,9 +93,56 @@ class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
     );
   }
 
+  Widget getTab() {
+    return TabBar(
+      tabs: [
+        Tab(
+          child: Text(
+            "장터",
+            style: TextStyle(color: Colors.black),
+          ),
+        ),
+        Tab(
+          child: Text(
+            "게시판",
+            style: TextStyle(color: Colors.black),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget renderProductBody() {
+    var _size = MediaQuery.of(context).size;
+    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.0;
+    final double _itemWidth = _size.width / 2;
+
+    return GridView(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        childAspectRatio: _itemWidth > _itemHeight
+            ? (_itemHeight / _itemWidth)
+            : (_itemWidth / _itemHeight),
+        crossAxisCount: 3,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+      ),
+      children: [
+        ...widget.searchProvider.products
+            .map(
+              (product) => ClothItem(
+                product: product,
+              ),
+            )
+            .toList(),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // final TextEditingController _textController = TextEditingController(text: tempSearchValue);
     SearchsDao p = Provider.of<AppDatabase>(context).searchsDao;
 
     return DefaultTabController(
@@ -115,19 +171,35 @@ class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
                     controller: _textController,
                     onSubmitted: (text) {
                       // 2글자 제한
-                      if (text.length <= 2) {
-                        print("2글자 이하");
-                      } else if (text == "") {
-                        print("공백");
-                      } else {
-                        print("search $text");
-                        search = Search(title: text);
+                      if (text.trim().length >= 2) {
+                        widget.searchProvider.searchProducts(text);
+                        // "board 검색";
+
+                        search = Search(title: text, time: DateTime.now());
+                        p
+                            .customSelect(
+                                "SELECT * FROM Searchs WHERE title LIKE '$text'")
+                            .getSingle()
+                            .then((value) => {
+                                  if (value != null)
+                                    {
+                                      p.updateSearch(Search.fromJson(value.data)
+                                          .copyWith(
+                                              time:
+                                                  DateTime.now())), // 시간 update
+                                    }
+                                  else
+                                    {
+                                      p.insertSearch(search),
+                                    }
+                                });
+
                         setState(() {
                           _isSearchMode = false;
-                          // p.insertSearch(search);
-                          text != "" ? p.insertSearch(search) : null;
                           // _isAutoFocus = false;
                         });
+                      } else {
+                        print("두 글자 이상 입력해주세요. 팝업");
                       }
                     },
                     onChanged: (text) {
@@ -153,50 +225,21 @@ class _HomeSearchResultPageState extends State<HomeSearchResultPage> {
                                 },
                               )
                             : null,
-                        hintText: "장터나 게시판을 검색해보세요!"),
+                        hintText: "상품이나 게시글을 검색해보세요."),
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Container(
-                    child: Text("취소", style: TextStyle(fontSize: 15)),
-                  ),
-                ),
-              )
             ],
           ),
-          bottom: _isSearchMode == false
-              ? TabBar(
-                  tabs: [
-                    Tab(
-                      child: Text(
-                        "장터",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                    Tab(
-                      child: Text(
-                        "게시판",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                  ],
-                )
-              : null,
+          bottom: _isSearchMode == false ? getTab() : null,
         ),
         body: _isSearchMode == false
             ? TabBarView(
                 children: [
                   Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    // mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("장터", style: TextStyle(color: Colors.black)),
-                      Text("${_textController.text}"),
+                      renderProductBody(),
                     ],
                   ),
                   Column(

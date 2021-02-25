@@ -5,6 +5,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:onestep/api/firebase_api.dart';
+import 'package:onestep/cloth/providers/myProductProvider.dart';
+import 'package:onestep/home/notificationPage.dart';
+import 'package:onestep/myinfo/myinfoMyWrite.dart';
+import 'package:provider/provider.dart';
 import 'package:random_string/random_string.dart';
 
 class MyinfoWidget extends StatefulWidget {
@@ -19,7 +23,6 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
   @override
   void initState() {
     super.initState();
-    // test();
   }
 
   Future<DocumentSnapshot> getUrl() async {
@@ -28,20 +31,6 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
         .doc(FirebaseApi.getId())
         .get();
   }
-
-  // void test() async {
-  //   print("downloadURL1 $downloadURL");
-
-  //   await FirebaseFirestore.instance
-  //       .collection('users')
-  //       .doc(FirebaseApi.getId())
-  //       .get()
-  //       .then((DocumentSnapshot url) {
-  //     downloadURL = url.data()['photoUrl'].toString();
-  //     print("downloadURL2 = $downloadURL");
-  //   });
-  //   print("downloadURL3 $downloadURL");
-  // }
 
   void checkUserLevel() async {
     ds = await FirebaseFirestore.instance
@@ -170,7 +159,17 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
                           width: double.infinity,
                           child: RaisedButton(
                             child: Text("프로필 보기"),
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) =>
+                                    Consumer<MyProductProvider>(
+                                  builder: (context, myProductProvider, _) =>
+                                      MyinfoMyWrite(
+                                    myProductProvider: myProductProvider,
+                                  ),
+                                ),
+                              ));
+                            },
                           ),
                         ),
                         Padding(
@@ -184,8 +183,7 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
                         ),
                         InkWell(
                           onTap: () {
-                            testShowBottom();
-                            // print("click");
+                            print("click");
                           },
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(20, 20, 0, 0),
@@ -237,6 +235,8 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
                         InkWell(
                           onTap: () {
                             print("click");
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => NotificationPage()));
                           },
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(20, 20, 0, 0),
@@ -451,7 +451,6 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
                         //           child: IconButton(
                         //             icon: Icon(Icons.keyboard_arrow_right),
                         //             onPressed: () {
-                        //               testShowBottom();
                         //             },
                         //           ),
                         //         ),
@@ -464,20 +463,5 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
                   );
               }
             }));
-  }
-
-  void testShowBottom() {
-    showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return Column(
-            children: [
-              ListTile(
-                title: Text("text1"),
-                onTap: () => print("text1 click"),
-              )
-            ],
-          );
-        });
   }
 }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/appmain/myhomepage.dart';
 import 'package:onestep/notification/Controllers/loginController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,7 +53,10 @@ class _LoginScreenState extends State<LoginScreen> {
     preferences = await SharedPreferences.getInstance();
     isLoggedIn = await googleSignIn.isSignedIn();
     if (isLoggedIn) {
-      var arg = preferences.getString('id') ?? '아이디없음';
+      // var arg = preferences.getString('id') ?? '아이디없음';
+      var arg = FirebaseApi.getId();
+//      var arg = preferences.getString('id') ?? '아이디없음';
+      // 이거 살려야함
       Navigator.of(context).pushReplacementNamed('/MainPage?UID=$arg');
 
 //       var arg = firebaseAuth.currentUser.uid;
@@ -62,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
 //       // Navigator.of(context).pushReplacementNamed('/MainPage?UID=$arg');
 
 //       // 회원가입으로
-//       Navigator.of(context).pushNamed('/JoinPage?UID=$arg');
+      // Navigator.of(context).pushNamed('/JoinPage?UID=$arg');
 
       // Navigator.push(
       //     context,
@@ -224,6 +228,9 @@ class _LoginScreenState extends State<LoginScreen> {
         // 메인으로 넘어감
         Navigator.of(context)
             .pushReplacementNamed('/MainPage?UID=${firebaseUser.uid}');
+
+        // 회원가입 작업하려고 잠시 회원가입창으로 이거 지워야함
+        // Navigator.of(context).pushNamed('/JoinPage?UID=${firebaseUser.uid}');
       }
 
       Fluttertoast.showToast(msg: 'uid 하단' + currentUser.uid);

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,36 +7,52 @@ import 'package:flutter/services.dart';
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:onestep/api/firebase_api.dart';
-import 'package:onestep/cloth/categoryWidget.dart';
+import 'package:onestep/cloth/models/product.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:random_string/random_string.dart';
 import 'package:onestep/PermissionLib/customPermisson.dart';
 import 'models/category.dart';
 
-class ClothAddWidget extends StatefulWidget {
-  ClothAddWidget({Key key}) : super(key: key);
+class ClothModifyWidget extends StatefulWidget {
+  final Product product;
+  ClothModifyWidget({Key key, this.product}) : super(key: key);
 
   @override
-  _ClothAddWidgetState createState() => _ClothAddWidgetState();
+  _ClothModifyWidgetState createState() => _ClothModifyWidgetState();
 }
 
-class _ClothAddWidgetState extends State<ClothAddWidget>
+class _ClothModifyWidgetState extends State<ClothModifyWidget>
     with OneStepPermission {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _titleTextEditingController = TextEditingController();
-  final _priceTextEditingController = TextEditingController();
-  final _explainTextEditingController = TextEditingController();
+  TextEditingController _titleTextEditingController;
+  TextEditingController _priceTextEditingController;
+  TextEditingController _explainTextEditingController;
   int _imageCount = 0;
   List<Asset> _imageList = List<Asset>();
-
+  List<dynamic> _initImageList = [];
   String _selectedCategoryItem;
   List<String> _dropdownCategoryItems;
+
   @override
   void initState() {
     _dropdownCategoryItems =
         Provider.of<Category>(context, listen: false).getCategoryItems();
+
+    _titleTextEditingController =
+        TextEditingController(text: widget.product.title);
+    _priceTextEditingController =
+        TextEditingController(text: widget.product.price);
+    _selectedCategoryItem = widget.product.category;
+    _explainTextEditingController =
+        TextEditingController(text: widget.product.explain);
+    initImageList();
     super.initState();
+  }
+
+  void initImageList() {
+    _initImageList = this.widget.product.images;
+    _imageCount = _initImageList.length;
   }
 
   BoxDecoration myBoxDecoration() {
@@ -47,27 +64,114 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
     );
   }
 
+  List<Widget> imageMerge() {
+    List<Widget> result1 = _initImageList
+        .map<Widget>(
+          (data) => Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Stack(
+              children: [
+                Card(
+                  child: ExtendedImage.network(
+                    data,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    cache: true,
+                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: ClipOval(
+                    child: Material(
+                      color: Colors.grey, // button color
+                      child: InkWell(
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 15,
+                          ),
+                        ),
+                        onTap: () {
+                          setState(() {
+                            _imageCount = --_imageCount;
+                            _initImageList.remove(data);
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
+        .toList();
+
+    List<Widget> result2 = _imageList
+        .map<Widget>(
+          (data) => Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Stack(
+              children: [
+                Card(
+                  child: AssetThumb(
+                    asset: data,
+                    width: 60,
+                    height: 60,
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: ClipOval(
+                    child: Material(
+                      color: Colors.grey, // button color
+                      child: InkWell(
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 15,
+                          ),
+                        ),
+                        onTap: () {
+                          setState(() {
+                            _imageCount = --_imageCount;
+                            _imageList.remove(data);
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
+        .toList();
+
+    result1.addAll(result2);
+
+    return result1;
+  }
+
   Widget setImageList() {
-    return _imageList.isEmpty
+    return _initImageList.isEmpty && _imageList.isEmpty
         ? Container()
         : Container(
             height: 80,
             width: MediaQuery.of(context).size.width,
-            child: ListView.builder(
+            child: ListView(
               scrollDirection: Axis.horizontal,
-              itemCount: _imageList.length,
-              itemBuilder: (BuildContext context, int index) {
-                return new Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Card(
-                    child: AssetThumb(
-                      asset: _imageList[index],
-                      width: 60,
-                      height: 60,
-                    ),
-                  ),
-                );
-              },
+              children: imageMerge(),
             ),
           );
   }
@@ -76,7 +180,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
     List<Asset> _resultList = List<Asset>();
 
     _resultList = await MultiImagePicker.pickImages(
-      maxImages: 5,
+      maxImages: 5 - _initImageList.length,
       enableCamera: true,
       selectedAssets: _imageList,
       cupertinoOptions: CupertinoOptions(
@@ -95,7 +199,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
 
     if (_resultList.isEmpty) return;
     setState(() {
-      _imageCount = _resultList.length;
+      _imageCount = _resultList.length + _initImageList.length;
       _imageList.clear();
       _imageList = _resultList;
     });
@@ -106,7 +210,6 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
       children: <Widget>[
         GestureDetector(
           onTap: () {
-            // getImage();
             checkCamStorePermission(getImage);
           },
           child: Container(
@@ -114,7 +217,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
             height: 60,
             margin: const EdgeInsets.all(20.0),
             padding: const EdgeInsets.all(5.0),
-            decoration: myBoxDecoration(), //       <--- BoxDecoration here
+            decoration: myBoxDecoration(),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -148,7 +251,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
     } else if (_explainTextEditingController.text.trim() == "") {
       _scaffoldKey.currentState
           .showSnackBar(SnackBar(content: Text("설명을 입력해주세요.")));
-    } else if (_imageList.length < 1) {
+    } else if (_initImageList.length + _imageList.length < 1) {
       _scaffoldKey.currentState
           .showSnackBar(SnackBar(content: Text("물품을 등록하려면 한장 이상의 사진이 필요합니다.")));
     } else {
@@ -156,6 +259,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
       yyDialog.show();
       List _imgUriarr = [];
 
+      _imgUriarr.addAll(_initImageList);
       for (var imaged in _imageList) {
         StorageReference storageReference = FirebaseStorage.instance
             .ref()
@@ -169,21 +273,14 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
 
       FirebaseFirestore.instance
           .collection('products')
-          .doc(DateTime.now().millisecondsSinceEpoch.toString())
-          .set({
-        'uid': FirebaseApi.getId(),
+          .doc(this.widget.product.firestoreid)
+          .update({
         'price': _priceTextEditingController.text,
         'title': _titleTextEditingController.text,
         'category': _selectedCategoryItem,
         'explain': _explainTextEditingController.text,
         'images': _imgUriarr,
-        'favorites': 0,
-        'hide': false,
-        'deleted': false,
-        'views': 0,
-        'uploadtime': DateTime.now(),
         'updatetime': DateTime.now(),
-        'bumptime': DateTime.now(),
       }).whenComplete(() {
         if (Navigator.canPop(context)) {
           yyDialog.dismiss();
@@ -192,6 +289,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
           SystemNavigator.pop();
         }
       }).catchError((value) {
+        print(value);
         _scaffoldKey.currentState
             .showSnackBar(SnackBar(content: Text("Error")));
       });
@@ -268,38 +366,6 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
         uploadProduct();
       }
     });
-    // await YYDialog().build(context)
-    //   ..width = 220
-    //   ..borderRadius = 4.0
-    //   ..text(
-    //     padding: EdgeInsets.all(25.0),
-    //     alignment: Alignment.center,
-    //     text: "물품을 등록할까요?",
-    //     color: Colors.black,
-    //     fontSize: 14.0,
-    //     fontWeight: FontWeight.w500,
-    //   )
-    //   ..divider()
-    //   ..doubleButton(
-    //     padding: EdgeInsets.only(top: 10.0),
-    //     gravity: Gravity.center,
-    //     withDivider: true,
-    //     text1: "확인",
-    //     color1: Colors.redAccent,
-    //     fontSize1: 14.0,
-    //     fontWeight1: FontWeight.bold,
-    //     onTap1: () {
-    //       return false;
-    //     },
-    //     text2: "취소",
-    //     color2: Colors.redAccent,
-    //     fontSize2: 14.0,
-    //     fontWeight2: FontWeight.bold,
-    //     onTap2: () {
-    //       return true;
-    //     },
-    //   )
-    //   ..show();
   }
 
   @override
@@ -340,11 +406,9 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
                   maxLength: 20,
                 ),
               ),
-
               Container(
                 margin: EdgeInsets.all(10),
                 child: TextField(
-                  maxLength: 11,
                   controller: _priceTextEditingController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [
@@ -353,50 +417,9 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: '가격',
-                    counterText: "",
                   ),
                 ),
               ),
-
-              Container(
-                margin: EdgeInsets.all(10),
-                width: MediaQuery.of(context).size.width,
-                height: 60,
-                alignment: Alignment.centerLeft,
-                decoration: BoxDecoration(
-                  border: Border.all(width: 1.0, color: Colors.grey),
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(4.0),
-                  ),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(5.0),
-                  child: Text(
-                    "카테고리 선택",
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.all(10),
-                child: TextField(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => CategoryWidget()),
-                    );
-                  },
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: '카테고리',
-                  ),
-                  readOnly: true,
-                ),
-              ),
-
               Container(
                 margin: EdgeInsets.all(10),
                 child: InputDecorator(
@@ -439,7 +462,6 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
                   ),
                 ),
               ),
-              // TextFormField(controller: ,),
             ],
           ),
         ),

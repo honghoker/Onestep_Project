@@ -2,47 +2,9 @@ import 'package:moor_flutter/moor_flutter.dart';
 
 part 'moor_database.g.dart';
 
-class Products extends Table {
-  TextColumn get title => text()();
-  TextColumn get firestoreid => text()();
-  TextColumn get uid => text()();
-  TextColumn get category => text()();
-  TextColumn get price => text()();
-  TextColumn get explain => text().nullable()();
-  IntColumn get views => integer().nullable()();
-  IntColumn get favorites => integer().nullable()();
-  DateTimeColumn get uploadtime => dateTime().nullable()();
-  DateTimeColumn get updatetime => dateTime().nullable()();
-  DateTimeColumn get bumptime => dateTime().nullable()();
-  TextColumn get images => text()();
-  IntColumn get hide => integer()();
-  IntColumn get deleted => integer()();
-
-  @override
-  Set<Column> get primaryKey => {firestoreid};
-}
-
-@UseDao(tables: [Products])
-class ProductsDao extends DatabaseAccessor<AppDatabase>
-    with _$ProductsDaoMixin {
-  ProductsDao(AppDatabase db) : super(db);
-
-  Future<List<Product>> getAllProducts() => select(products).get();
-  Stream<List<Product>> watchProducts() => select(products).watch();
-  Future insertProduct(Product product) => into(products).insert(product);
-  Future deleteProduct(Product product) => delete(products).delete(product);
-  Stream<QueryRow> watchsingleProduct(String firestoreid) => customSelect(
-        "SELECT * FROM Products WHERE firestoreid LIKE '$firestoreid'",
-        readsFrom: {products},
-      ).watchSingle();
-
-  Future updateProduct(Product product) => update(products).replace(product);
-
-  deleteAllProduct() => delete(products).go();
-}
-
 class Searchs extends Table {
   TextColumn get title => text()();
+  DateTimeColumn get time => dateTime()();
 
   @override
   Set<Column> get primaryKey => {title};
@@ -53,7 +15,12 @@ class SearchsDao extends DatabaseAccessor<AppDatabase> with _$SearchsDaoMixin {
   SearchsDao(AppDatabase db) : super(db);
 
   Future<List<Search>> getAllSearchs() => select(searchs).get();
-  Stream<List<Search>> watchSearchs() => select(searchs).watch();
+
+  Stream<List<QueryRow>> watchSearchs() => customSelect(
+        "SELECT * FROM Searchs ORDER BY time DESC",
+        readsFrom: {searchs},
+      ).watch();
+
   Future insertSearch(Search search) => into(searchs).insert(search);
   Future deleteSearch(Search search) => delete(searchs).delete(search);
   Future updateSearch(Search search) => update(searchs).replace(search);
@@ -64,7 +31,7 @@ class SearchsDao extends DatabaseAccessor<AppDatabase> with _$SearchsDaoMixin {
 class NotificationChks extends Table {
   TextColumn get firestoreid => text()();
   DateTimeColumn get uploadtime => dateTime().nullable()();
-  // BoolColumn get readChecked => boolean()();
+  TextColumn get entireChecked => text()();
   TextColumn get readChecked => text()();
 
   @override
@@ -95,20 +62,9 @@ class NotificationChksDao extends DatabaseAccessor<AppDatabase>
             (t) =>
                 OrderingTerm(expression: t.uploadtime, mode: OrderingMode.desc),
           ])
-          ..where((t) => t.readChecked.equals('false'))
-          )
+          ..where((t) => t.readChecked.equals('false')))
         .watch();
   }
-
-
-  // Stream<List<NotificationChk>> watchNotificationAll() =>
-  //     select(notificationChks).watch();
-
-  // Stream<QueryRow> watchNotificationAll(bool type) =>
-  //     customSelect(
-  //       "SELECT * FROM notification_chks WHERE read_checked LIKE '$type'",
-  //       readsFrom: {notificationChks},
-  //     ).watchSingle();
 
   Future insertNotification(NotificationChk notificationChk) =>
       into(notificationChks).insert(notificationChk);
@@ -125,13 +81,12 @@ class NotificationChksDao extends DatabaseAccessor<AppDatabase>
         readsFrom: {notificationChks},
       ).watchSingle();
 
-
   deleteAllNotification() => delete(notificationChks).go();
 }
 
 @UseMoor(
-    tables: [Products, Searchs, NotificationChks],
-    daos: [ProductsDao, SearchsDao, NotificationChksDao])
+    tables: [Searchs, NotificationChks],
+    daos: [SearchsDao, NotificationChksDao])
 class AppDatabase extends _$AppDatabase {
   AppDatabase()
       : super(FlutterQueryExecutor.inDatabaseFolder(

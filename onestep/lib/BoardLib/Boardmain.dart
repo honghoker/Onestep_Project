@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardProvider.dart';
-import 'package:onestep/BoardLib/secondPageView.dart';
 import 'package:onestep/BoardLib/BoardList/boardListView.dart';
 import 'package:path/path.dart' as p;
 import 'package:onestep/BoardLib/CustomException/customThrow.dart';
@@ -82,6 +81,8 @@ class _MyHomePageState extends State<Boardmain> {
           : FloatingActionButton(
               backgroundColor: Colors.black,
               onPressed: () {
+                //  신고 test
+                // print("여기");
                 print(_boardCategory.toString());
                 Navigator.of(context).pushNamed('/CreateBoard',
                     arguments: {"CURRENTBOARD": _boardCategory});

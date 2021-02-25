@@ -1,11 +1,10 @@
-import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:moor_flutter/moor_flutter.dart' as mf;
-import 'package:onestep/cloth/clothDetailViewWidgetcopy.dart';
-import 'package:onestep/moor/moor_database.dart';
-import 'package:provider/provider.dart';
-import 'animations/favoriteanimation.dart';
+import 'package:onestep/api/favorite_api.dart';
+import 'package:onestep/api/firebase_api.dart';
+import 'package:onestep/cloth/models/product.dart';
+import 'package:onestep/favorite/animations/favoriteanimation.dart';
 
 class ClothItem extends StatefulWidget {
   final Product product;
@@ -22,14 +21,14 @@ class _ClothItemState extends State<ClothItem> {
   }
 
   Widget setFavorite() {
-    ProductsDao p = Provider.of<AppDatabase>(context).productsDao;
-
-    return StreamBuilder<mf.QueryRow>(
-      stream: p.watchsingleProduct(this.widget.product.firestoreid),
-      builder: (BuildContext context, AsyncSnapshot<mf.QueryRow> snapshot) {
-        if (snapshot.hasError) {
-          return new Text('Error: ${snapshot.error}');
-        }
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection("users")
+          .doc(FirebaseApi.getId())
+          .collection("favorites")
+          .where("productid", isEqualTo: this.widget.product.firestoreid)
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             return Positioned(
@@ -41,9 +40,7 @@ class _ClothItemState extends State<ClothItem> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     Icon(
-                      !snapshot.hasData
-                          ? Icons.favorite_border
-                          : Icons.favorite,
+                      Icons.favorite_border,
                       color: Colors.pink,
                     ),
                   ],
@@ -51,12 +48,7 @@ class _ClothItemState extends State<ClothItem> {
               ),
             );
           default:
-            if (snapshot.hasData) {
-              if (snapshot.data.data.toString() !=
-                  widget.product.toJson().toString()) {
-                p.updateProduct(widget.product);
-              }
-            }
+            bool chk = snapshot.data.docs.length == 0 ? false : true;
             return Positioned(
               right: 0,
               bottom: 0,
@@ -67,20 +59,17 @@ class _ClothItemState extends State<ClothItem> {
                   children: <Widget>[
                     GestureDetector(
                       onTap: () {
-                        bool chk = !snapshot.hasData;
-
-                        FavoriteAnimation().incdecProductFavorites(
-                            chk, context, this.widget.product.firestoreid);
-                        if (chk) {
-                          p.insertProduct(this.widget.product);
+                        if (!chk) {
+                          FavoriteApi.insertFavorite(
+                              this.widget.product.firestoreid);
+                          FavoriteAnimation().showFavoriteDialog(context);
                         } else {
-                          p.deleteProduct(this.widget.product);
+                          FavoriteApi.deleteFavorite(snapshot.data.docs[0].id,
+                              this.widget.product.firestoreid);
                         }
                       },
                       child: Icon(
-                        !snapshot.hasData
-                            ? Icons.favorite_border
-                            : Icons.favorite,
+                        !chk ? Icons.favorite_border : Icons.favorite,
                         color: Colors.pink,
                       ),
                     ),
@@ -93,18 +82,30 @@ class _ClothItemState extends State<ClothItem> {
     );
   }
 
+  Widget getImage() {
+    var img = widget.product.images;
+
+    return ExtendedImage.network(
+      img[0],
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      fit: BoxFit.cover,
+      cache: true,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double coverSize = 110;
-    var img = jsonDecode(widget.product.images);
+
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  ClothDetailViewWidgetcopy(product: widget.product),
-            ));
+        Navigator.of(context).pushNamed(
+          '/DetailProduct',
+          arguments: {"PRODUCTID": widget.product.firestoreid},
+        ).then((value) {
+          print("clothitem");
+        });
       },
       child: Container(
         child: Column(
@@ -116,28 +117,7 @@ class _ClothItemState extends State<ClothItem> {
                   fit: StackFit.passthrough,
                   children: <Widget>[
                     Center(child: CircularProgressIndicator()),
-                    ExtendedImage.network(
-                      img[0],
-
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      fit: BoxFit.cover,
-                      cache: true,
-                      // border: Border.all(color: Colors.red, width: 1.0),
-                      // shape: boxShape,
-                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                      //cancelToken: cancellationToken,
-                    ),
-                    // FadeInImage(
-                    //   placeholder: MemoryImage(
-                    //     kTransparentImage,
-                    //   ), // 이미지 로드 시 빈 이미지 표시
-
-                    //   image: NetworkImage(img == null
-                    //       ? 'https://grlib.sen.go.kr/resources/common/img/noimg-apply.png'
-                    //       : img[0]),
-                    //   fit: BoxFit.cover,
-                    // ),
+                    getImage(),
                     Positioned(
                       left: 0,
                       right: 0,
@@ -165,15 +145,24 @@ class _ClothItemState extends State<ClothItem> {
             SizedBox(
               height: 15,
               child: Align(
-                child: Text(
-                  "${widget.product.price.toString()}",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF333333),
-                  ),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      "${widget.product.price.toString()}",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF333333),
+                      ),
+                    ),
+                    Text(
+                      "원",
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
                 ),
                 alignment: Alignment.centerLeft,
               ),
@@ -187,7 +176,7 @@ class _ClothItemState extends State<ClothItem> {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w200,
+                    fontWeight: FontWeight.w400,
                     color: Color(0xFF333333),
                   ),
                 ),

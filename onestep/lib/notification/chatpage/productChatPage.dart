@@ -67,7 +67,9 @@ class _ProductChatPageState extends State<ProductChatPage> {
                               getUserNickname(productsUserId),
                               SizedBox(width: 10, height: 10),
                               Spacer(),
-                              GetTime(chatroomData),
+                              Expanded(
+                                child: GetTime(chatroomData),
+                              )
                             ],
                           ),
                         ),
@@ -176,33 +178,42 @@ class _ProductChatPageState extends State<ProductChatPage> {
               return CircularProgressIndicator();
             }
 
-            if (snapshot.data['photoUrl'] == "") {
-              //프로필사진 미설정
-              return LayoutBuilder(builder: (context, constraint) {
-                return Icon(
-                  Icons.supervised_user_circle,
-                  size:
-                      //50,
-                      constraint.biggest.height,
-                );
-              });
-            } else if (snapshot.hasError) {
-              return Padding(
-                padding: const EdgeInsets.all(0.0),
-                child: Text(
-                  'Error: ${snapshot.error}',
-                  style: TextStyle(fontSize: 15),
-                ),
+            return LayoutBuilder(builder: (context, constraint) {
+              return Icon(
+                Icons.supervised_user_circle,
+                size:
+                    //50,
+                    constraint.biggest.height,
               );
-            } else {
-              return Expanded(
-                child: ExtendedImage.network(
-                  snapshot.data['photoUrl'],
-                  fit: BoxFit.cover,
-                  cache: true,
-                ),
-              );
-            }
+            });
+
+          // if (snapshot.data['photoUrl'] == "") {
+          //   //프로필사진 미설정
+          //   return LayoutBuilder(builder: (context, constraint) {
+          //     return Icon(
+          //       Icons.supervised_user_circle,
+          //       size:
+          //           //50,
+          //           constraint.biggest.height,
+          //     );
+          //   });
+          // } else if (snapshot.hasError) {
+          //   return Padding(
+          //     padding: const EdgeInsets.all(0.0),
+          //     child: Text(
+          //       'Error: ${snapshot.error}',
+          //       style: TextStyle(fontSize: 15),
+          //     ),
+          //   );
+          // } else {
+          //   return Expanded(
+          //     child: ExtendedImage.network(
+          //       snapshot.data['photoUrl'],
+          //       fit: BoxFit.cover,
+          //       cache: true,
+          //     ),
+          //   );
+          // }
         }
       },
     );
@@ -214,10 +225,10 @@ class _ProductChatPageState extends State<ProductChatPage> {
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
-            return CircularProgressIndicator();
+            return Container();
           default:
             if (snapshot.hasData == false) {
-              return CircularProgressIndicator();
+              return Container();
             }
 
             if (snapshot.data['nickname'] == "") {

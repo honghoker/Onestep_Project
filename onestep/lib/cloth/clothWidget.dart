@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/clothAddWidget.dart';
-import 'package:onestep/cloth/clothSearchResultPage.dart';
+
 import 'package:onestep/cloth/providers/productProvider.dart';
-import 'package:onestep/cloth/providers/productSearchProvider.dart';
 import 'package:onestep/favorite/favoriteWidget.dart';
+import 'package:onestep/favorite/providers/favoriteProvider.dart';
+import 'package:onestep/search/provider/searchProvider.dart';
+import 'package:onestep/search/widget/searchProductBoardWidget.dart';
 import 'package:provider/provider.dart';
 import 'package:unicorndial/unicorndial.dart';
 
@@ -28,7 +30,7 @@ class _ClothWidgetState extends State<ClothWidget> {
     _headerindex = 0;
     _scrollController.addListener(scrollListener);
     widget.productProvider
-        .fetchNextProducts(_category.getCategoryItems()[_headerindex]);
+        .fetchProducts(_category.getCategoryItems()[_headerindex]);
     super.initState();
   }
 
@@ -105,18 +107,21 @@ class _ClothWidgetState extends State<ClothWidget> {
     );
   }
 
-  Widget renderBody(double itemWidth, double itemHeight) {
+  Widget renderBody() {
+    var _size = MediaQuery.of(context).size;
+    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.0;
+    final double _itemWidth = _size.width / 2;
     return GridView(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       padding: EdgeInsets.symmetric(horizontal: 15),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        childAspectRatio: itemWidth > itemHeight
-            ? (itemHeight / itemWidth)
-            : (itemWidth / itemHeight),
+        childAspectRatio: _itemWidth > _itemHeight
+            ? (_itemHeight / _itemWidth)
+            : (_itemWidth / _itemHeight),
         crossAxisCount: 3,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
+        mainAxisSpacing: 15,
+        crossAxisSpacing: 7,
       ),
       children: [
         ...widget.productProvider.products
@@ -131,18 +136,14 @@ class _ClothWidgetState extends State<ClothWidget> {
   }
 
   Future<void> _refreshPage() async {
-    // setState(() {
-    widget.productProvider
-        .fetchProducts(_category.getCategoryItems()[_headerindex]);
-    // });
+    setState(() {
+      widget.productProvider
+          .fetchProducts(_category.getCategoryItems()[_headerindex]);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    var _size = MediaQuery.of(context).size;
-    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.0;
-    final double _itemWidth = _size.width / 2;
-
     final floatingButtons = List<UnicornButton>();
 
     floatingButtons.add(
@@ -214,15 +215,17 @@ class _ClothWidgetState extends State<ClothWidget> {
               color: Colors.black,
             ),
             onPressed: () => {
-              print("검색"),
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => Consumer<ProuductSearchProvider>(
-                  builder: (context, prouductSearchProvider, _) =>
-                      ClothSearchResultPage(
-                    prouductSearchProvider: prouductSearchProvider,
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => Consumer<SearchProvider>(
+                    builder: (context, searchProvider, _) =>
+                        SearchProductBoardWidget(
+                      searchProvider: searchProvider,
+                      type: 'product',
+                    ),
                   ),
                 ),
-              ))
+              ),
             },
           ),
           new IconButton(
@@ -231,9 +234,14 @@ class _ClothWidgetState extends State<ClothWidget> {
               color: Colors.pink,
             ),
             onPressed: () => {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => FavoriteWidget()),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => Consumer<FavoriteProvider>(
+                    builder: (context, favoriteProvider, _) => FavoriteWidget(
+                      favoriteProvider: favoriteProvider,
+                    ),
+                  ),
+                ),
               ),
             },
           ),
@@ -249,7 +257,7 @@ class _ClothWidgetState extends State<ClothWidget> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 this.renderHeader(),
-                this.renderBody(_itemWidth, _itemHeight),
+                this.renderBody(),
               ],
             ),
           ),

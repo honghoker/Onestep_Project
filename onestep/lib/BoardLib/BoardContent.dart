@@ -851,28 +851,33 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
     if (boardContentSnapshot != null) {
       commentList = boardContentSnapshot["commentUserUidList"] ?? [];
       if (commentList.isNotEmpty) {
-        for (int i = 0; i < commentList.length; i++) {
-          String uid = commentList[i];
-          if (uid == snapshot["uid"]) {
-            name = "익명 " + (i + 1).toString();
-            break;
+        if (boardContentSnapshot["uid"] == snapshot["uid"]) {
+          name = "작성자";
+        } else {
+          for (int i = 0; i < commentList.length; i++) {
+            String uid = commentList[i];
+            if (uid == snapshot["uid"]) {
+              name = "익명 " + (i + 1).toString();
+              break;
+            }
           }
         }
       } else
         name = "익명 1";
     }
-    print("here" + name);
     return name;
   }
 
   String _commentCreateTimeMethod(var createTimeStamp) {
     DateTime _convertDateTime = DateTime.fromMicrosecondsSinceEpoch(
         createTimeStamp.microsecondsSinceEpoch);
-
+    int dayOfToday = DateTime.now().day;
     String _hhmmss = _convertDateTime.toString().split(' ')[1].split('.')[0];
     String _days;
-    if (_convertDateTime.difference(DateTime.now()).inDays.toString() == '0') {
+    if (_convertDateTime.day == dayOfToday) {
       _days = " 오늘 ";
+    } else if (dayOfToday - _convertDateTime.day == 1) {
+      _days = " 어제 ";
     } else {
       _days = DateTime(_convertDateTime.year, _convertDateTime.month,
                   _convertDateTime.day)
@@ -891,7 +896,8 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
     isUnderCommentSave = isUnderCommentSave ?? false;
     if (boardContentSnapshot != null) {
       List commentList = boardContentSnapshot["commentUserUidList"] ?? [];
-      if (!commentList.contains(currentUID)) {
+      if (boardContentSnapshot["uid"] != currentUID) if (!commentList
+          .contains(currentUID)) {
         var _db = FirebaseFirestore.instance;
         String _boardID = boardData.boardId.toString();
         String _documentID = boardData.documentId.toString();
@@ -982,282 +988,279 @@ class _Board extends State<BoardContent> with SingleTickerProviderStateMixin
     Widget _commentWidget;
     List<Widget> _commentContainerList = [];
     List widgetList = [];
-    //Create Comment Widget
+    if (snapshot != null) {
+      //Create Comment Widget
 
-    for (int i = 0; i < _commentLength; i++) {
-      var _commentData = snapshot.docs[i];
-      widgetList.add(ObjectKey(i));
-      bool wasClickedLikeButton = false;
-      String _commentName = _commentNameMethod(_commentData);
-      bool isDeleted = _commentData["isDelete"] ?? false;
-      bool deletedWithInDay;
-      if (_commentData["favoriteUserList"] !=
-          null) if (_commentData["favoriteUserList"].contains(currentUID)) {
-        wasClickedLikeButton = true;
-      }
-      //댓삭튀 방지
-      //show Delete Comment if deleted date within today
-      //Check deleted date
-      if (isDeleted) {
-        DateTime _deletedDate = _commentData["deleteDate"].toDate();
-        var diffToNow = DateTime.now().difference(_deletedDate);
-        deletedWithInDay = diffToNow.inDays < 1;
-      }
+      for (int i = 0; i < _commentLength; i++) {
+        var _commentData = snapshot.docs[i];
+        widgetList.add(ObjectKey(i));
+        bool wasClickedLikeButton = false;
+        String _commentName = _commentNameMethod(_commentData);
+        bool isDeleted = _commentData["isDelete"] ?? false;
+        bool deletedWithInDay;
+        if (_commentData["favoriteUserList"] !=
+            null) if (_commentData["favoriteUserList"].contains(currentUID)) {
+          wasClickedLikeButton = true;
+        }
+        //댓삭튀 방지
+        //show Delete Comment if deleted date within today
+        //Check deleted date
+        if (isDeleted) {
+          DateTime _deletedDate = _commentData["deleteDate"].toDate();
+          var diffToNow = DateTime.now().difference(_deletedDate);
+          deletedWithInDay = diffToNow.inDays < 1;
+        }
 
-      bool isItSelf = _commentData["uid"] == FirebaseApi.getId();
-      String _createDate = _commentCreateTimeMethod(_commentData["createDate"]);
+        bool isItSelf = _commentData["uid"] == FirebaseApi.getId();
+        String _createDate =
+            _commentCreateTimeMethod(_commentData["createDate"]);
 
-      bool _clickHighlight = _clickedCommentData.clickedMethod(
-            _commentData.id,
-          ) ??
-          false;
-      _commentWidget = GestureDetector(
-        onDoubleTap: () {
-          setState(() {
-            if (!isDeleted) if (isUnderComment) {
-              _commentDataUpdateMethod(_commentData, _commentData.id,
-                  isLiked: true,
-                  isUndo: false,
-                  underComment: true,
-                  parentCommentId: parentCommentId);
-            } else {
-              _commentDataUpdateMethod(_commentData, _commentData.id,
-                  isLiked: true, isUndo: false, underComment: false);
-            }
-          });
-        },
-        onLongPress: isDeleted
-            ? () {
-                //Show Deleted Comment Text
-                DateTime _deletedDate = _commentData["deleteDate"].toDate();
-                var diffToNow = DateTime.now().difference(_deletedDate);
-                print(diffToNow.inDays);
-                if (deletedWithInDay)
-                  showGeneralDialog(
-                      barrierColor: Colors.black.withOpacity(0.5),
-                      transitionBuilder: (context, a1, a2, widget) {
-                        return Transform.scale(
-                          scale: a1.value,
-                          child: Opacity(
-                            opacity: a1.value,
-                            child: AlertDialog(
-                              shape: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16.0)),
-                              content: Text(_commentData["text"]),
-                            ),
-                          ),
-                        );
-                      },
-                      transitionDuration: Duration(milliseconds: 200),
-                      barrierDismissible: true,
-                      barrierLabel: '',
-                      context: context,
-                      pageBuilder: (context, animation1, animation2) {});
-              }
-            : null,
-        onTap: () {
-          // print("current isClicked Status " +
-          //     _clickedCommentData.isCommentClicked.toString());
-          // print("clicked comment id " +
-          //     _clickedCommentData.commentDocumentId.toString());
-          // print("current CommentData id " + _commentData.id);
-          // print("is Correct " +
-          //     (_commentData.id == _clickedCommentData.commentDocumentId)
-          //         .toString());
-          setState(() {
-            _clickedCommentData.commentDocumentId = _commentData.id;
-            _clickedCommentData.isCommentClicked = true;
-          });
-
-          bool isClicked = false;
-
-          //Set BottomSheet
-          if (Platform.isAndroid) {
-            //Color Change when you click the comment
+        bool _clickHighlight = _clickedCommentData.clickedMethod(
+              _commentData.id,
+            ) ??
+            false;
+        _commentWidget = GestureDetector(
+          onDoubleTap: () {
             setState(() {
+              if (!isDeleted) if (isUnderComment) {
+                _commentDataUpdateMethod(_commentData, _commentData.id,
+                    isLiked: true,
+                    isUndo: false,
+                    underComment: true,
+                    parentCommentId: parentCommentId);
+              } else {
+                _commentDataUpdateMethod(_commentData, _commentData.id,
+                    isLiked: true, isUndo: false, underComment: false);
+              }
+            });
+          },
+          onLongPress: isDeleted
+              ? () {
+                  //Show Deleted Comment Text
+                  DateTime _deletedDate = _commentData["deleteDate"].toDate();
+                  var diffToNow = DateTime.now().difference(_deletedDate);
+                  print(diffToNow.inDays);
+                  if (deletedWithInDay)
+                    showGeneralDialog(
+                        barrierColor: Colors.black.withOpacity(0.5),
+                        transitionBuilder: (context, a1, a2, widget) {
+                          return Transform.scale(
+                            scale: a1.value,
+                            child: Opacity(
+                              opacity: a1.value,
+                              child: AlertDialog(
+                                shape: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16.0)),
+                                content: Text(_commentData["text"]),
+                              ),
+                            ),
+                          );
+                        },
+                        transitionDuration: Duration(milliseconds: 200),
+                        barrierDismissible: true,
+                        barrierLabel: '',
+                        context: context,
+                        pageBuilder: (context, animation1, animation2) {});
+                }
+              : null,
+          onTap: () {
+            setState(() {
+              _clickedCommentData.commentDocumentId = _commentData.id;
               _clickedCommentData.isCommentClicked = true;
             });
-            showMaterialModalBottomSheet(
-              context: context,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20))),
-              builder: (context) => Container(
-                margin: EdgeInsets.only(left: 5, right: 5),
-                height: device_height / 3,
-                child: Column(children: [
-                  Container(
-                    key: ObjectKey(i),
-                    margin: EdgeInsets.only(top: 10, bottom: 20),
-                    child: SizedBox(
-                      width: device_width / 7,
-                      height: device_height / 100,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            color: Colors.grey[400]),
-                      ),
-                    ),
-                  ),
-                  //set BottomSheet Button
-                  _setCommentButtonMethod(
-                      onTap: () {
-                        isClicked = true;
-                        Navigator.pop(context);
-                        setState(() {
-                          _clickedCommentData.commentDocumentId =
-                              _commentData.id;
-                          _clickedCommentData.isCommentClicked = true;
-                          isCommentBoxVisible = true;
-                        });
-                      },
-                      text: Text(
-                        "댓글 달기",
-                        style: TextStyle(color: Colors.red, fontSize: 18),
-                      )),
-                  _setCommentButtonMethod(
-                    text: Text(
-                      "채팅 시작하기",
-                      style: TextStyle(color: Colors.red, fontSize: 18),
-                    ),
-                  ),
-                  _setCommentButtonMethod(
-                    onTap: isItSelf
-                        ? () {
-                            if (!isDeleted) {
-                              if (!isUnderComment) {
-                                setState(() {
-                                  isCommentRefresh = true;
-                                  Navigator.pop(context);
-                                  _commentDataUpdateMethod(
-                                      _commentData, _commentData.id);
-                                });
-                              } else {
-                                setState(() {
-                                  isCommentRefresh = true;
-                                  Navigator.pop(context);
-                                  _commentDataUpdateMethod(
-                                      _commentData, _commentData.id,
-                                      underComment: true,
-                                      parentCommentId: parentCommentId,
-                                      isUndo: false);
-                                });
-                              }
-                              //Delete
 
-                            } else {
-                              //Already Deleted
-                              Navigator.pop(context);
-                              Future.delayed(Duration(milliseconds: 1000));
-                              _scaffoldKey.currentState
-                                  .showSnackBar(new SnackBar(
-                                content: Text("이미 삭제된 댓글입니다!"),
-                                duration: Duration(seconds: 1),
-                              ));
-                            }
-                          }
-                        : null,
-                    text: Text(
-                      isItSelf ? "삭제하기" : "신고하기",
-                      style: TextStyle(color: Colors.red, fontSize: 18),
-                    ),
-                  ),
-                ]),
-              ),
-            ).then((value) {
+            bool isClicked = false;
+
+            //Set BottomSheet
+            if (Platform.isAndroid) {
+              //Color Change when you click the comment
               setState(() {
-                if (!isClicked) _clickedCommentData.isCommentClicked = false;
+                _clickedCommentData.isCommentClicked = true;
               });
-            });
-          } else if (Platform.isIOS) {
-            showCupertinoModalBottomSheet(
-                context: context, builder: (context) => Container());
-          }
-        },
-        child: Container(
-          padding: EdgeInsets.all(5),
-          margin: !isUnderComment
-              ? EdgeInsets.only(top: 5.0, left: 10, right: 10)
-              : EdgeInsets.only(top: 5.0, left: 30),
-          decoration: BoxDecoration(
-            color: _clickHighlight ? Colors.yellowAccent : Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(5)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 5,
-                blurRadius: 7,
-                offset: Offset(0, 3), // changes position of shadow
-              ),
-            ],
-          ),
-          width: device_width,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                          child: Text(
-                        _commentName,
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      )),
-                      !isDeleted
-                          ? Row(children: [
-                              Container(
-                                margin: EdgeInsets.only(left: 5),
-                                child: Icon(
-                                  wasClickedLikeButton
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color: Colors.redAccent,
-                                  size: 15,
-                                ),
-                              ),
-                              Text(_commentData["favoriteCount"].toString())
-                            ])
-                          : Container()
-                    ],
-                  ),
-                  //Show Comment anonymous name
-                  Container(
-                    // child: Text(_commentData["createDate"].runtimeType.toString())
-                    child: Text(
-                      _createDate,
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  )
-                ],
-              ),
-              //Show Comment Text
-              Container(
-                margin: EdgeInsets.only(left: 5),
-                child: !isDeleted
-                    ? Text(_commentData["text"])
-                    : Text(
-                        "삭제 된 댓글입니다.",
-                        style: TextStyle(
-                            //Can See deleted text => blueAccent
-                            color: deletedWithInDay
-                                ? Colors.blueAccent
-                                : Colors.redAccent,
-                            fontWeight: FontWeight.bold),
+              showMaterialModalBottomSheet(
+                context: context,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20))),
+                builder: (context) => Container(
+                  margin: EdgeInsets.only(left: 5, right: 5),
+                  height: device_height / 3,
+                  child: Column(children: [
+                    Container(
+                      key: ObjectKey(i),
+                      margin: EdgeInsets.only(top: 10, bottom: 20),
+                      child: SizedBox(
+                        width: device_width / 7,
+                        height: device_height / 100,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              color: Colors.grey[400]),
+                        ),
                       ),
-              )
-            ],
+                    ),
+                    //set BottomSheet Button
+                    _setCommentButtonMethod(
+                        onTap: () {
+                          isClicked = true;
+                          Navigator.pop(context);
+                          setState(() {
+                            _clickedCommentData.commentDocumentId =
+                                _commentData.id;
+                            _clickedCommentData.isCommentClicked = true;
+                            isCommentBoxVisible = true;
+                          });
+                        },
+                        text: Text(
+                          "댓글 달기",
+                          style: TextStyle(color: Colors.red, fontSize: 18),
+                        )),
+                    _setCommentButtonMethod(
+                      text: Text(
+                        "채팅 시작하기",
+                        style: TextStyle(color: Colors.red, fontSize: 18),
+                      ),
+                    ),
+                    _setCommentButtonMethod(
+                      onTap: isItSelf
+                          ? () {
+                              if (!isDeleted) {
+                                if (!isUnderComment) {
+                                  setState(() {
+                                    isCommentRefresh = true;
+                                    Navigator.pop(context);
+                                    _commentDataUpdateMethod(
+                                        _commentData, _commentData.id);
+                                  });
+                                } else {
+                                  setState(() {
+                                    isCommentRefresh = true;
+                                    Navigator.pop(context);
+                                    _commentDataUpdateMethod(
+                                        _commentData, _commentData.id,
+                                        underComment: true,
+                                        parentCommentId: parentCommentId,
+                                        isUndo: false);
+                                  });
+                                }
+                                //Delete
+
+                              } else {
+                                //Already Deleted
+                                Navigator.pop(context);
+                                Future.delayed(Duration(milliseconds: 1000));
+                                _scaffoldKey.currentState
+                                    .showSnackBar(new SnackBar(
+                                  content: Text("이미 삭제된 댓글입니다!"),
+                                  duration: Duration(seconds: 1),
+                                ));
+                              }
+                            }
+                          : null,
+                      text: Text(
+                        isItSelf ? "삭제하기" : "신고하기",
+                        style: TextStyle(color: Colors.red, fontSize: 18),
+                      ),
+                    ),
+                  ]),
+                ),
+              ).then((value) {
+                setState(() {
+                  if (!isClicked) _clickedCommentData.isCommentClicked = false;
+                });
+              });
+            } else if (Platform.isIOS) {
+              showCupertinoModalBottomSheet(
+                  context: context, builder: (context) => Container());
+            }
+          },
+          child: Container(
+            padding: EdgeInsets.all(5),
+            margin: !isUnderComment
+                ? EdgeInsets.only(top: 5.0, left: 10, right: 5)
+                : EdgeInsets.only(top: 5.0, left: 30, right: 5),
+            decoration: BoxDecoration(
+              color: _clickHighlight ? Colors.yellowAccent : Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: Offset(0, 3), // changes position of shadow
+                ),
+              ],
+            ),
+            width: device_width,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                            child: Text(
+                          _commentName,
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        )),
+                        !isDeleted
+                            ? Row(children: [
+                                Container(
+                                  margin: EdgeInsets.only(left: 5),
+                                  child: Icon(
+                                    wasClickedLikeButton
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    color: Colors.redAccent,
+                                    size: 15,
+                                  ),
+                                ),
+                                Text(_commentData["favoriteCount"].toString())
+                              ])
+                            : Container()
+                      ],
+                    ),
+                    //Show Comment anonymous name
+                    Container(
+                      // child: Text(_commentData["createDate"].runtimeType.toString())
+                      child: Text(
+                        _createDate,
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    )
+                  ],
+                ),
+                //Show Comment Text
+                Container(
+                  margin: EdgeInsets.only(left: 5),
+                  child: !isDeleted
+                      ? Text(_commentData["text"])
+                      : Text(
+                          "삭제 된 댓글입니다.",
+                          style: TextStyle(
+                              //Can See deleted text => blueAccent
+                              color: deletedWithInDay
+                                  ? Colors.blueAccent
+                                  : Colors.redAccent,
+                              fontWeight: FontWeight.bold),
+                        ),
+                )
+              ],
+            ),
           ),
-        ),
-      );
+        );
 
-      _commentContainerList.add(Column(
-        children: [_commentWidget, _underCommentFutureBuilder(_commentData.id)],
-      ));
+        _commentContainerList.add(Column(
+          children: [
+            _commentWidget,
+            _underCommentFutureBuilder(_commentData.id)
+          ],
+        ));
+      }
     }
-
     return Container(
       child: Column(
         children: _commentContainerList,

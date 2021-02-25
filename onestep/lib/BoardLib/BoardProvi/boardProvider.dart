@@ -6,7 +6,7 @@ import 'boardClass.dart';
 class BoardProvider with ChangeNotifier {
   final _productsSnapshot = <DocumentSnapshot>[];
   String _errorMessage = "Board Provider RuntimeError";
-  int documentLimit = 8;
+  int documentLimit = 15;
   bool _hasNext = true;
   bool _isFetchingUsers = false;
 

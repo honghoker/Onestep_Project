@@ -44,15 +44,14 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
       builder: (context, AsyncSnapshot<List<QuerySnapshot>> snapshot1) {
         return StreamBuilder(
           stream: p.watchNotification(),
-          builder: (context, snapshot2) {
-            switch (snapshot1.connectionState) {
+          builder: (context, AsyncSnapshot<List<NotificationChk>> snapshot2) {
+            switch (snapshot2.connectionState) {
               case ConnectionState.waiting:
                 return Container();
               default:
-                if (snapshot1.data == null) return Container();
-                // print("snapshot data = ${snapshot.data}");
+                // 알림 내부 DB에 아무것도 없으면
+                if (snapshot2.data.length == 0) return Container();
                 List<DocumentSnapshot> documentSnapshot = [];
-
                 List<dynamic> querySnapshot = snapshot1.data.toList();
 
                 querySnapshot.forEach((query) {
@@ -90,8 +89,13 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
                   //     uploadtime: DateTime.parse(
                   //         doc.data()['time'].toDate().toString())));
 
+                  print("mappedData.length = ${mappedData.length}");
+
                   NotificationChk latestTime =
                       snapshot2.data[0] as NotificationChk;
+                  if (mappedData.length == 1) {
+                    return Container();
+                  }
                   print("lastestTime ${latestTime.uploadtime}");
                   print(
                       "docTime ${DateTime.parse(doc.data()['time'].toDate().toString())}");

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onestep/home/homeNotificationPage.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:onestep/search/provider/searchProvider.dart';
 import 'package:onestep/search/widget/searchAllWidget.dart';
@@ -45,9 +46,9 @@ class _HomeWidgetState extends State<HomeWidget> {
                     color: Colors.black,
                     onPressed: () {
                       // 알림으로 넘어가는 부분
-                      //   Navigator.of(context).push(MaterialPageRoute(
-                      //   builder: (context) => HomeNotificationPage(),
-                      // ));
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => HomeNotificationPage(),
+                      ));
                       // 쪽지 form 보려고 test
                       // Navigator.of(context).push(MaterialPageRoute(
                       //   builder: (context) => MessagePage(),
@@ -63,17 +64,16 @@ class _HomeWidgetState extends State<HomeWidget> {
                               top: 8,
                               right: 10,
                               child: Icon(
-                                // check 다 했으면 아이콘이 없는 쪽으로 코드 변경
-                                Icons.brightness_1,
-                                color: Colors.white,
-                                size: 15,
-                              ),
+                                  // check 다 했으면 아이콘이 없는 쪽으로 코드 변경
+                                  null),
                             );
 
                           default:
-                            List<NotificationChk> notiList = snapshot.data;
-                            bool chk = notiList.isEmpty;
-
+                            bool chk = true;
+                            if (snapshot.data != null) {
+                              List<NotificationChk> notiList = snapshot.data;
+                              chk = notiList.isEmpty;
+                            }
                             return Positioned(
                               top: 8,
                               right: 10,

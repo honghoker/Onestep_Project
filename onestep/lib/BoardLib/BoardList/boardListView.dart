@@ -21,9 +21,6 @@ class BoardList extends StatefulWidget {
 
 class _BoardListState extends _BoardListParentState<BoardList> {
   @override
-  setBoardData() => Provider.of<List<FreeBoardList>>(context, listen: false);
-
-  @override
   setFabCallBack() => fabCallback = widget.callback;
 
   @override
@@ -36,7 +33,6 @@ class _BoardListState extends _BoardListParentState<BoardList> {
 abstract class _BoardListParentState<T extends StatefulWidget>
     extends State<T> {
   setFabCallBack();
-  setBoardData();
   setProvider();
   setBoardCategory();
   BoardCategory boardCategory;

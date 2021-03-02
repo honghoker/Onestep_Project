@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardProvider.dart';
-import 'package:onestep/BoardLib/BoardList/boardListView.dart';
 import 'package:path/path.dart' as p;
 import 'package:onestep/BoardLib/CustomException/customThrow.dart';
+import 'BoardList/boardListView.dart';
 
 enum BoardCategory { Free }
 
@@ -33,9 +33,12 @@ extension BoardCategoryExtension on BoardCategory {
 }
 
 class Boardmain extends StatefulWidget {
+  final Function boardSelectedCallback;
   final BoardCategory boardCategory;
   final BoardProvider boardProvider;
-  Boardmain({key, this.boardCategory, this.boardProvider}) : super(key: key);
+  Boardmain(
+      {key, this.boardCategory, this.boardProvider, this.boardSelectedCallback})
+      : super(key: key);
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -53,8 +56,6 @@ class _MyHomePageState extends State<Boardmain> {
   }
 
   listViewFABCallback(bool isScrlDirectUp) {
-    print("HERE");
-
     _hideFAB = isScrlDirectUp;
   }
 
@@ -81,11 +82,9 @@ class _MyHomePageState extends State<Boardmain> {
           : FloatingActionButton(
               backgroundColor: Colors.black,
               onPressed: () {
-                //  신고 test
-                // print("여기");
-                print(_boardCategory.toString());
+                print(_boardCategory.categoryEN);
                 Navigator.of(context).pushNamed('/CreateBoard',
-                    arguments: {"CURRENTBOARD": _boardCategory});
+                    arguments: {"CURRENTBOARD": BoardCategory.Free});
               },
               child: Icon(Icons.add)),
     );

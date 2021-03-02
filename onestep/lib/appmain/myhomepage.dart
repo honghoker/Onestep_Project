@@ -12,12 +12,13 @@ class _MyHomePageState extends State<MyHomePage> {
   _MyHomePageState({Key key});
 
   int _currentIndex;
-
+  TabNavigationItem tabNavigationItem;
   final GlobalKey<ScaffoldState> _globalKey = GlobalKey();
   static DateTime currentBackPressTime;
 
   @override
   initState() {
+    tabNavigationItem = TabNavigationItem();
     _currentIndex = 0;
     super.initState();
   }

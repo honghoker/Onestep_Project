@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:onestep/BoardLib/BoardCateogryList/boardCategoryMain.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardProvider.dart';
-import 'package:onestep/BoardLib/Boardmain.dart';
+import 'package:onestep/BoardLib/boardMain.dart';
 import 'package:onestep/cloth/clothWidget.dart';
 import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:onestep/home/homeWidget.dart';
@@ -14,10 +15,12 @@ class TabNavigationItem {
   final Icon icon;
 
   TabNavigationItem({
-    @required this.page,
-    @required this.title,
-    @required this.icon,
+    this.page,
+    this.title,
+    this.icon,
   });
+
+  // set callback(Function function) => callback = function;
 
   static List<TabNavigationItem> get items => [
         TabNavigationItem(
@@ -34,12 +37,17 @@ class TabNavigationItem {
           icon: Icon(Icons.shopping_cart),
           title: Text("장터"),
         ),
+        // TabNavigationItem(
+        //   page: Consumer<BoardProvider>(
+        //     builder: (context, boardProvider, _) => Boardmain(
+        //       boardProvider: boardProvider,
+        //     ),
+        //   ),
+        //   icon: Icon(Icons.list),
+        //   title: Text("게시판"),
+        // ),
         TabNavigationItem(
-          page: Consumer<BoardProvider>(
-            builder: (context, boardProvider, _) => Boardmain(
-              boardProvider: boardProvider,
-            ),
-          ),
+          page: BoardCategoryList(),
           icon: Icon(Icons.list),
           title: Text("게시판"),
         ),

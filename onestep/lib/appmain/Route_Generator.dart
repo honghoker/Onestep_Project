@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' as foundation;
+import 'package:onestep/BoardLib/BoardCateogryList/boardCategoryMain.dart';
+
 import 'package:onestep/login/joinPage.dart';
 import '../BoardLib/CreateAlterBoard/parentState.dart';
 import '../BoardLib/boardContent.dart';
@@ -57,6 +59,9 @@ class RouteGenerator {
         _pageWidget = CreateBoard(
           currentBoard: arguments['CURRENTBOARD'],
         );
+        break;
+      case 'BoardCategory':
+        _pageWidget = BoardCategoryList();
         break;
       case 'JoinPage':
         _pageWidget = JoinScreen(currentUserId: arguments['UID']);

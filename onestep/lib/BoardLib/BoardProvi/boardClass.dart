@@ -115,62 +115,13 @@ class BoardData {
   }
 }
 
-class FreeBoardList extends BoardData {
-  FreeBoardList(
-      {String title,
-      int watchCount,
-      int favoriteCount,
-      String uid,
-      String contentCategory,
-      int scribeCount,
-      var createDate,
-      String documentId,
-      String textContent,
-      int commentCount,
-      Map<String, dynamic> imageCommentList,
-      String boardId})
-      : super(
-            title: title,
-            contentCategory: contentCategory,
-            uid: uid,
-            createDate: createDate,
-            documentId: documentId,
-            favoriteCount: favoriteCount,
-            textContent: textContent,
-            watchCount: watchCount,
-            commentCount: commentCount,
-            imageCommentList: imageCommentList,
-            boardId: boardId);
-
-  factory FreeBoardList.fromFireStore(var snapshot) {
-    var _boardData;
-    if (snapshot.runtimeType == DocumentSnapshot)
-      _boardData = snapshot.data();
-    else if (snapshot.runtimeType == QueryDocumentSnapshot)
-      _boardData = snapshot;
-
-    return FreeBoardList(
-        title: _boardData["title"],
-        // imageCommentList: _boardData["imageCommentList"],
-        contentCategory: _boardData["contentCategory"],
-        favoriteCount: _boardData["favoriteCount"],
-        textContent: _boardData["textContent"],
-        uid: _boardData["uid"],
-        documentId: snapshot.id,
-        commentCount: _boardData["commentCount"],
-        createDate: _boardData["createDate"].toDate(),
-        watchCount: _boardData["watchCount"],
-        boardId: _boardData["boardId"]);
-  }
-}
-
-class ImageContentComment extends BoardData {
-  ImageContentComment({Map<String, dynamic> imageCommentList})
-      : super(imageCommentList: imageCommentList);
-  factory ImageContentComment.fromFireStore(DocumentSnapshot snapshot) {
-    Map _contentData = snapshot.data();
-    return ImageContentComment(
-        imageCommentList: _contentData["imageCommentList"]);
+class BoardCateogry {
+  final String boardName;
+  BoardCateogry({this.boardName});
+  factory BoardCateogry.fromFireStore(DocumentSnapshot snapshot) {
+    print("snapshot.id" + snapshot.id);
+    print("Log 1");
+    return BoardCateogry(boardName: snapshot.id);
   }
 }
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:onestep/BoardLib/boardMain.dart';
 
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:onestep/PermissionLib/customPermisson.dart';
@@ -9,6 +8,7 @@ import 'package:onestep/api/firebase_api.dart';
 import 'package:tip_dialog/tip_dialog.dart';
 import 'package:onestep/BoardLib/CustomException/customThrow.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:onestep/BoardLib/boardMain.dart';
 
 enum ContentCategory { SMALLTALK, QUESTION }
 
@@ -608,9 +608,11 @@ abstract class _CreatePageParent<T extends StatefulWidget> extends State<T>
         resultList.add(image);
       }
     }
+    try {
+      resultList = await MultiImagePicker.pickImages(
+          maxImages: 5, enableCamera: true, selectedAssets: resultList);
+    } on NoImagesSelectedException {}
 
-    resultList = await MultiImagePicker.pickImages(
-        maxImages: 5, enableCamera: true, selectedAssets: resultList);
     setState(() {
       imageCommentMap.update("IMAGE", (value) => resultList);
     });

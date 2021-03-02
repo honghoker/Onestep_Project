@@ -27,7 +27,7 @@ class FirebaseApi {
     // print("${dsUni.data()['uni_name']}");
     return dsUni.data()['uni_name'];
   }
-  
+
   // static String getUniId() {
   //   String result;
   //   String userUni;
@@ -159,7 +159,7 @@ class FirebaseApi {
   }
 
   static Future<QuerySnapshot> getBoard(
-    // 장터 상품 불러오기
+    // Get Board List
     int limit,
     String boardName, {
     DocumentSnapshot startAfter,
@@ -179,5 +179,11 @@ class FirebaseApi {
     } else {
       return refProducts.startAfterDocument(startAfter).get();
     }
+  }
+
+  static Future<QuerySnapshot> getBoardCategory(
+      // Get Board Category List
+      ) async {
+    return FirebaseFirestore.instance.collection('Board').get();
   }
 }

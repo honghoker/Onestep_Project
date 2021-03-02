@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardProvider.dart';
-import 'package:onestep/BoardLib/Boardmain.dart';
+import 'package:onestep/BoardLib/boardMain.dart';
 import 'package:onestep/BoardLib/CustomException/customThrow.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/rendering.dart';
@@ -40,7 +40,6 @@ abstract class _BoardListParentState<T extends StatefulWidget>
   BoardProvider boardProvider;
   ScrollController _scrollController;
   bool isScrollDirectionUp;
-  List<FreeBoardList> boardDataList;
   var _lastRow = 0;
   final FETCH_ROW = 8;
   var stream;
@@ -288,52 +287,52 @@ abstract class _BoardListParentState<T extends StatefulWidget>
         ));
   }
 
-  Widget _commentCountMethod(int index) {
-    int _commentCount = boardDataList[index].commentCount;
-    Widget _commentCountText;
-    BoxDecoration _commentBoxDecoration;
-    //Under 30
-    if (_commentCount < 30) {
-      _commentBoxDecoration =
-          new BoxDecoration(shape: BoxShape.circle, color: Colors.yellow);
-      _commentCountText = new Text('$_commentCount',
-          maxLines: 1,
-          style: TextStyle(
-              color: Colors.black, fontSize: 13, fontWeight: FontWeight.bold));
-      //Up 30 Under 50
-    } else if (_commentCount >= 30 && _commentCount < 50) {
-      _commentBoxDecoration =
-          new BoxDecoration(shape: BoxShape.circle, color: Colors.orange);
-      _commentCountText = new Text('$_commentCount',
-          maxLines: 1,
-          style: TextStyle(
-              color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold));
-      //Over 50
-    } else {
-      _commentBoxDecoration =
-          new BoxDecoration(shape: BoxShape.circle, color: Colors.red);
-      if (_commentCount <= 100) {
-        _commentCountText = new Text('$_commentCount',
-            maxLines: 1,
-            style: TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.bold));
-      } else {
-        _commentCountText = new Text('100+',
-            maxLines: 1,
-            style: TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.bold));
-      }
-    }
+  // Widget _commentCountMethod(int index) {
+  //   // int _commentCount = boardDataList[index].commentCount;
+  //   Widget _commentCountText;
+  //   BoxDecoration _commentBoxDecoration;
+  //   //Under 30
+  //   if (_commentCount < 30) {
+  //     _commentBoxDecoration =
+  //         new BoxDecoration(shape: BoxShape.circle, color: Colors.yellow);
+  //     _commentCountText = new Text('$_commentCount',
+  //         maxLines: 1,
+  //         style: TextStyle(
+  //             color: Colors.black, fontSize: 13, fontWeight: FontWeight.bold));
+  //     //Up 30 Under 50
+  //   } else if (_commentCount >= 30 && _commentCount < 50) {
+  //     _commentBoxDecoration =
+  //         new BoxDecoration(shape: BoxShape.circle, color: Colors.orange);
+  //     _commentCountText = new Text('$_commentCount',
+  //         maxLines: 1,
+  //         style: TextStyle(
+  //             color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold));
+  //     //Over 50
+  //   } else {
+  //     _commentBoxDecoration =
+  //         new BoxDecoration(shape: BoxShape.circle, color: Colors.red);
+  //     if (_commentCount <= 100) {
+  //       _commentCountText = new Text('$_commentCount',
+  //           maxLines: 1,
+  //           style: TextStyle(
+  //               color: Colors.white,
+  //               fontSize: 13,
+  //               fontWeight: FontWeight.bold));
+  //     } else {
+  //       _commentCountText = new Text('100+',
+  //           maxLines: 1,
+  //           style: TextStyle(
+  //               color: Colors.white,
+  //               fontSize: 13,
+  //               fontWeight: FontWeight.bold));
+  //     }
+  //   }
 
-    return Container(
-        //CommentCount Container
-        height: 30,
-        width: 30,
-        decoration: _commentBoxDecoration,
-        child: Center(child: _commentCountText));
-  }
+  //   return Container(
+  //       //CommentCount Container
+  //       height: 30,
+  //       width: 30,
+  //       decoration: _commentBoxDecoration,
+  //       child: Center(child: _commentCountText));
+  // }
 }

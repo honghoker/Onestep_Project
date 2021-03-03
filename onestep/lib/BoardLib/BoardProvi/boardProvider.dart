@@ -40,28 +40,3 @@ class BoardProvider with ChangeNotifier {
     _isFetchingUsers = false;
   }
 }
-
-class BoardCateogryProvider with ChangeNotifier {
-  final _productsSnapshot = <DocumentSnapshot>[];
-  String _errorMessage = "Board Provider RuntimeError";
-
-  bool _hasNext = true;
-
-  String get errorMessage => _errorMessage;
-  bool get hasNext => _hasNext;
-
-  List<BoardCateogry> get categorys => _productsSnapshot.map((snap) {
-        return BoardCateogry.fromFireStore(snap);
-      }).toList();
-  Future fetchNextProducts(String boardName) async {
-    try {
-      final snap = await FirebaseApi.getBoardCategory();
-      _productsSnapshot.addAll(snap.docs);
-
-      notifyListeners();
-    } catch (error) {
-      _errorMessage = error.toString();
-      notifyListeners();
-    }
-  }
-}

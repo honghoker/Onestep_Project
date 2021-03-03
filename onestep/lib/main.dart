@@ -32,8 +32,6 @@ void main() async {
         ChangeNotifierProvider<ProuductProvider>.value(
             value: new ProuductProvider()),
         ChangeNotifierProvider<BoardProvider>.value(value: new BoardProvider()),
-        ChangeNotifierProvider<BoardCateogryProvider>.value(
-            value: new BoardCateogryProvider()),
         ChangeNotifierProvider<SearchProvider>.value(
             value: new SearchProvider()),
         ChangeNotifierProvider<MyProductProvider>.value(

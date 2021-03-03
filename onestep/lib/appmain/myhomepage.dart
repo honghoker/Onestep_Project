@@ -6,6 +6,10 @@ import 'package:onestep/myinfo/myinfoWidget.dart';
 import 'package:onestep/notification/chatpage/chatMainPage.dart';
 import 'package:provider/provider.dart';
 import 'package:onestep/BoardLib/boardMain.dart';
+import 'package:onestep/notification/ChatCountProvider/chatCount.dart';
+import 'package:onestep/notification/Controllers/firebaseChatController.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:onestep/api/firebase_api.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
@@ -15,7 +19,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  _MyHomePageState({Key key});
+  _MyHomePageState();
 
   int _bottombarindex;
 
@@ -38,7 +42,8 @@ class _MyHomePageState extends State<MyHomePage> {
     MyinfoWidget(),
   ];
 
-  Widget getBottomBar() {
+  Widget getBottomBar(BuildContext context) {
+    final chatCount = Provider.of<ChatCount>(context); //카운트 프로바이더
     return BottomNavigationBar(
       currentIndex:
           _bottombarindex, // this will be set when a new tab is tapped
@@ -67,10 +72,34 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text('게시판'),
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.notifications_none,
-              color: _bottombarindex == 3 ? Colors.pink : Colors.black),
-          title: Text('알림'),
+          title: Text("알림"),
+          icon:
+              // Stack(
+              //   children: [
+              //     new Icon(
+              //       Icons.notifications_none,
+              //       size: 25,
+              //       color: Colors.black,
+              //     ),
+              //     Positioned(
+              //       top: 1,
+              //       right: 1,
+              //       child: Stack(
+              //         children: [
+              //           FirebaseChatController().getAllChatCount(),
+              //         ],
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              FirebaseChatController().getChatBottomBar(),
         ),
+        // BottomNavigationBarItem(
+        //   icon: Icon(Icons.notifications_none,
+        //       color: _bottombarindex == 3 ? Colors.pink : Colors.black),
+        //   title: Text('알림'),
+        // ),
+
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outline,
               color: _bottombarindex == 4 ? Colors.pink : Colors.black),
@@ -114,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
           // ),
           key: _globalKey,
           body: _bottomWidgetList[_bottombarindex],
-          bottomNavigationBar: getBottomBar(),
+          bottomNavigationBar: getBottomBar(context),
         ),
         onWillPop: () async {
           bool result = isEnd();

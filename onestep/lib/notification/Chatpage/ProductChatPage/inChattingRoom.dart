@@ -7,9 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:onestep/notification/Controllers/firebaseChatController.dart';
+import 'package:onestep/notification/Controllers/productChatController.dart';
 import 'package:onestep/notification/time/chat_time.dart';
 import 'package:onestep/notification/widget/FullmageWidget.dart';
 import 'package:intl/intl.dart';
+
+//RealTime
+import 'package:firebase_database/firebase_database.dart';
 
 class InChattingRoomPage extends StatelessWidget {
   final String myUid;
@@ -117,10 +121,7 @@ class _LastChatState extends State<ChatScreen> {
   final String postId;
 
   _LastChatState(
-      {Key key,
-      @required this.myId,
-      @required this.friendId,
-      @required this.postId});
+      {@required this.myId, @required this.friendId, @required this.postId});
 
   final TextEditingController textEditingController = TextEditingController();
   final ScrollController listScrollController = ScrollController();
@@ -140,10 +141,13 @@ class _LastChatState extends State<ChatScreen> {
   //SharedPreferences preferences;
   //String id; //내아이디
   var listMessage;
-
   //채팅방 생성 판별
-  String chattingRoomId;
-  bool existChattingRoom;
+  String chattingRoomId; //채팅방 있으면 새로만들고 없으면 기존 채팅아이디
+  bool existChattingRoom; //채팅방
+
+  var maptest = Map<String, String>();
+  var maptest2 = Map<int, String>();
+
   @override
   void initState() {
     super.initState();
@@ -159,17 +163,46 @@ class _LastChatState extends State<ChatScreen> {
       value.docChanges.forEach((change) {
         // print(change.doc.id);
         // print(change.doc.data()['title']);
-        if ((myId == change.doc.data()['cusers'][0] &&
-                friendId == change.doc.data()['cusers'][1] &&
+        if ((myId == change.doc.data()['users'][0] &&
+                friendId == change.doc.data()['users'][1] &&
                 postId == change.doc.data()['postId']) ||
-            (myId == change.doc.data()['cusers'][1] &&
-                friendId == change.doc.data()['cusers'][0] &&
+            (myId == change.doc.data()['users'][1] &&
+                friendId == change.doc.data()['users'][0] &&
                 postId == change.doc.data()['postId'])) {
           existChattingRoom = true;
           chattingRoomId = change.doc.id;
           print(
-              "#### 생성 채팅방 있음 186 myid $myId / fid $friendId / chatId $chattingRoomId");
+              "#### 생성1 채팅방 있음 186 myid $myId / fid $friendId / chatId $chattingRoomId");
         }
+      });
+//RealTime
+      FirebaseDatabase.instance
+          .reference()
+          .child("chattingroom")
+          .child("productchat")
+          .once()
+          .then((value) {
+        print("#### 생성2" + value.value.toString());
+        Map<dynamic, dynamic> values = value.value;
+        //print("#### 생성3" + values.toString());
+        values.forEach((key, values) {
+          print("#### 생성3" + values['roominfo']['users'][0]
+              //+values['roominfo'].id.toString()
+              );
+
+          if ((myId == values['roominfo']['users'][0] &&
+                  friendId == values['roominfo']['users'][1] &&
+                  postId == values['roominfo']['postId']) ||
+              (myId == values['roominfo']['users'][1] &&
+                  friendId == values['roominfo']['users'][0] &&
+                  postId == values['roominfo']['postId'])) {
+            existChattingRoom = true;
+            //chattingRoomId = values.id;
+
+            print(
+                "#### 생성1 채팅방 있음 186 myid $myId / fid $friendId / chatId $chattingRoomId");
+          }
+        });
       });
 
       if (existChattingRoom == true) {
@@ -370,65 +403,69 @@ class _LastChatState extends State<ChatScreen> {
 
   createListMessages() {
     return Flexible(
-        child: myId == ""
-            ? Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-                ),
-              )
-            : StreamBuilder(
-                stream: Firestore.instance
-                    .collection("chattingroom")
-                    .doc(chattingRoomId)
-                    .collection("message")
-                    //.where("idTo", isEqualTo: myId)
-                    .orderBy("timestamp", descending: true)
-                    .limit(20)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    //읽어올 데이터 없으면 출력
-                    return Center(
-                      child: CircularProgressIndicator(
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.yellow),
-                      ),
-                    );
-                  } //if 종료
-                  else {
-                    listMessage = snapshot.data.documents;
-                    return ListView.builder(
-                      padding: EdgeInsets.all(10.0),
-                      itemBuilder: (context, index) {
-                        if (index > 0 &&
-                            index < snapshot.data.documents.length - 1) //중간 문자
-                          return createItem(
-                              index,
-                              snapshot.data.documents[index],
-                              snapshot.data.documents[index + 1],
-                              snapshot.data.documents.length);
-                        else if (index == 0 &&
-                            index != snapshot.data.documents.length - 1) //첫 문자
-                          return createItem(
-                              index,
-                              snapshot.data.documents[index],
-                              snapshot.data.documents[index + 1],
-                              snapshot.data.documents.length);
-                        else if (index ==
-                            snapshot.data.documents.length - 1) //가장 마지막 문자
-                          return createItem(
-                              index,
-                              snapshot.data.documents[index],
-                              snapshot.data.documents[index],
-                              snapshot.data.documents.length);
-                      },
-                      itemCount: snapshot.data.documents.length,
-                      reverse: true,
-                      controller: listScrollController,
-                    );
-                  }
-                },
-              ));
+      child: myId == ""
+          ? Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+              ),
+            )
+          : StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection("chattingroom")
+                  .doc(chattingRoomId)
+                  .collection("message")
+                  //.where("idTo", isEqualTo: myId)
+                  .orderBy("timestamp", descending: true)
+                  .limit(20)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  //읽어올 데이터 없으면 출력
+                  return Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.yellow),
+                    ),
+                  );
+                } //if 종료
+                //메세지 읽음 처리.
+                else {
+                  FirebaseChatController().updateReadMessage(snapshot, myId);
+                  listMessage = snapshot.data.documents;
+                  return ListView.builder(
+                    padding: EdgeInsets.all(10.0),
+                    itemBuilder: (context, index) {
+                      if (index > 0 &&
+                          index < snapshot.data.documents.length - 1) //중간 문자
+                        return createItem(
+                            index,
+                            snapshot.data.documents[index],
+                            snapshot.data.documents[index + 1],
+                            snapshot.data.documents.length);
+                      else if (index == 0 &&
+                          index != snapshot.data.documents.length - 1) //첫 문자
+                        return createItem(
+                            index,
+                            snapshot.data.documents[index],
+                            snapshot.data.documents[index + 1],
+                            snapshot.data.documents.length);
+                      else if (index ==
+                          snapshot.data.documents.length - 1) //가장 마지막 문자
+                        return createItem(
+                            index,
+                            snapshot.data.documents[index],
+                            snapshot.data.documents[index],
+                            snapshot.data.documents.length);
+                      else
+                        return Container();
+                    },
+                    itemCount: snapshot.data.documents.length,
+                    reverse: true,
+                    controller: listScrollController,
+                  );
+                }
+              },
+            ),
+    );
   }
 
   bool isLastMsgLeft(int index) {
@@ -479,7 +516,15 @@ class _LastChatState extends State<ChatScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
-              GetTime(document),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  document["isRead"] == false ? Text("1") : Container(),
+                  //Text(document["isRead"].toString()),
+                  GetTime(document),
+                ],
+              ),
+
               SizedBox(width: 5, height: 10),
               document["type"] == 0
                   //Text Msg
@@ -768,7 +813,7 @@ class _LastChatState extends State<ChatScreen> {
                         "#### myid $myId / fid $friendId / chatId $chattingRoomId");
                     if (existChattingRoom == false) {
                       //방 만들어진 적이 없으면
-                      FirebaseChatController()
+                      ProductChatController()
                           .createProductChatingRoomToFirebaseStorage(
                               postId, chattingRoomId);
                       existChattingRoom = true;
@@ -814,12 +859,13 @@ class _LastChatState extends State<ChatScreen> {
           .doc(chattingRoomId);
 
       FirebaseFirestore.instance.runTransaction((transaction) async {
-        await transaction.set(docRef, {
+        transaction.set(docRef, {
           "idFrom": myId,
           "idTo": friendId,
           "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
           "content": contentMsg,
           "type": type,
+          "isRead": false,
         });
       }).whenComplete(() {
         switch (type) {
@@ -832,13 +878,52 @@ class _LastChatState extends State<ChatScreen> {
         }
 
         FirebaseFirestore.instance.runTransaction((transaction) async {
-          await transaction.update(docRef2, {
+          transaction.update(docRef2, {
             "recent_text": contentMsg,
             "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
           });
         });
       });
 
+//RealTime
+      DatabaseReference productChatMessageReference = FirebaseDatabase.instance
+          .reference()
+          .child("chattingroom")
+          .child("productchat")
+          .child(chattingRoomId)
+          .child("message")
+          .child(DateTime.now().millisecondsSinceEpoch.toString());
+
+      DatabaseReference productChatReference = FirebaseDatabase.instance
+          .reference()
+          .child("chattingroom")
+          .child("productchat")
+          .child(chattingRoomId)
+          .child("roominfo");
+
+      productChatMessageReference.set({
+        "idFrom": myId,
+        "idTo": friendId,
+        "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+        "content": contentMsg,
+        "type": type,
+        "isRead": false,
+      }).whenComplete(() {
+        switch (type) {
+          case 1:
+            contentMsg = "사진을 보냈습니다.";
+            break;
+          case 2:
+            contentMsg = "이모티콘을 보냈습니다.";
+            break;
+        }
+        productChatReference.update({
+          "recent_text": contentMsg,
+          "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+        });
+      });
+
+//원본
       listScrollController.animateTo(0.0,
           duration: Duration(microseconds: 300), curve: Curves.easeOut);
     } //if

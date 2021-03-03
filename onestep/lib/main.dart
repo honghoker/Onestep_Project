@@ -16,9 +16,9 @@ import 'login/CheckAuth.dart';
 import 'login/LoginPage.dart';
 import 'BoardLib/BoardProvi/boardClass.dart';
 import 'BoardLib/BoardProvi/boardProvider.dart';
+import 'notification/ChatCountProvider/chatCount.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -42,6 +42,7 @@ void main() async {
           value: _auth.currentUser,
         ),
         ChangeNotifierProvider<CheckAuth>(create: (_) => CheckAuth()),
+        ChangeNotifierProvider<ChatCount>.value(value: new ChatCount()),
       ],
       child: MyApp(),
     ),

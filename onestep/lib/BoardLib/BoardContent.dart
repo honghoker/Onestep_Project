@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:like_button/like_button.dart';
 import 'package:onestep/api/firebase_api.dart';
-import 'package:onestep/notification/Controllers/notificationManager.dart';
 import 'package:flutter/animation.dart';
+import 'package:onestep/notification/Controllers/chatNavigationManager.dart';
 import 'package:tip_dialog/tip_dialog.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardClass.dart';
 
@@ -308,7 +308,7 @@ class _Board extends State<BoardContent>
                         "###" +
                         boardData.documentId.toString());
 
-                    NotificationManager.navigateToBoardChattingRoom(
+                    ChatNavigationManager.navigateToBoardChattingRoom(
                       context,
                       FirebaseApi.getId(),
                       boardData.uid,

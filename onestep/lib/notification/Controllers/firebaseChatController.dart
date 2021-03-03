@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:onestep/api/firebase_api.dart';
 
@@ -20,159 +19,140 @@ class FirebaseChatController {
     }
   }
 
-  Future<void> createChatingRoomToFirebaseStorage(
-    bool products,
-    String boardId,
-    String title,
-    String userUid,
-    String friendId,
-  ) async {
+  Future<void> updateReadMessage(
+      AsyncSnapshot<dynamic> snapshot, String myId) async {
     // userImageFile,
-    String _boardtype = "초기값";
     try {
-      if (products == true) {
-        //1. 장터게시판
-        _boardtype = "장터게시판";
-      } else if (products == false) {
-        //2. 그외 게시판
-        FirebaseFirestore.instance
-            .collection("Board")
-            .doc("test")
-            .get()
-            .then((value) {
-          _boardtype = value["boardName"];
-          print("일반게시판명 : " + _boardtype);
-        }).whenComplete(() {
-          var nowTime = DateTime.now().millisecondsSinceEpoch.toString();
-          print("일반게시판명 얘가 먼저 돔 : " + _boardtype);
-          FirebaseFirestore.instance
-              .collection("chattingroom")
-              .doc(nowTime)
-              .set({
-            "boardtype": _boardtype, //boardtype, title 가져와야한다.
-            "title": title, //title
-            "read_count": 0,
-            "cusers": [userUid, friendId],
-            "recent_chattime": "최근 채팅 시간",
-            "recent_text": "최근 텍스트 update ",
-            "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
-          }).whenComplete(() {
-            print("저장완료");
-          }).catchError((onError) {
-            print(onError);
-          });
-        });
+      if (snapshot.hasData) {
+        for (var data in snapshot.data.documents) {
+          if (data['idTo'] == myId && data['isRead'] == false) {
+            if (data.reference != null) {
+              FirebaseFirestore.instance
+                  .runTransaction((Transaction myTransaction) async {
+                myTransaction.update(data.reference, {'isRead': true});
+              });
+            }
+          }
+        }
       }
     } catch (e) {
       print(e.message);
     }
   }
 
-  Future<void> createBoardChatingRoomToFirebaseStorage(
-    String boardId, //게시판Id
-    String postId, //게시글Id
-    String chatId, //생성 챗 Id
-  ) async {
-    String myUid = FirebaseApi.getId();
-    String title;
-    String friendUid;
-    String boardName;
-    // userImageFile,
-    try {
-      FirebaseFirestore.instance
-          .collection("Board")
-          .doc(boardId)
-          .get()
-          .then((value) {
-        boardName = value["boardName"];
-      }).whenComplete(
-        () {
-          FirebaseFirestore.instance
-              .collection("Board")
-              .doc(boardId)
-              .collection(boardId) //찬섭이한테 통일하는건지 물어봐
-              .doc(postId) //입력받아야함
-              .get()
-              .then((value) {
-            title = value["title"];
-            friendUid = value["uid"];
-          }).whenComplete(() {
-            var nowTime = DateTime.now().millisecondsSinceEpoch.toString();
-            FirebaseFirestore.instance
-                .collection("boardChattingroom")
-                .doc(chatId)
-                .set({
-              "boardtype": boardName,
-              "title": title,
-              "boardId": boardId,
-              "postId": postId,
-              "read_count": 0, //sum(is_read)
-              "cusers": [myUid, friendUid],
-              "recent_text": "최근 텍스트 update ",
-              "timestamp": nowTime,
-            }).whenComplete(() {
-              Fluttertoast.showToast(msg: '채팅방을 생성했습니다.');
-              print("##저장완료");
-            }).catchError((onError) {
-              Fluttertoast.showToast(msg: '채팅방 생성에 실패했습니다.');
+  StreamBuilder getChatBottomBar() {
+    return StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseApi.getId())
+            .collection("chatcount")
+            .doc(FirebaseApi.getId())
+            .snapshots(),
+        builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (snapshot.hasData) {
+            print(snapshot.data.toString());
+          } else
+            return Text("error");
 
-              print(onError);
-            });
-          });
-        },
-      );
-    } catch (e) {
-      print(e.message);
-    }
+          if (snapshot.data.data()['productchatcount'] == 0 &&
+              snapshot.data.data()['boardchatcount'] == 0) {
+            return Stack(
+              children: [
+                new Icon(
+                  Icons.notifications_none,
+                  size: 25,
+                  color: Colors.black,
+                ),
+                Positioned(
+                  top: 1,
+                  right: 1,
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 15,
+                        height: 15,
+                        decoration: BoxDecoration(),
+                        child: Center(
+                          child: Text(""),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          } else if (snapshot.data.data()['productchatcount'] > 0 ||
+              snapshot.data.data()['boardchatcount'] > 0) {
+            return Stack(
+              children: [
+                new Icon(
+                  Icons.notifications_none,
+                  size: 25,
+                  color: Colors.black,
+                ),
+                Positioned(
+                  top: 1,
+                  right: 1,
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle, color: Colors.red),
+                        child: Center(
+                          child: Text(""),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }
+          return Container();
+        });
   }
 
-  Future<void> createProductChatingRoomToFirebaseStorage(
-    String productId,
-    String chatId,
-  ) async {
-    String myUid = FirebaseApi.getId();
-    String title;
-    String friendUid;
-    String productImageUrl;
-    // userImageFile,
-    print("##create pro chat");
-    try {
-      FirebaseFirestore.instance
-          .collection("products")
-          .doc(productId)
-          .get()
-          .then((value) {
-        title = value["title"];
-        friendUid = value["uid"];
-        productImageUrl = value["images"][0];
-      }).whenComplete(
-        () {
-          var nowTime = DateTime.now().millisecondsSinceEpoch.toString();
-          FirebaseFirestore.instance
-              .collection("chattingroom")
-              .doc(chatId)
-              .set({
-            "boardtype": "장터게시판",
-            "title": title,
-            "postId": productId,
-            "read_count": 0, //sum(is_read)
-            "cusers": [myUid, friendUid],
-            "productImage": productImageUrl,
-            "recent_text": "최근 텍스트 update ",
-            "timestamp": nowTime,
-          }).whenComplete(() {
-            Fluttertoast.showToast(msg: '채팅방을 생성했습니다.');
-            print("##저장완료");
-          }).catchError((onError) {
-            Fluttertoast.showToast(msg: '채팅방 생성에 실패했습니다.');
-
-            print(onError);
-          });
-        },
-      );
-    } catch (e) {
-      print(e.message);
-    }
+  //Chat Main ChatCount
+  StreamBuilder getAllChatCount() {
+    return StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseApi.getId())
+            .collection("chatcount")
+            .doc(FirebaseApi.getId())
+            .snapshots(),
+        builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (snapshot.hasData) {
+            print(snapshot.data.toString());
+          } else
+            return Text("error");
+          //둘 다 0 일 경우
+          if (snapshot.data.data()['productchatcount'] == 0 &&
+              snapshot.data.data()['boardchatcount'] == 0) {
+            return Container(
+              width: 15,
+              height: 15,
+              decoration: BoxDecoration(),
+              child: Center(
+                child: Text(""),
+              ),
+            );
+          } else if (snapshot.data.data()['productchatcount'] > 0 ||
+              snapshot.data.data()['boardchatcount'] > 0) {
+            return Container(
+              width: 10,
+              height: 10,
+              decoration:
+                  BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+              child: Center(
+                child: Text(""),
+              ),
+            );
+          } else
+            return Container();
+        });
   }
 
   Future<Null> logoutUser(var context) async {

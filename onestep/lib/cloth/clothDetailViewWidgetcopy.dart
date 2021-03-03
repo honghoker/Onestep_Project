@@ -7,7 +7,7 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 import 'package:onestep/moor/moor_database.dart';
-import 'package:onestep/notification/Controllers/notificationManager.dart';
+import 'package:onestep/notification/Controllers/chatNavigationManager.dart';
 import 'package:moor_flutter/moor_flutter.dart' as mf;
 
 import 'animations/favoriteanimation.dart';
@@ -370,7 +370,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                     //   FirebaseApi.getId(),
                     //   widget.product.uid,
                     // );
-                    NotificationManager.navigateToChattingRoom(
+                    ChatNavigationManager.navigateToChattingRoom(
                       context,
                       FirebaseApi.getId(),
                       widget.product.uid,

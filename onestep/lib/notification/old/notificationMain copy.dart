@@ -1,12 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
-import 'package:onestep/notification/Controllers/firebaseChatController.dart';
-import 'package:onestep/notification/Controllers/notificationManager.dart';
+import 'package:onestep/notification/Controllers/chatNavigationManager.dart';
+import 'package:onestep/notification/time/chat_time.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'time/chat_time.dart';
 
 class NotificationMain2 extends StatefulWidget {
   NotificationMain2({Key key}) : super(key: key);
@@ -17,9 +15,7 @@ class NotificationMain2 extends StatefulWidget {
 
 class _NotificationMainState2 extends State<NotificationMain2> {
   SharedPreferences preferences;
-  _NotificationMainState2({Key key});
-
-  final _firestore = FirebaseFirestore.instance;
+  _NotificationMainState2();
 
   @override
   build(BuildContext context) {
@@ -33,7 +29,7 @@ class _NotificationMainState2 extends State<NotificationMain2> {
     Stream userChatListStream1 = FirebaseFirestore.instance
         .collection('chattingroom')
 //        .where("read_count", isEqualTo: 2)
-        .where("cusers", arrayContains: FirebaseApi.getId())
+        .where("users", arrayContains: FirebaseApi.getId())
         .orderBy('timestamp', descending: true)
         //.limit(2)
         .snapshots();
@@ -57,9 +53,9 @@ class _NotificationMainState2 extends State<NotificationMain2> {
                     if (chatroomData.data() != null) {
                       String productsUserId;
 
-                      chatroomData['cusers'][0] == FirebaseApi.getId()
-                          ? productsUserId = chatroomData['cusers'][1]
-                          : productsUserId = chatroomData['cusers'][0];
+                      chatroomData['users'][0] == FirebaseApi.getId()
+                          ? productsUserId = chatroomData['users'][1]
+                          : productsUserId = chatroomData['users'][0];
 
                       return ListTile(
                         leading: getUserImage(productsUserId),
@@ -111,10 +107,10 @@ class _NotificationMainState2 extends State<NotificationMain2> {
                           ),
                         ),
                         onTap: () {
-                          NotificationManager.navigateToChattingRoom(
+                          ChatNavigationManager.navigateToChattingRoom(
                             context,
-                            chatroomData["cusers"][0],
-                            chatroomData["cusers"][1],
+                            chatroomData["users"][0],
+                            chatroomData["users"][1],
                             chatroomData["postId"],
                           );
                         },
@@ -131,39 +127,32 @@ class _NotificationMainState2 extends State<NotificationMain2> {
         });
   }
 
-  Widget _buildChattingRoom(var context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: <Widget>[
-        IconButton(
-            icon: Icon(Icons.chat_bubble),
-            onPressed: () {
-              //_onClickNotification;
-              print(Text('우측 상단'));
-              FirebaseChatController().createChatingRoomToFirebaseStorage(
-                false,
-                "Board_Free",
-                "임시타이틀",
-                FirebaseApi.getId(),
-                "friendId",
-              );
-              //createRecord();
-            }),
-        Positioned(
-          top: 12.0,
-          right: 10.0,
-          width: 10.0,
-          height: 10.0,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              //color: AppColors.notification,
-            ),
-          ),
-        )
-      ],
-    );
-  }
+  // Widget _buildChattingRoom(var context) {
+  //   return Stack(
+  //     alignment: Alignment.center,
+  //     children: <Widget>[
+  //       IconButton(
+  //           icon: Icon(Icons.chat_bubble),
+  //           onPressed: () {
+  //             //_onClickNotification;
+  //             print(Text('우측 상단'));
+  //             //createRecord();
+  //           }),
+  //       Positioned(
+  //         top: 12.0,
+  //         right: 10.0,
+  //         width: 10.0,
+  //         height: 10.0,
+  //         child: Container(
+  //           decoration: BoxDecoration(
+  //             shape: BoxShape.circle,
+  //             //color: AppColors.notification,
+  //           ),
+  //         ),
+  //       )
+  //     ],
+  //   );
+  // }
 
   Future getUserId(String proUserId) async {
     return FirebaseFirestore.instance.collection('users').doc(proUserId).get();

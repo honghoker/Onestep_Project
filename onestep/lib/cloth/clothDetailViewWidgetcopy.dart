@@ -8,14 +8,14 @@ import 'package:onestep/api/favorite_api.dart';
 import 'package:onestep/cloth/clothModifyWidget.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 import 'package:onestep/favorite/animations/favoriteanimation.dart';
+import 'package:onestep/login/KakaoShareManager.dart';
 import 'package:onestep/notification/Controllers/notificationManager.dart';
 import 'package:onestep/profile/profileWidget.dart';
 import 'package:onestep/profile/provider/userProductProvider.dart';
 import 'package:onestep/profile/userProductWidget.dart';
-
 import 'package:provider/provider.dart';
 import 'package:onestep/api/firebase_api.dart';
-
+import 'package:onestep/myinfo/myinfoWidget.dart';
 import 'clothitem.dart';
 import 'models/product.dart';
 
@@ -68,15 +68,20 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
     }
   }
 
+  // 아 요놈이 ㅈㄹ이네
   void _handleDynamicLink(Uri deepLink) {
-    switch (deepLink.path) {
-      case "/join_family":
-        // 여기 부분이 자세히 보기 클릭하면 그 상품으로 가는 Navigator 가 들어가야 하는데 test 한번 해보고
-        // 안되면 어케 그 상품 상세보기로 넘어가는지 생각해보기
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => ClothDetailViewWidgetcopy(),
-        ));
-    }
+    print("deepLink.path = ${deepLink.path}");
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => MyinfoWidget(),
+    ));
+    // switch (deepLink.path) {
+    //   case "/join_family":
+    //     // 여기 부분이 자세히 보기 클릭하면 그 상품으로 가는 Navigator 가 들어가야 하는데 test 한번 해보고
+    //     // 안되면 어케 그 상품 상세보기로 넘어가는지 생각해보기
+    //     Navigator.of(context).push(MaterialPageRoute(
+    //       builder: (context) => MyinfoWidget(),
+    //     ));
+    // }
   }
 
   String getDiffTime(Timestamp uploadtime) {
@@ -678,17 +683,18 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                               print("kakao 1");
                               // kakato test
                               // 일단 주석처리 detail 잡아야함
-                              // KakaoShareManager()
-                              //     .isKakaotalkInstalled()
-                              //     .then((installed) {
-                              //   if (installed) {
-                              //     print("kakao success");
-                              //     KakaoShareManager().shareMyCode("abcd",snapshot,_imageItem[0]);
-                              //   } else {
-                              //     print("kakao error");
-                              //     // show alert
-                              //   }
-                              // });
+                              KakaoShareManager()
+                                  .isKakaotalkInstalled()
+                                  .then((installed) {
+                                if (installed) {
+                                  print("kakao success");
+                                  KakaoShareManager().shareMyCode(
+                                      "abcd", snapshot, _imageItem[0]);
+                                } else {
+                                  print("kakao error");
+                                  // show alert
+                                }
+                              });
                             },
                             constraints:
                                 BoxConstraints(minHeight: 80, minWidth: 80),
@@ -698,18 +704,18 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                                   'assets/images/free-icon-kakao-talk-2111466.png'),
                               onPressed: () {
                                 print("kakao 2");
-                                // KakaoShareManager()
-                                //     .isKakaotalkInstalled()
-                                //     .then((installed) {
-                                //   if (installed) {
-                                //     print("kakao success");
-                                //     KakaoShareManager().shareMyCode(
-                                //         "abcd", snapshot, _imageItem[0]);
-                                //   } else {
-                                //     print("kakao error");
-                                //     // show alert
-                                //   }
-                                // });
+                                KakaoShareManager()
+                                    .isKakaotalkInstalled()
+                                    .then((installed) {
+                                  if (installed) {
+                                    print("kakao success");
+                                    KakaoShareManager().shareMyCode(
+                                        "abcd", snapshot, _imageItem[0]);
+                                  } else {
+                                    print("kakao error");
+                                    // show alert
+                                  }
+                                });
                               },
                             ),
                             shape: CircleBorder(),

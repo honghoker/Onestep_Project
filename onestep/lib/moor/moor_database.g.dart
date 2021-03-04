@@ -519,6 +519,167 @@ class $NotificationChksTable extends NotificationChks
   }
 }
 
+class PushNoticeChk extends DataClass implements Insertable<PushNoticeChk> {
+  final String pushChecked;
+  PushNoticeChk({@required this.pushChecked});
+  factory PushNoticeChk.fromData(
+      Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final stringType = db.typeSystem.forDartType<String>();
+    return PushNoticeChk(
+      pushChecked: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}push_checked']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || pushChecked != null) {
+      map['push_checked'] = Variable<String>(pushChecked);
+    }
+    return map;
+  }
+
+  PushNoticeChksCompanion toCompanion(bool nullToAbsent) {
+    return PushNoticeChksCompanion(
+      pushChecked: pushChecked == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pushChecked),
+    );
+  }
+
+  factory PushNoticeChk.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return PushNoticeChk(
+      pushChecked: serializer.fromJson<String>(json['pushChecked']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'pushChecked': serializer.toJson<String>(pushChecked),
+    };
+  }
+
+  PushNoticeChk copyWith({String pushChecked}) => PushNoticeChk(
+        pushChecked: pushChecked ?? this.pushChecked,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('PushNoticeChk(')
+          ..write('pushChecked: $pushChecked')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf(pushChecked.hashCode);
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is PushNoticeChk && other.pushChecked == this.pushChecked);
+}
+
+class PushNoticeChksCompanion extends UpdateCompanion<PushNoticeChk> {
+  final Value<String> pushChecked;
+  const PushNoticeChksCompanion({
+    this.pushChecked = const Value.absent(),
+  });
+  PushNoticeChksCompanion.insert({
+    @required String pushChecked,
+  }) : pushChecked = Value(pushChecked);
+  static Insertable<PushNoticeChk> custom({
+    Expression<String> pushChecked,
+  }) {
+    return RawValuesInsertable({
+      if (pushChecked != null) 'push_checked': pushChecked,
+    });
+  }
+
+  PushNoticeChksCompanion copyWith({Value<String> pushChecked}) {
+    return PushNoticeChksCompanion(
+      pushChecked: pushChecked ?? this.pushChecked,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (pushChecked.present) {
+      map['push_checked'] = Variable<String>(pushChecked.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PushNoticeChksCompanion(')
+          ..write('pushChecked: $pushChecked')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PushNoticeChksTable extends PushNoticeChks
+    with TableInfo<$PushNoticeChksTable, PushNoticeChk> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $PushNoticeChksTable(this._db, [this._alias]);
+  final VerificationMeta _pushCheckedMeta =
+      const VerificationMeta('pushChecked');
+  GeneratedTextColumn _pushChecked;
+  @override
+  GeneratedTextColumn get pushChecked =>
+      _pushChecked ??= _constructPushChecked();
+  GeneratedTextColumn _constructPushChecked() {
+    return GeneratedTextColumn(
+      'push_checked',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [pushChecked];
+  @override
+  $PushNoticeChksTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'push_notice_chks';
+  @override
+  final String actualTableName = 'push_notice_chks';
+  @override
+  VerificationContext validateIntegrity(Insertable<PushNoticeChk> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('push_checked')) {
+      context.handle(
+          _pushCheckedMeta,
+          pushChecked.isAcceptableOrUnknown(
+              data['push_checked'], _pushCheckedMeta));
+    } else if (isInserting) {
+      context.missing(_pushCheckedMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {pushChecked};
+  @override
+  PushNoticeChk map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return PushNoticeChk.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $PushNoticeChksTable createAlias(String alias) {
+    return $PushNoticeChksTable(_db, alias);
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $SearchsTable _searchs;
@@ -526,16 +687,22 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   $NotificationChksTable _notificationChks;
   $NotificationChksTable get notificationChks =>
       _notificationChks ??= $NotificationChksTable(this);
+  $PushNoticeChksTable _pushNoticeChks;
+  $PushNoticeChksTable get pushNoticeChks =>
+      _pushNoticeChks ??= $PushNoticeChksTable(this);
   SearchsDao _searchsDao;
   SearchsDao get searchsDao => _searchsDao ??= SearchsDao(this as AppDatabase);
   NotificationChksDao _notificationChksDao;
   NotificationChksDao get notificationChksDao =>
       _notificationChksDao ??= NotificationChksDao(this as AppDatabase);
+  PushNoticeChksDao _pushNoticeChksDao;
+  PushNoticeChksDao get pushNoticeChksDao =>
+      _pushNoticeChksDao ??= PushNoticeChksDao(this as AppDatabase);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [searchs, notificationChks];
+      [searchs, notificationChks, pushNoticeChks];
 }
 
 // **************************************************************************
@@ -548,4 +715,7 @@ mixin _$SearchsDaoMixin on DatabaseAccessor<AppDatabase> {
 mixin _$NotificationChksDaoMixin on DatabaseAccessor<AppDatabase> {
   $NotificationChksTable get notificationChks =>
       attachedDatabase.notificationChks;
+}
+mixin _$PushNoticeChksDaoMixin on DatabaseAccessor<AppDatabase> {
+  $PushNoticeChksTable get pushNoticeChks => attachedDatabase.pushNoticeChks;
 }

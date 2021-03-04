@@ -44,14 +44,20 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
       builder: (context, AsyncSnapshot<List<QuerySnapshot>> snapshot1) {
         return StreamBuilder(
           stream: p.watchNotification(),
-          builder: (context, AsyncSnapshot<List<NotificationChk>> snapshot2) {
-            switch (snapshot2.connectionState) {
+          builder: (context, snapshot2) {
+            switch (snapshot1.connectionState) {
               case ConnectionState.waiting:
                 return Container();
               default:
                 // 알림 내부 DB에 아무것도 없으면
-                if (snapshot2.data.length == 0) return Container();
+                if (snapshot2.data.length == 0)
+                  return Center(
+                      child: Container(
+                    child: Text("알림이 없습니다"),
+                  ));
+                // print("snapshot data = ${snapshot.data}");
                 List<DocumentSnapshot> documentSnapshot = [];
+
                 List<dynamic> querySnapshot = snapshot1.data.toList();
 
                 querySnapshot.forEach((query) {
@@ -89,13 +95,8 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
                   //     uploadtime: DateTime.parse(
                   //         doc.data()['time'].toDate().toString())));
 
-                  print("mappedData.length = ${mappedData.length}");
-
                   NotificationChk latestTime =
                       snapshot2.data[0] as NotificationChk;
-                  if (mappedData.length == 1) {
-                    return Container();
-                  }
                   print("lastestTime ${latestTime.uploadtime}");
                   print(
                       "docTime ${DateTime.parse(doc.data()['time'].toDate().toString())}");
@@ -151,9 +152,9 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
               onTap: () {
                 if (!snapshot.hasData) {
                   // 상세뷰 이동
-                  // Navigator.of(context).push(MaterialPageRoute(
-                  //     builder: (context) =>
-                  //         NoticeDetailView("Notification", id)));
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          NoticeDetailView("Notification", id)));
                   p.updateNotification(NotificationChk(
                       readChecked: 'true',
                       firestoreid: id,
@@ -162,9 +163,9 @@ class _HomeNotificationPageState extends State<HomeNotificationPage> {
                           mappedData['time'].toDate().toString())));
                 } else {
                   // 상세뷰 이동
-                  // Navigator.of(context).push(MaterialPageRoute(
-                  //     builder: (context) =>
-                  //         NoticeDetailView("Notification", id)));
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          NoticeDetailView("Notification", id)));
                   // 추후에 삭제해야함
                   p.updateNotification(NotificationChk(
                       readChecked: 'false',

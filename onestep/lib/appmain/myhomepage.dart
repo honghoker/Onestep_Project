@@ -110,7 +110,9 @@ class _MyHomePageState extends State<MyHomePage> {
               fixedColor: Colors.black,
               // fixedColor: Color.fromRGBO(0, 100, 0, 1),
               currentIndex: _currentIndex,
-              onTap: (int index) => setState(() => _currentIndex = index),
+              onTap: (int index) => _currentIndex == index
+                  ? Container()
+                  : setState(() => _currentIndex = index),
               type: BottomNavigationBarType.fixed,
               showSelectedLabels: false,
               showUnselectedLabels: false, // title 안보이게 설정

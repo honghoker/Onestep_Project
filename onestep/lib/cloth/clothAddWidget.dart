@@ -391,7 +391,15 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
                   },
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: '카테고리',
+                    hintText: '카테고리 선택',
+                    isDense: true,
+                    suffixIconConstraints:
+                        BoxConstraints(minWidth: 0, minHeight: 0),
+                    suffixIcon: Icon(
+                      Icons.keyboard_arrow_right,
+                      size: 20,
+                      color: Color(0xFF999999),
+                    ),
                   ),
                   readOnly: true,
                 ),

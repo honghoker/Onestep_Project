@@ -32,6 +32,30 @@ class ProfileWidget extends StatelessWidget {
     );
   }
 
+  Widget getUserImage() {
+    return FutureBuilder(
+      future: FirebaseFirestore.instance.collection("users").doc(uid).get(),
+      builder:
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return Text("");
+          default:
+            return snapshot.data.data()['photoUrl'] != ""
+                ? ClipOval(
+                    child: Image.network(
+                      snapshot.data.data()['photoUrl'],
+                      height: 100,
+                      width: 100,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : Icon(Icons.account_circle);
+        }
+      },
+    );
+  }
+
   String getBackgroundImg() {
     var backgroundImages = [
       "images/profile_back1.png",
@@ -74,17 +98,18 @@ class ProfileWidget extends StatelessWidget {
                 left: 10,
                 child: Row(
                   children: <Widget>[
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage('images/profile.png'),
-                          fit: BoxFit.cover,
-                        ),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
+                    getUserImage(),
+                    // Container(
+                    //   width: 60,
+                    //   height: 60,
+                    //   decoration: BoxDecoration(
+                    //     image: DecorationImage(
+                    //       image: AssetImage('images/profile.png'),
+                    //       fit: BoxFit.cover,
+                    //     ),
+                    //     shape: BoxShape.circle,
+                    //   ),
+                    // ),
                     SizedBox(width: 10),
                     getUserName(),
                   ],
@@ -92,33 +117,77 @@ class ProfileWidget extends StatelessWidget {
               ),
             ],
           ),
+          Container(
+            width: double.infinity,
+            height: 180,
+            decoration: BoxDecoration(color: Colors.red),
+          ),
           Expanded(
-            child: ListView(
-              children: <Widget>[
-                ListTile(
-                  title: Text("판매 상품"),
-                  onTap: () => {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => Consumer<UserProductProvider>(
-                          builder: (context, userProductProvider, _) =>
-                              UserProductWidget(
-                            userProductProvider: userProductProvider,
-                            uid: uid,
-                          ),
+            // Padding(padding: EdgeInsets.all(5.00)),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: ListView(
+                children: ListTile.divideTiles(tiles: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ListTile(
+                          title: Text("판매 상품"),
+                          onTap: () => {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    Consumer<UserProductProvider>(
+                                  builder: (context, userProductProvider, _) =>
+                                      UserProductWidget(
+                                    userProductProvider: userProductProvider,
+                                    uid: uid,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          },
                         ),
                       ),
-                    ),
-                  },
-                ),
-                Padding(padding: EdgeInsets.all(5.00)),
-                ListTile(
-                  title: Text("구매 상품"),
-                  onTap: () => {
-                    print("구매상품"),
-                  },
-                ),
-              ],
+                      IconButton(
+                        icon: Icon(Icons.keyboard_arrow_right),
+                        onPressed: () {},
+                      )
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ListTile(
+                          title: Text("구매 상품"),
+                          onTap: () => {
+                            print("구매상품"),
+                          },
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.keyboard_arrow_right),
+                        onPressed: () {},
+                      )
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ListTile(
+                          title: Text("후기"),
+                          onTap: () => {print("후기")},
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.keyboard_arrow_right),
+                        onPressed: () {},
+                      )
+                    ],
+                  ),
+                ], context: context)
+                    .toList(),
+              ),
             ),
           ),
         ],

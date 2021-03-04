@@ -84,9 +84,29 @@ class NotificationChksDao extends DatabaseAccessor<AppDatabase>
   deleteAllNotification() => delete(notificationChks).go();
 }
 
+class PushNoticeChks extends Table {
+  TextColumn get pushChecked => text()();
+
+  @override
+  Set<Column> get primaryKey => {pushChecked};
+}
+
+@UseDao(tables: [PushNoticeChks])
+class PushNoticeChksDao extends DatabaseAccessor<AppDatabase> with _$PushNoticeChksDaoMixin {
+  PushNoticeChksDao(AppDatabase db) : super(db);
+
+  Future<List<PushNoticeChk>> getAllPushNoticeChks() => select(pushNoticeChks).get();
+
+  Future insertPushNotice(PushNoticeChk pushNoticeChk) => into(pushNoticeChks).insert(pushNoticeChk);
+  Future deletePushNotice(PushNoticeChk pushNoticeChk) => delete(pushNoticeChks).delete(pushNoticeChk);
+  Future updatePushNotice(PushNoticeChk pushNoticeChk) => update(pushNoticeChks).replace(pushNoticeChk);
+
+  deleteAllPushNotice() => delete(pushNoticeChks).go();
+}
+
 @UseMoor(
-    tables: [Searchs, NotificationChks],
-    daos: [SearchsDao, NotificationChksDao])
+    tables: [Searchs, NotificationChks,PushNoticeChks],
+    daos: [SearchsDao, NotificationChksDao,PushNoticeChksDao])
 class AppDatabase extends _$AppDatabase {
   AppDatabase()
       : super(FlutterQueryExecutor.inDatabaseFolder(

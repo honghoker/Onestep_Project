@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardProvider.dart';
-import 'package:onestep/BoardLib/boardMain.dart';
 import 'package:provider/provider.dart';
+import 'boardCategoryEnum.dart';
 
 class BoardCategoryList extends StatelessWidget {
   double device_width;
@@ -134,84 +134,7 @@ class BoardCategoryList extends StatelessWidget {
                 ],
               ),
             ),
-            Container(
-              decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.all(Radius.circular(5))),
-              margin: EdgeInsets.all(device_width / 50),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    leading: Container(
-                        child: Stack(
-                      children: [
-                        Container(
-                          margin: EdgeInsets.only(top: 5),
-                          child: Icon(
-                            Icons.shopping_cart_outlined,
-                            color: Colors.red[200],
-                          ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(left: 5),
-                          child: Transform.rotate(
-                            angle: math.pi / 4,
-                            child: Icon(
-                              Icons.card_giftcard,
-                              color: Colors.red[200],
-                              size: 15,
-                            ),
-                          ),
-                        ),
-                      ],
-                    )),
-                    title: Text("공동 구매"),
-                  ),
-                  ListTile(
-                    leading: Container(
-                        child: Stack(
-                      children: [
-                        Container(
-                          margin: EdgeInsets.only(top: 5),
-                          child: Icon(
-                            Icons.shopping_cart,
-                            color: Colors.red[200],
-                          ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(left: 5),
-                          child: Transform.rotate(
-                            angle: math.pi / 4,
-                            child: Icon(
-                              Icons.card_giftcard,
-                              color: Colors.red[200],
-                              size: 15,
-                            ),
-                          ),
-                        ),
-                      ],
-                    )),
-                    title: Text("공동 구매"),
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.shopping_cart_rounded,
-                      color: Colors.red[200],
-                    ),
-                    title: Text("공동 구매"),
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.shopping_cart_outlined,
-                      color: Colors.red[200],
-                    ),
-                    title: Text("공동 구매"),
-                  ),
-                  futurebuilderWidget()
-                ],
-              ),
-            ),
+            futurebuilderWidget()
           ],
         ),
       ),
@@ -238,25 +161,38 @@ class BoardCategoryList extends StatelessWidget {
               ));
             } else if (snapshot.hasData) {
               return Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                  margin: EdgeInsets.all(device_width / 50),
                   child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: snapshot.data.docs.length,
-                itemBuilder: (context, index) {
-                  List<BoardCategory> boardCategoryList = BoardCategory.values;
-                  String categoryKR = '';
-                  for (int i = 0; i < boardCategoryList.length; i++) {
-                    print(boardCategoryList[i].categoryEN);
-                    if (boardCategoryList[i].categoryEN ==
-                        snapshot.data.docs[index].id) {
-                      categoryKR = boardCategoryList[i].categoryKR;
-                      break;
-                    }
-                  }
-                  return Container(
-                    child: Text(categoryKR),
-                  );
-                },
-              ));
+                    shrinkWrap: true,
+                    itemCount: snapshot.data.docs.length,
+                    itemBuilder: (context, index) {
+                      List<BoardCategory> boardCategoryList =
+                          BoardCategory.values;
+                      String categoryKR = '';
+                      BoardCategory currentCategory;
+                      for (int i = 0; i < boardCategoryList.length; i++) {
+                        if (boardCategoryList[i].categoryEN ==
+                            snapshot.data.docs[index].id) {
+                          categoryKR = boardCategoryList[i].categoryKR;
+                          currentCategory = boardCategoryList[i];
+                          break;
+                        }
+                      }
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, "/BoardList",
+                              arguments: {"BOARD_CATEGORY": currentCategory});
+                        },
+                        child: ListTile(
+                          leading: Icon(Icons.self_improvement_rounded),
+                          title: Text(categoryKR),
+                        ),
+                      );
+                    },
+                  ));
             }
         }
       },

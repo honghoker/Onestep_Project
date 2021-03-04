@@ -8,7 +8,7 @@ import 'package:onestep/api/firebase_api.dart';
 import 'package:tip_dialog/tip_dialog.dart';
 import 'package:onestep/BoardLib/CustomException/customThrow.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:onestep/BoardLib/boardMain.dart';
+import 'package:onestep/BoardLib/BoardCateogryList/boardCategoryEnum.dart';
 
 enum ContentCategory { SMALLTALK, QUESTION }
 

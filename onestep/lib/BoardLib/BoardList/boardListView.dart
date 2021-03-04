@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardProvider.dart';
-import 'package:onestep/BoardLib/boardMain.dart';
+import 'package:onestep/BoardLib/BoardCateogryList/boardCategoryEnum.dart';
 import 'package:onestep/BoardLib/CustomException/customThrow.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/rendering.dart';
@@ -21,9 +21,6 @@ class BoardList extends StatefulWidget {
 
 class _BoardListState extends _BoardListParentState<BoardList> {
   @override
-  setFabCallBack() => fabCallback = widget.callback;
-
-  @override
   setProvider() => boardProvider = widget.boardProvider;
 
   @override
@@ -32,7 +29,6 @@ class _BoardListState extends _BoardListParentState<BoardList> {
 
 abstract class _BoardListParentState<T extends StatefulWidget>
     extends State<T> {
-  setFabCallBack();
   setProvider();
   setBoardCategory();
   BoardCategory boardCategory;
@@ -47,7 +43,6 @@ abstract class _BoardListParentState<T extends StatefulWidget>
   void initState() {
     super.initState();
     //Floating Action Button hide and show
-    setFabCallBack();
     //Set Provider child class
     setProvider();
     //Set board Category in child class
@@ -90,12 +85,38 @@ abstract class _BoardListParentState<T extends StatefulWidget>
   void dispose() {
     super.dispose();
   }
+  //  @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     body: BoardList(
+  //       callback: listViewFABCallback,
+  //       boardProvider: widget.boardProvider,
+  //     ),
+  //     appBar: PreferredSize(
+  //       preferredSize: Size.fromHeight(50.0),
+  //       child: AppBar(
+  //         backgroundColor: Colors.white,
+  //       ),
+  //     ),
+  //     floatingActionButton: _hideFAB
+  //         ? Container()
+  //         : FloatingActionButton(
+  //             backgroundColor: Colors.black,
+  //             onPressed: () {
+  //               print(_boardCategory.categoryEN);
+  //               Navigator.of(context).pushNamed('/CreateBoard',
+  //                   arguments: {"CURRENTBOARD": BoardCategory.Free});
+  //             },
+  //             child: Icon(Icons.add)),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
+    Widget scaffoldBody;
     if (boardProvider != null) {
       if (boardProvider.boards.isNotEmpty) {
-        return Container(
+        scaffoldBody = Container(
             child: ListView.builder(
                 controller: _scrollController,
                 //PageStorageKey is Keepping ListView scroll position when switching pageview
@@ -113,10 +134,19 @@ abstract class _BoardListParentState<T extends StatefulWidget>
                       context, index, boardProvider.boards[index]);
                 }));
       } else
-        return Center(child: Text("새 게시글로 시작해보세요!"));
+        scaffoldBody = Center(child: Text("새 게시글로 시작해보세요!"));
     } else {
-      return Center(child: Text(BoardProvider().errorMessage));
+      scaffoldBody = Center(child: Text(BoardProvider().errorMessage));
     }
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(50.0),
+        child: AppBar(
+          backgroundColor: Colors.white,
+        ),
+      ),
+      body: scaffoldBody,
+    );
   }
 
   Widget _buildListCard(BuildContext context, int index, var boardData) {

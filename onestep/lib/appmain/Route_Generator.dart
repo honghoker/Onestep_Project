@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' as foundation;
 import 'package:onestep/BoardLib/BoardCateogryList/boardCategoryMain.dart';
-
+import 'package:onestep/BoardLib/BoardList/boardListView.dart';
+import 'package:onestep/BoardLib/BoardProvi/boardProvider.dart';
 import 'package:onestep/login/joinPage.dart';
 import '../BoardLib/CreateAlterBoard/parentState.dart';
 import '../BoardLib/boardContent.dart';
@@ -12,6 +13,7 @@ import '../cloth/clothDetailViewWidgetcopy.dart';
 import 'package:path/path.dart' as p;
 import 'package:onestep/appmain/myhomepage.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
+import 'package:provider/provider.dart';
 
 class RouteGenerator {
   static bool _isIOS =
@@ -59,6 +61,13 @@ class RouteGenerator {
         _pageWidget = CreateBoard(
           currentBoard: arguments['CURRENTBOARD'],
         );
+        break;
+      case 'BoardList':
+        _pageWidget = Consumer<BoardProvider>(
+            builder: (context, productProvider, _) => BoardList(
+                  boardCategory: arguments["BOARD_CATEGORY"],
+                  boardProvider: productProvider,
+                ));
         break;
       case 'BoardCategory':
         _pageWidget = BoardCategoryList();

@@ -4,9 +4,9 @@ class ProductMessage {
   String content;
   String idFrom;
   String idTo;
-  String isRead;
+  bool isRead;
   String timestamp;
-  String type;
+  int type;
 
   ProductMessage({
     this.content,
@@ -18,12 +18,12 @@ class ProductMessage {
   });
 
   ProductMessage.forMapSnapshot(dynamic snapshot) {
-    content = snapshot['message']["content"];
-    idFrom = snapshot['message']["idFrom"];
-    idTo = snapshot['message']["idTo"];
-    isRead = snapshot['message']["isRead"];
-    timestamp = snapshot['message']["timestamp"];
-    type = snapshot['message']["type"];
+    content = snapshot["content"];
+    idFrom = snapshot["idFrom"];
+    idTo = snapshot["idTo"];
+    isRead = snapshot["isRead"];
+    timestamp = snapshot["timestamp"];
+    type = snapshot["type"];
   }
 
 //채팅방 ID

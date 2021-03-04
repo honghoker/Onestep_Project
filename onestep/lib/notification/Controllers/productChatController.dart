@@ -58,24 +58,28 @@ class ProductChatController {
               .child("chattingroom")
               .child("productchat")
               .child(chatId)
-              .child("roominfo")
+              //.child("roominfo")
               .set({
             "boardtype": "장터게시판",
             "title": title,
             "postId": productId,
-            "users": [myUid, friendUid],
+            "users": {
+              myUid: true,
+              friendUid: true,
+            },
             "productImage": productImageUrl,
             "recent_text": "채팅방이 생성되었습니다!",
             "timestamp": nowTime,
+          }).whenComplete(() {
+            databaseReference
+                .child("chattingroom")
+                .child("productchat")
+                .child(chatId)
+                //.child("roominfo")
+                .once()
+                .then((DataSnapshot snapshot) =>
+                    {print('Data : ${snapshot.value}')});
           });
-          databaseReference
-              .child("chattingroom")
-              .child("productchat")
-              .child(chatId)
-              .child("roominfo")
-              .once()
-              .then((DataSnapshot snapshot) =>
-                  {print('Data : ${snapshot.value}')});
         },
       );
     } catch (e) {

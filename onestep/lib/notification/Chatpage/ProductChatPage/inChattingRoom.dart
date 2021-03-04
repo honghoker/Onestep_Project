@@ -172,7 +172,7 @@ class _LastChatState extends State<ChatScreen> {
           existChattingRoom = true;
           chattingRoomId = change.doc.id;
           print(
-              "#### 생성1 채팅방 있음 186 myid $myId / fid $friendId / chatId $chattingRoomId");
+              "#### 생성1 채팅방 있음 기존 스토어 186 myid $myId / fid $friendId / chatId $chattingRoomId");
         }
       });
 //RealTime
@@ -186,21 +186,21 @@ class _LastChatState extends State<ChatScreen> {
         Map<dynamic, dynamic> values = value.value;
         //print("#### 생성3" + values.toString());
         values.forEach((key, values) {
-          print("#### 생성3" + values['roominfo']['users'][0]
+          print("#### 생성3" + values['users'][0]
               //+values['roominfo'].id.toString()
               );
 
-          if ((myId == values['roominfo']['users'][0] &&
-                  friendId == values['roominfo']['users'][1] &&
-                  postId == values['roominfo']['postId']) ||
-              (myId == values['roominfo']['users'][1] &&
-                  friendId == values['roominfo']['users'][0] &&
-                  postId == values['roominfo']['postId'])) {
+          if ((myId == values['users'][0] &&
+                  friendId == values['users'][1] &&
+                  postId == values['postId']) ||
+              (myId == values['users'][1] &&
+                  friendId == values['users'][0] &&
+                  postId == values['postId'])) {
             existChattingRoom = true;
             //chattingRoomId = values.id;
 
             print(
-                "#### 생성1 채팅방 있음 186 myid $myId / fid $friendId / chatId $chattingRoomId");
+                "#### 생성1 채팅방 있음 기존 스토어 비교 186 myid $myId / fid $friendId / chatId $chattingRoomId");
           }
         });
       });
@@ -210,7 +210,7 @@ class _LastChatState extends State<ChatScreen> {
         setState(() {});
       } else {
         print(
-            "#### 생성 채팅방 없음 186 myid $myId / fid $friendId / chatId $chattingRoomId");
+            "#### 생성 채팅방 없음 기존 스토어 myid $myId / fid $friendId / chatId $chattingRoomId");
         chattingRoomId = DateTime.now().millisecondsSinceEpoch.toString();
       }
     });
@@ -381,6 +381,7 @@ class _LastChatState extends State<ChatScreen> {
                         ),
                         Column(
                           children: <Widget>[
+                            Text("기존장터챗"),
                             Text(snapshot.data['title']),
                             Text(snapshot.data['price']),
                           ],
@@ -895,11 +896,12 @@ class _LastChatState extends State<ChatScreen> {
           .child(DateTime.now().millisecondsSinceEpoch.toString());
 
       DatabaseReference productChatReference = FirebaseDatabase.instance
-          .reference()
-          .child("chattingroom")
-          .child("productchat")
-          .child(chattingRoomId)
-          .child("roominfo");
+              .reference()
+              .child("chattingroom")
+              .child("productchat")
+              .child(chattingRoomId)
+          //.child("roominfo")
+          ;
 
       productChatMessageReference.set({
         "idFrom": myId,

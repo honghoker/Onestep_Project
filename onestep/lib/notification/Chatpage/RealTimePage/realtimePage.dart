@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:async/async.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
@@ -30,6 +33,8 @@ class _RealTimePageState extends State<RealTimePage>
       //.child("roominfo")
       ;
 
+  String uId;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -37,6 +42,7 @@ class _RealTimePageState extends State<RealTimePage>
   void initState() {
     super.initState();
     productChat = ProductChat();
+    uId = FirebaseApi.getId();
     // databasereference.onChildAdded.listen((_onAddData));
     // databasereference.onChildAdded.listen((_onChanged));
 
@@ -86,154 +92,158 @@ class _RealTimePageState extends State<RealTimePage>
     // });
   }
 
-  void queryText() {
-    Map<dynamic, dynamic> values;
-    print("queryss");
-    productchatdatabasereference
-        //.orderByChild('timestamp')
-        //.orderByChild("장터게시판")
-        //.equalTo('장터게시판')
-        .once()
-        .then((value) {
-      values = value.value;
-      print("queryss111 ${values['roominfo']['boardtype'].toString()}");
-    });
-    values.forEach((i, value) {
-      print("queryss2 ${value.toString()}");
-    });
-  }
-
   Widget _buildChatListListTileStream() {
     bool userExist = false;
-    Query comments = productchatdatabasereference
-            .orderByChild('timestamp')
-            //.orderByChild("장터게시판")
-            .equalTo('장터게시판')
-
-        //.limitToFirst(2)
-        ;
-    //queryText();
     return StreamBuilder(
       stream:
           //comments
           productchatdatabasereference
               // .child("roominfo")
-              // .orderByChild("boardtype")
-              // .equalTo("장터게시판")
-
-              // .child("boardtype")
-              //.orderByChild("roominfo")
-
+              // .orderByChild("users/1")
+              .orderByChild("users/${FirebaseApi.getId()}")
+              .equalTo(true)
               .onValue, //조건1.  타임스탬프 기준
       builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if (snapshot == null ||
-            !snapshot.hasData ||
-            snapshot.data.snapshot.value == null) {
-          print("stream values : ${snapshot.data.snapshot.value}");
-          return Container(child: Center(child: Text("No data")));
-        } else {
-          print("stream values : ${snapshot.data.snapshot.value}");
-          listProductChat.clear(); //리스트 클리어
-          DataSnapshot dataValues = snapshot.data.snapshot;
-          Map<dynamic, dynamic> values = dataValues.value;
-          print("##걍StrTest" + values.toString());
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return CircularProgressIndicator();
+          default:
+            if (snapshot == null ||
+                !snapshot.hasData ||
+                snapshot.data.snapshot.value == null) {
+              print("stream values if0 null : ${snapshot.data.snapshot.value}");
+              return Container(child: Center(child: Text("No data")));
+            } else {
+              print("stream values else1 : ${snapshot.data.snapshot.value}");
+              listProductChat.clear(); //리스트 클리어
+              DataSnapshot dataValues = snapshot.data.snapshot;
+              Map<dynamic, dynamic> values = dataValues.value;
+              print("##걍StrTest" + values.toString());
 
-          values.forEach((key, values) {
-            // print("걍프린트" + values['users'].toString());
-            print("걍프린트" + values['roominfo']['boardtype'].toString());
+              values.forEach((key, values) {
+                // print("걍프린트" + values['users'].toString());
+                print("stream values else2 bo :" +
+                    values['boardtype'].toString());
 
-            print("##StrTest DSDD" + values['roominfo']['users'][0].toString());
-            if (values['roominfo']['users'][0] == FirebaseApi.getId() ||
-                values['roominfo']['users'][1] == FirebaseApi.getId()) {
-              userExist = true;
-              listProductChat
-                  .add(ProductChat.forMapSnapshot(values)); //조건2. 유저 포함된 것만 저장
-            }
-            print("##stream length${listProductChat.length.toString()}");
-            print("##stream length${values.toString()}");
-          });
+                print("stream values else3-1 :" + key.toString());
+                print("stream values else3-2 :" + values['users'].toString());
+                print("stream values else3-3 :" +
+                    values['users'][uId].toString());
+                print("stream values else3-3 :" + values['users'].toString());
+                var obj = values['users'].keys.toString();
+                var obj3 = values['users'].keys.toList()[0];
+                var obj4 = values['users'].keys.toList()[1];
 
-          listProductChat.sort(
-              (b, a) => a.timeStamp.compareTo(b.timeStamp)); //정렬3. 시간 순 정렬 가능.
+                print("stream values else3-4 $obj :" +
+                    values['users'][0].toString());
+                print("stream values else3-5 $obj3 :");
+                print("stream values else3-6 $obj4 :");
 
-          return userExist == true
-              ? ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: listProductChat.length,
-                  itemBuilder: (context, index) {
-                    String productsUserId; //장터 상대방 Id
-                    listProductChat[index].user1 == FirebaseApi.getId()
-                        ? productsUserId = listProductChat[index].user2
-                        : productsUserId = listProductChat[index].user1;
-                    return ListTile(
-                      leading:
-                          ProductChatController().getUserImage(productsUserId),
-                      //leading end
-                      title: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 3),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: <Widget>[
-                            ProductChatController()
-                                .getProductUserNickname(productsUserId),
-                            SizedBox(width: 10, height: 10),
-                            Spacer(),
+                //수정 전 전부 불러와서 처리
+                //유저 포함과정을 쿼리문에 사용했으므로 사용하지 않음
+                // if (values['users'][0] == FirebaseApi.getId() ||
+                //     values['users'][1] == FirebaseApi.getId()) {
+                //   userExist = true;
+                //   print("##stream values else4 : 아이디 확인 ${FirebaseApi.getId()}");
 
-                            Text(listProductChat[index].timeStamp.toString()),
-                            GetRealTime(listProductChat[index].timeStamp),
-                            //GetTime(chatroomData),
-                          ],
-                        ),
-                      ),
-                      subtitle: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          //SizedBox(width: 10, height: 10),
-                          Text(listProductChat[index].recenTtext.toString()),
-                          SizedBox(width: 10, height: 10),
-                          Spacer(),
-                          // readCount
-                          // ProductChatController().getProductChatReadCounts(
-                          //     chatroomData.id, snapshot.data.size),
-                          Spacer(),
-                          //getChatReadCounts(),
-                        ],
-                      ),
-                      trailing: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            Material(
-                              child: ExtendedImage.network(
-                                listProductChat[index].productImage.toString(),
-                                width: 55,
-                                height: 55,
-                                fit: BoxFit.cover,
-                                cache: true,
-                              ),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(6.0)),
-                              clipBehavior: Clip.hardEdge,
+                //   listProductChat
+                //       .add(ProductChat.forMapSnapshot(values)); //조건2. 유저 포함된 것만 저장
+                // }
+                //수정 후 쿼리문 처리
+                userExist = true;
+                listProductChat.add(
+                    ProductChat.forMapSnapshot(values)); //조건2. 유저 포함된 것만 저장
+
+                print(
+                    "##stream values else length${listProductChat.length.toString()}");
+                print("##stream values else length${values.toString()}");
+              });
+
+              listProductChat.sort((b, a) =>
+                  a.timeStamp.compareTo(b.timeStamp)); //정렬3. 시간 순 정렬 가능.
+              print("stream values else : 솔트완료");
+              return userExist == true
+                  ? ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: listProductChat.length,
+                      itemBuilder: (context, index) {
+                        String productsUserId; //장터 상대방 Id
+                        listProductChat[index].user1 == FirebaseApi.getId()
+                            ? productsUserId = listProductChat[index].user2
+                            : productsUserId = listProductChat[index].user1;
+                        return ListTile(
+                          leading: ProductChatController()
+                              .getUserImage(productsUserId),
+                          //leading end
+                          title: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 3),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: <Widget>[
+                                ProductChatController()
+                                    .getProductUserNickname(productsUserId),
+                                SizedBox(width: 10, height: 10),
+                                Spacer(),
+
+                                //Text(listProductChat[index].timeStamp.toString()),
+                                GetRealTime(listProductChat[index].timeStamp),
+                                //GetTime(chatroomData),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                      onTap: () {
-                        RealTimeChatNavigationManager
-                            .navigateToRealTimeChattingRoom(
-                          context,
-                          listProductChat[index].user1,
-                          listProductChat[index].user2,
-                          listProductChat[index].postId,
+                          ),
+                          subtitle: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              //SizedBox(width: 10, height: 10),
+                              Text(
+                                  listProductChat[index].recenTtext.toString()),
+                              SizedBox(width: 10, height: 10),
+                              Spacer(),
+                              // readCount
+                              // ProductChatController().getProductChatReadCounts(
+                              //     chatroomData.id, snapshot.data.size),
+                              Spacer(),
+                              //getChatReadCounts(),
+                            ],
+                          ),
+                          trailing: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Material(
+                                  child: ExtendedImage.network(
+                                    listProductChat[index]
+                                        .productImage
+                                        .toString(),
+                                    width: 55,
+                                    height: 55,
+                                    fit: BoxFit.cover,
+                                    cache: true,
+                                  ),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(6.0)),
+                                  clipBehavior: Clip.hardEdge,
+                                ),
+                              ],
+                            ),
+                          ),
+                          onTap: () {
+                            RealTimeChatNavigationManager
+                                .navigateToRealTimeChattingRoom(
+                              context,
+                              listProductChat[index].user1,
+                              listProductChat[index].user2,
+                              listProductChat[index].postId,
+                            );
+                          },
                         );
                       },
-                    );
-                  },
-                )
-              : Text("생성된 채팅방이 없습니다. . !");
+                    )
+                  : Text("생성된 채팅방이 없습니다. . !");
+            }
         }
       },
     );
@@ -250,7 +260,7 @@ class _RealTimePageState extends State<RealTimePage>
     bool userExist = false;
     return StreamBuilder(
       stream: databasereference
-          .orderByChild("boardtype")
+          //.orderByChild("boardtype")
           //.equalTo("22번")
           .onValue, //조건1.  타임스탬프 기준
 

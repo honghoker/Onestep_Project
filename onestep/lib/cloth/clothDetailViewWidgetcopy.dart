@@ -7,7 +7,7 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
 import 'package:onestep/moor/moor_database.dart';
-import 'package:onestep/notification/Controllers/chatNavigationManager.dart';
+import 'package:onestep/notification/Chatpage/RealTimePage/realtimeNavigationManager.dart';
 import 'package:moor_flutter/moor_flutter.dart' as mf;
 
 import 'animations/favoriteanimation.dart';
@@ -362,20 +362,26 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                 width: 150,
                 child: RaisedButton(
                   onPressed: () {
-                    // FirebaseChatController()
-                    //     .createChatingRoomToFirebaseStorage(
-                    //   false,
-                    //   widget.product.firestoreid,
-                    //   widget.product.title,
-                    //   FirebaseApi.getId(),
-                    //   widget.product.uid,
-                    // );
-                    ChatNavigationManager.navigateToChattingRoom(
+                    // print('#realpro product user uid : ${FirebaseApi.getId()}');
+
+                    // print('#realpro product user uid : ${widget.product.uid}');
+                    // print(
+                    //     '#realpro product post uid: ${widget.product.firestoreid}');
+                    RealTimeChatNavigationManager
+                        .navigateToRealTimeChattingRoom(
                       context,
                       FirebaseApi.getId(),
                       widget.product.uid,
                       widget.product.firestoreid,
                     );
+
+                    // ChatNavigationManager.navigateToChattingRoom(
+                    //   context,
+                    //   FirebaseApi.getId(),
+                    //   widget.product.uid,
+                    //   widget.product.firestoreid,
+                    // );
+
                     //Navigator.of(context).pop();
                   },
                   color: Colors.pink,

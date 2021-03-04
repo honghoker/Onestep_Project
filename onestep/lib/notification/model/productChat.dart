@@ -31,15 +31,15 @@ class ProductChat {
 
   ProductChat.forMapSnapshot(dynamic snapshot) {
     //key = snapshot.key;
-    boardType = snapshot['roominfo']["boardtype"];
-    title = snapshot['roominfo']["title"];
-    postId = snapshot['roominfo']["postId"];
-    productImage = snapshot['roominfo']["productImage"];
-    recenTtext = snapshot['roominfo']["recent_text"];
-    timeStamp = snapshot['roominfo']["timestamp"];
-    users = snapshot['roominfo']["users"].toString();
-    user1 = snapshot['roominfo']["users"][0];
-    user2 = snapshot['roominfo']["users"][1];
+    boardType = snapshot["boardtype"];
+    title = snapshot["title"];
+    postId = snapshot["postId"];
+    productImage = snapshot["productImage"];
+    recenTtext = snapshot["recent_text"];
+    timeStamp = snapshot["timestamp"];
+    users = snapshot["users"].toString();
+    user1 = snapshot['users'].keys.toList()[0];
+    user2 = snapshot['users'].keys.toList()[1];
   }
 
 //채팅방 ID

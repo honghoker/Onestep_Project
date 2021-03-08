@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 Badge chatCountBadge(int readCount) {
   return Badge(
-    toAnimate: true,
+    toAnimate: false,
     borderRadius: BorderRadius.circular(8),
     badgeColor: Colors.pink,
     badgeContent: Text(

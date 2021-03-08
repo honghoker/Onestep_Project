@@ -6,34 +6,39 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:logger/logger.dart';
 import 'package:onestep/api/firebase_api.dart';
-import 'package:onestep/notification/Chatpage/RealTimePage/inRealTimeChattingRoom.dart';
+import 'package:onestep/notification/model/productSendMessage.dart';
 import 'package:onestep/notification/widget/chatBadge.dart';
 import 'package:provider/provider.dart';
 import 'package:onestep/notification/ChatCountProvider/chatCount.dart';
 
 class RealtimeProductChatController {
   final databaseReference = FirebaseDatabase.instance.reference();
+
+  //Product Chat Count
+  DatabaseReference productChatMessageReference = FirebaseDatabase.instance
+      .reference()
+      .child("chattingroom")
+      .child("productchat"); //Chat Message Ref
+  int productChatcount = 0;
+
   var logger = Logger(
     //level: Level.debug,
     printer: PrettyPrinter(),
   );
 
-  Future<void> createProductChatingRoomToRealtimeFirebaseStorage(
-    String productId,
-    String chatId,
-  ) async {
+  Future<void> createProductChatingRoomToRealtimeFirebaseStorage2(
+      ProductSendMessage productSendMessage) async {
     String myUid = FirebaseApi.getId();
     String title;
     String friendUid;
     String productImageUrl;
     // userImageFile,
-    print("##create pro chat");
-    logger.e("누가먼저돌까요2-1 채팅방 생성 메소드 실행");
+    logger.e("리얼타임 채팅 - 챗컨트롤러 0. 내부 진입");
 
     try {
       FirebaseFirestore.instance
           .collection("products")
-          .doc(productId)
+          .doc(productSendMessage.postId)
           .get()
           .then((value) {
         title = value["title"];
@@ -43,30 +48,31 @@ class RealtimeProductChatController {
         () {
           var nowTime = DateTime.now().millisecondsSinceEpoch.toString();
 //Realtime data base
-          logger.e("누가먼저돌까요2-2 스토어 값 read 완료, 채팅방 생성 시작");
+          logger.e("리얼타임 채팅 - 챗컨트롤러 1. 스토어 값 읽기 완료");
           databaseReference
               .child("chattingroom")
               .child("productchat")
-              .child(chatId)
+              .child(productSendMessage.chattingRoomId)
               //.child("roominfo")
               .set({
             "boardtype": "장터게시판",
             "title": title,
-            "postId": productId,
+            "chatId": productSendMessage.chattingRoomId,
+            "postId": productSendMessage.postId,
             "users": {
               myUid: true,
               friendUid: true,
             },
             "productImage": productImageUrl,
-            "recent_text": "채팅방이 생성되었습니다!",
+            "recentText": "채팅방이 생성되었습니다!",
             "timestamp": nowTime,
           }).whenComplete(() {
-            logger.e("누가먼저돌까요2-3 채팅방 생성완료 후 프린트 whencomplete");
+            logger.e("리얼타임 채팅 - 챗컨트롤러 2. 채팅방 생성 완료 후  메세지 전송");
             waitLog();
             databaseReference
                 .child("chattingroom")
                 .child("productchat")
-                .child(chatId)
+                .child(productSendMessage.chattingRoomId)
                 //.child("roominfo")
                 .once()
                 .then((DataSnapshot snapshot) {
@@ -74,7 +80,10 @@ class RealtimeProductChatController {
 
 //                      notificationLogger("i", "누가먼저돌까요2 else 방생성안함");
             });
-          });
+
+            onSendToProductMessage(productSendMessage);
+            logger.e("리얼타임 채팅 - 챗컨트롤러 3. 메세지 전송 완료");
+          }); //채팅방 생성 whenComplete
         },
       );
     } catch (e) {
@@ -87,15 +96,19 @@ class RealtimeProductChatController {
   }
 
   void onSendToProductMessage(
-    String contentMsg,
-    int type,
-    String myId,
-    String friendId,
-    String chattingRoomId,
-    TextEditingController textEditingController,
-    ScrollController listScrollController,
+    ProductSendMessage productSendMessage,
   ) {
-    print("누가먼저돌까요3 메세지넘김 $contentMsg");
+    String contentMsg = productSendMessage.contentMsg;
+    int type = productSendMessage.type;
+    String myId = FirebaseApi.getId();
+    String friendId = productSendMessage.friendId;
+    String chattingRoomId = productSendMessage.chattingRoomId;
+    TextEditingController textEditingController =
+        productSendMessage.textEditingController;
+    ScrollController listScrollController =
+        productSendMessage.listScrollController;
+    logger.e("리얼타임 채팅 - 샌드 메세지 2-1. 메세지 전송 시작");
+
     //type = 0 its text msg
     //type = 1 its imageFile
     //type = 2 its sticker image
@@ -122,11 +135,12 @@ class RealtimeProductChatController {
 
       productChatMessageReference.set({
         "idFrom": myId,
-        "idTo": friendId,
+        "idTo": {friendId: false},
+        //"idTo": friendId,
         "timestamp": messageId,
         "content": contentMsg,
         "type": type,
-        "isRead": false,
+        //"isRead": false,
       }).whenComplete(() {
         switch (type) {
           case 1:
@@ -137,15 +151,18 @@ class RealtimeProductChatController {
             break;
         }
         productChatReference.update({
-          "recent_text": contentMsg,
+          "recentText": contentMsg,
           "timestamp": messageId,
         });
       });
 
       listScrollController.animateTo(0.0,
           duration: Duration(microseconds: 300), curve: Curves.easeOut);
+      logger.e("리얼타임 채팅 - 샌드 메세지 2-2. 메세지 전송 완료");
     } //if
     else {
+      logger.e("리얼타임 채팅 - 샌드 메세지 2-3. 메세지 전송 실패");
+
       Fluttertoast.showToast(msg: 'Empty Message. Can not be send.');
     }
   }
@@ -253,8 +270,69 @@ class RealtimeProductChatController {
     });
   }
 
+  StreamBuilder getRealtimeProductChatReadCounts(String chattingRoomId) {
+    bool onlyOneStream = false;
+    print("#read# on $chattingRoomId");
+    return StreamBuilder(
+        stream: productChatMessageReference
+            .child('$chattingRoomId/message')
+            .orderByChild("idTo/${FirebaseApi.getId()}")
+            .equalTo(false)
+
+            // .orderByChild("isRead")
+            // .equalTo(false)
+            .onValue, //조건1.  타임스탬프 기준
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Container();
+            //CircularProgressIndicator();
+            default:
+              if (snapshot == null ||
+                  !snapshot.hasData ||
+                  snapshot.data.snapshot.value == null) {
+                return Text("없음 " + productChatcount.toString());
+              } else if (snapshot.hasData) {
+                onlyOneStream = false;
+                print("#realpro Strmsg top 값 있음");
+
+                // productChatcount = 0;
+
+                DataSnapshot dataValues = snapshot.data.snapshot;
+                Map<dynamic, dynamic> values = dataValues.value;
+                print("#realpro Strmsg top value : " + values.toString());
+
+                print("#read# start $productChatcount ${values.length}");
+
+                // values.forEach((key, values) {
+                //   productChatcount += 1; //해당되는 채팅마다 채팅개수 증가
+                // });
+                // print("#read# $productChatcount");
+                if (onlyOneStream == false) {
+                  onlyOneStream = true;
+                  print("##only $onlyOneStream");
+                  return chatCountBadge(values.length);
+                }
+                // return listProductMessage.length > 0
+                //     ? ListView.builder(
+                //         padding: EdgeInsets.all(10.0),
+                //         shrinkWrap: true,
+                //         reverse: true,
+                //         controller: listScrollController,
+                //         itemCount: listProductMessage.length,
+                //         itemBuilder: (context, index) {
+                //           return createItem(
+                //               index, listProductMessage[index]);
+                //         },
+                //       )
+                //     : Text("생성된 채팅방이 없습니다. . !");
+              } else
+                return Text("채팅방 카운트 Error");
+          }
+        }); //플렉
+  }
+
   StreamBuilder getProductChatReadCounts(chattingRoomId, int chatListCount) {
-    int inchatListCount = 0;
     return StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('chattingroom')

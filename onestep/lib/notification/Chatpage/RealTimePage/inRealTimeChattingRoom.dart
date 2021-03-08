@@ -362,7 +362,7 @@ class _LastChatState extends State<ChatScreen> {
                 ),
               ),
               FlatButton(
-                onPressed: () => onSendMessage("st", 2),
+                onPressed: () => onSendToProductMessage("st", 2),
                 padding: EdgeInsets.all(0.0),
                 child: Image.asset(
                   "images/st.png",
@@ -372,7 +372,7 @@ class _LastChatState extends State<ChatScreen> {
                 ),
               ),
               FlatButton(
-                onPressed: () => onSendMessage("mimi3", 2),
+                onPressed: () => onSendToProductMessage("mimi3", 2),
                 child: Image.asset(
                   "images/mimi3.gif",
                   width: 50.0,
@@ -483,7 +483,6 @@ class _LastChatState extends State<ChatScreen> {
               stream: productChatMessageReference
                   .child('$chattingRoomId/message')
                   //.orderByChild("message")
-
                   .onValue, //조건1.  타임스탬프 기준
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 switch (snapshot.connectionState) {
@@ -504,17 +503,30 @@ class _LastChatState extends State<ChatScreen> {
                       DataSnapshot dataValues = snapshot.data.snapshot;
                       Map<dynamic, dynamic> values = dataValues.value;
                       print("#realpro Strmsg top value : " + values.toString());
+                      print("#realpro Strmsg keys : ${values.keys.toString()}");
+                      print("#realpro Strmsg top con : " +
+                          values['content'].toString());
 
                       values.forEach((key, values) {
                         listProductMessage
                             .add(ProductMessage.forMapSnapshot(values));
 
                         print(
-                            "#realpro Strmsg message : ${values['message'].toString()}");
+                            "#realpro Strmsg message id : ${values["idTo"].keys.toList()[0]}");
+                        String s = values["idTo/${FirebaseApi.getId()}"];
+                        print(
+                            "#realpro Strmsg message read : ${FirebaseApi.getId()} ${values["idTo/${FirebaseApi.getId()}"]} $s");
+                        print(
+                            "#realpro Strmsg message read : ${FirebaseApi.getId()} ${values["idTo/TLtvLka2sHTPQE3q6U2WPxfgJ8j2"].toString()} ");
+
                         print(
                             "#realpro Strmsg message key : ${key.toString()}");
                         print(
                             "#realpro Strmsg message value : ${values['content']}");
+                        print(
+                            "#realpro Strmsg message idTo : ${values['idTo']}");
+                        print(
+                            "#realpro Strmsg message idTo : ${values['idTo'].values.toList()[0]}");
                       });
 
                       listProductMessage.sort((b, a) =>
@@ -897,20 +909,26 @@ class _LastChatState extends State<ChatScreen> {
                               listScrollController);
                       notificationLogger('i',
                           "값찍깅 ${productSendMessage.textEditingController.text}");
+
+                      notificationLogger("i", "리얼타임 채팅 - if 방없음, 챗컨트롤러 실행");
                       RealtimeProductChatController()
-                          .createProductChatingRoomToRealtimeFirebaseStorage(
-                              postId, chattingRoomId)
-                          .whenComplete(() {
-                        notificationLogger("i",
-                            "누가먼저돌까요1 if $chattingRoomId $existChattingRoom");
-                        existChattingRoom = true;
-                        onSendMessage(textEditingController.text, 0);
-                      });
-                      notificationLogger("i", "누가먼저돌까요1-3 if 방생성함");
+                          .createProductChatingRoomToRealtimeFirebaseStorage2(
+                              productSendMessage);
+                      existChattingRoom = true;
+                      // RealtimeProductChatController()
+                      //     .createProductChatingRoomToRealtimeFirebaseStorage(
+                      //         postId, chattingRoomId)
+                      //     .whenComplete(() {
+                      //   notificationLogger("i",
+                      //       "누가먼저돌까요1 if $chattingRoomId $existChattingRoom");
+                      //   existChattingRoom = true;
+                      //   onSendMessage(textEditingController.text, 0);
+                      // });
+
 //                      print("누가먼저돌까요1-3 if 방생성함");
                     } else {
-                      notificationLogger("i", "누가먼저돌까요2 else 방생성안함");
-                      onSendMessage(textEditingController.text, 0);
+                      notificationLogger("i", "리얼타임 채팅 - else 방있음, 온샌드메세지 실행");
+                      onSendToProductMessage(textEditingController.text, 0);
                     }
                   }),
               color: Colors.white,
@@ -931,8 +949,8 @@ class _LastChatState extends State<ChatScreen> {
     );
   }
 
-  void onSendMessage(String contentMsg, int type) {
-    notificationLogger("i", "누가먼저돌까요3 메세지넘김 $contentMsg");
+  void onSendToProductMessage(String contentMsg, int type) {
+    notificationLogger("i", "리얼타임 채팅 - 온샌드 메세지 $contentMsg");
 
     //type = 0 its text msg
     //type = 1 its imageFile
@@ -960,11 +978,11 @@ class _LastChatState extends State<ChatScreen> {
 
       productChatMessageReference.set({
         "idFrom": myId,
-        "idTo": friendId,
+        "idTo": {friendId: false},
         "timestamp": messageId,
         "content": contentMsg,
         "type": type,
-        "isRead": false,
+        //"isRead": false,
       }).whenComplete(() {
         switch (type) {
           case 1:
@@ -975,7 +993,7 @@ class _LastChatState extends State<ChatScreen> {
             break;
         }
         productChatReference.update({
-          "recent_text": contentMsg,
+          "recentText": contentMsg,
           "timestamp": messageId,
         });
       });
@@ -1014,7 +1032,7 @@ class _LastChatState extends State<ChatScreen> {
       imageUrl = downloadUrl;
       setState(() {
         isLoading = false;
-        onSendMessage(imageUrl, 1);
+        onSendToProductMessage(imageUrl, 1);
       });
     }, onError: (error) {
       setState(() {

@@ -7,9 +7,9 @@ class ProductChat {
   String user1;
   String user2;
   String productImage;
-  String recenTtext;
+  String recentText;
   String timeStamp;
-  //String key;
+  String chatId;
   String users;
   //List<String> users;
 
@@ -22,20 +22,20 @@ class ProductChat {
     this.postId,
     // this.user1,
     // this.user2,
-    //this.key,
+    this.chatId,
     this.productImage,
-    this.recenTtext,
+    this.recentText,
     this.timeStamp,
     this.users,
   });
 
   ProductChat.forMapSnapshot(dynamic snapshot) {
-    //key = snapshot.key;
+    chatId = snapshot["chatId"];
     boardType = snapshot["boardtype"];
     title = snapshot["title"];
     postId = snapshot["postId"];
     productImage = snapshot["productImage"];
-    recenTtext = snapshot["recent_text"];
+    recentText = snapshot["recentText"];
     timeStamp = snapshot["timestamp"];
     users = snapshot["users"].toString();
     user1 = snapshot['users'].keys.toList()[0];
@@ -59,14 +59,14 @@ class ProductChat {
       "title": title,
       "postId": postId,
       "productImage": productImage,
-      "recentText": recenTtext,
+      "recentText": recentText,
       "timestamp": timeStamp,
       "users": [user1, user2],
     };
   }
 
   load() {
-    print(" $boardType, $postId, $productImage, $recenTtext, $timeStamp");
+    print(" $boardType, $postId, $productImage, $recentText, $timeStamp");
   }
 
 //안씀
@@ -81,7 +81,7 @@ class ProductChat {
     // user1 = snapshot.value["users"][0],
     // user2 = snapshot.value["users"][1],
     productImage = snapshot.value["productImage"];
-    recenTtext = snapshot.value["recentText"];
+    recentText = snapshot.value["recentText"];
     timeStamp = snapshot.value["timestamp"];
     users = snapshot.value["users"].toString();
     print("####에드 다넣음");
@@ -98,7 +98,7 @@ class ProductChat {
       // user1: snapshot['users'][0],
       // user2: snapshot['users'][1],
       productImage: snapshot["productImage"],
-      recenTtext: snapshot["recentText"],
+      recentText: snapshot["recentText"],
       timeStamp: snapshot["timestamp"],
       // users: snapshot['users']
       //[0] + snapshot['users'][1],

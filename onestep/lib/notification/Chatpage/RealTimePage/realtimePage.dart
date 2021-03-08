@@ -7,6 +7,7 @@ import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/notification/Chatpage/RealTimePage/realtimeNavigationManager.dart';
+import 'package:onestep/notification/Chatpage/RealTimePage/realtimeProductChatController.dart';
 import 'package:onestep/notification/Controllers/productChatController.dart';
 import 'package:onestep/notification/model/productChat.dart';
 
@@ -98,6 +99,7 @@ class _RealTimePageState extends State<RealTimePage>
 
   Widget _buildChatListListTileStream() {
     bool userExist = false;
+    String chatKey = "";
     return StreamBuilder(
       stream:
           //comments
@@ -123,7 +125,7 @@ class _RealTimePageState extends State<RealTimePage>
               DataSnapshot dataValues = snapshot.data.snapshot;
               Map<dynamic, dynamic> values = dataValues.value;
               print("##걍StrTest" + values.toString());
-
+              chatKey = null;
               values.forEach((key, values) {
                 // print("걍프린트" + values['users'].toString());
                 print("stream values else2 bo :" +
@@ -200,13 +202,20 @@ class _RealTimePageState extends State<RealTimePage>
                             children: <Widget>[
                               //SizedBox(width: 10, height: 10),
                               Text(
-                                  listProductChat[index].recenTtext.toString()),
+                                  listProductChat[index].recentText.toString()),
                               SizedBox(width: 10, height: 10),
                               Spacer(),
                               // readCount
+
                               // ProductChatController().getProductChatReadCounts(
                               //     chatroomData.id, snapshot.data.size),
-                              Spacer(),
+                              //Text(listProductChat[index].chatId.toString()),
+                              //Text(chatKey),
+
+                              RealtimeProductChatController()
+                                  .getRealtimeProductChatReadCounts(
+                                      listProductChat[index].chatId.toString()),
+
                               //getChatReadCounts(),
                             ],
                           ),
@@ -334,7 +343,7 @@ class _RealTimePageState extends State<RealTimePage>
     productChat.boardType = "2번";
     productChat.postId = 'ㅇㄶㅁㄴㅇㅎ';
     productChat.productImage = '경로없음';
-    productChat.recenTtext = '7번 추가';
+    productChat.recentText = '7번 추가';
     productChat.title = '제목';
     productChat.timeStamp = '내일';
     productChat.user1 = '유저11';

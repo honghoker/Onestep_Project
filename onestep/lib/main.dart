@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:onestep/cloth/providers/myProductProvider.dart';
 import 'package:onestep/favorite/providers/favoriteProvider.dart';
 import 'package:onestep/moor/moor_database.dart';
+import 'package:onestep/myinfo/provider/myinfoProvider.dart';
 import 'package:onestep/profile/provider/userProductProvider.dart';
 import 'package:onestep/search/provider/searchProvider.dart';
 
@@ -44,6 +45,7 @@ void main() async {
           value: _auth.currentUser,
         ),
         ChangeNotifierProvider<CheckAuth>(create: (_) => CheckAuth()),
+        ChangeNotifierProvider<MyinfoProvider>.value(value: MyinfoProvider(),),
       ],
       child: MyApp(),
     ),

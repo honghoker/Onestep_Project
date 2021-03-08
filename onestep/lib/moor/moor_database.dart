@@ -85,10 +85,11 @@ class NotificationChksDao extends DatabaseAccessor<AppDatabase>
 }
 
 class PushNoticeChks extends Table {
-  TextColumn get pushChecked => text()();
+  TextColumn get firestoreid => text()();
+  TextColumn get pushChecked => text().withDefault(Constant('false'))();
 
   @override
-  Set<Column> get primaryKey => {pushChecked};
+  Set<Column> get primaryKey => {firestoreid};
 }
 
 @UseDao(tables: [PushNoticeChks])
@@ -100,7 +101,8 @@ class PushNoticeChksDao extends DatabaseAccessor<AppDatabase> with _$PushNoticeC
   Future insertPushNotice(PushNoticeChk pushNoticeChk) => into(pushNoticeChks).insert(pushNoticeChk);
   Future deletePushNotice(PushNoticeChk pushNoticeChk) => delete(pushNoticeChks).delete(pushNoticeChk);
   Future updatePushNotice(PushNoticeChk pushNoticeChk) => update(pushNoticeChks).replace(pushNoticeChk);
-
+  Stream<List<PushNoticeChk>> watchAllPushNoticeChks() => select(pushNoticeChks).watch();
+  
   deleteAllPushNotice() => delete(pushNoticeChks).go();
 }
 

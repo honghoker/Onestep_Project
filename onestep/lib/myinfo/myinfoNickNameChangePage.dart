@@ -1,8 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
+import 'package:onestep/myinfo/provider/myinfoProvider.dart';
+import 'package:provider/provider.dart';
 
 class MyinfoNickNameChangePage extends StatefulWidget {
+  final MyinfoProvider myinfoProvider;
+
+  const MyinfoNickNameChangePage({Key key, this.myinfoProvider})
+      : super(key: key);
   @override
   _MyinfoNickNameChangePageState createState() =>
       _MyinfoNickNameChangePageState();
@@ -10,24 +16,33 @@ class MyinfoNickNameChangePage extends StatefulWidget {
 
 class _MyinfoNickNameChangePageState extends State<MyinfoNickNameChangePage> {
   TextEditingController nicknameController;
-  bool _isNickNameUnderLine = true;
-  bool _isNickNameChecked = false;
+  // bool _isNickNameUnderLine = true;
+  // bool _isNickNameChecked = false;
   String tempNickName = "";
   String resultNickName = "";
 
   @override
   void initState() {
-    _isNickNameChecked = false;
-    _isNickNameUnderLine = true;
+    super.initState();
+    // provider 이렇게도 사용가능(요부분만)
+    // Provider.of<MyinfoProvider>(context, listen: false).setNickNameChecked(false);
 
-    nicknameController = TextEditingController(text: tempNickName);
+    widget.myinfoProvider.setNickNameChecked(false);
+    widget.myinfoProvider.setNickNameUnderLine(true);
+    widget.myinfoProvider.setResultNickName('');
+
+    // _isNickNameChecked = false;
+    // _isNickNameUnderLine = true;
+
+    nicknameController =
+        TextEditingController(text: widget.myinfoProvider.hasResultNickName);
     nicknameController.selection = TextSelection.fromPosition(
         TextPosition(offset: nicknameController.text.length));
-    super.initState();
   }
 
   authEmailNickNameCheck(String text) async {
-    _isNickNameChecked = false;
+    widget.myinfoProvider.setNickNameChecked(false);
+    // _isNickNameChecked = false;
     QuerySnapshot ref = await FirebaseFirestore.instance
         .collection('users')
         .where("nickname", isEqualTo: text)
@@ -35,13 +50,14 @@ class _MyinfoNickNameChangePageState extends State<MyinfoNickNameChangePage> {
 
     List<QueryDocumentSnapshot> docRef = ref.docs;
 
-    print("docRef.isEmpty 1 = ${docRef.isNotEmpty}");
-    setState(() {
-      _isNickNameChecked = docRef.isEmpty;
-      _isNickNameUnderLine = docRef.isEmpty;
-      resultNickName = tempNickName;
-      print("docRef.isEmpty 2 = ${docRef.isNotEmpty}");
-    });
+    widget.myinfoProvider.authEmailNickNameCheck(docRef.isEmpty,tempNickName);
+    
+    // setState(() {
+    //   _isNickNameChecked = docRef.isEmpty;
+    //   _isNickNameUnderLine = docRef.isEmpty;
+    //   resultNickName = tempNickName;
+    //   print("docRef.isEmpty 2 = ${docRef.isNotEmpty}");
+    // });
   }
 
   void flutterDialog() {
@@ -117,21 +133,24 @@ class _MyinfoNickNameChangePageState extends State<MyinfoNickNameChangePage> {
                   controller: nicknameController,
                   onChanged: (text) {
                     tempNickName = text;
+                    // widget.myinfoProvider.setResultNickName(text);
                   },
                   decoration: InputDecoration(
                     counterText: "",
                     hintText: "닉네임",
                     enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
-                            color: _isNickNameUnderLine == true
+                            color: widget.myinfoProvider.hasNickNameUnderLine ==
+                                    true
                                 ? Colors.grey
                                 : Colors.red)),
                     focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
-                            color: _isNickNameUnderLine == true
+                            color: widget.myinfoProvider.hasNickNameUnderLine ==
+                                    true
                                 ? Colors.grey
                                 : Colors.red)),
-                    suffix: _isNickNameChecked
+                    suffix: widget.myinfoProvider.hasNickNameChecked
                         ? GestureDetector(
                             child: Text("확인완료"),
                             onTap: () {
@@ -156,7 +175,9 @@ class _MyinfoNickNameChangePageState extends State<MyinfoNickNameChangePage> {
                   style: TextStyle(color: Colors.red),
                 ),
               ),
-              offstage: _isNickNameUnderLine == true ? true : false,
+              offstage: widget.myinfoProvider.hasNickNameUnderLine == true
+                  ? true
+                  : false,
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -166,7 +187,7 @@ class _MyinfoNickNameChangePageState extends State<MyinfoNickNameChangePage> {
                   color: Colors.white70,
                   child: Text("변경하기"),
                   onPressed: () {
-                    _isNickNameChecked == false
+                    widget.myinfoProvider.hasNickNameChecked == false
                         ? flutterDialog()
                         :
                         // FirebaseFirestore.instance

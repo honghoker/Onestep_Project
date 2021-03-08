@@ -1,17 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:onestep/myinfo/myinfoNickNameChangePage.dart';
+import 'package:onestep/myinfo/provider/myinfoProvider.dart';
 import 'package:provider/provider.dart';
 
 class MyinfoSettingsPage extends StatefulWidget {
+  final MyinfoProvider myinfoProvider;
+  final String initSwitchedValue;
+
+  const MyinfoSettingsPage(
+      {Key key, this.myinfoProvider, this.initSwitchedValue})
+      : super(key: key);
+
   @override
   _MyinfoSettingsPageState createState() => _MyinfoSettingsPageState();
 }
 
 class _MyinfoSettingsPageState extends State<MyinfoSettingsPage> {
+  // MyinfoProvider _myinfoProvider;
   // 지금은 false로 해놨는데 나중에 내부 db에 푸쉬 알림 들어가야할듯
-  bool isSwitched = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.initSwitchedValue == "true"
+        ? widget.myinfoProvider.setSwitchedValue(true)
+        : widget.myinfoProvider.setSwitchedValue(false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +59,9 @@ class _MyinfoSettingsPageState extends State<MyinfoSettingsPage> {
                   ),
                 ),
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    print("widget.myinfoProvider.hasSwitched = ${widget.myinfoProvider.hasSwitched}");
+                  },
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
                     child: Row(
@@ -55,17 +74,21 @@ class _MyinfoSettingsPageState extends State<MyinfoSettingsPage> {
                           ),
                         ),
                         Switch(
-                          value: isSwitched,
+                          value: widget.myinfoProvider.hasSwitched,
                           onChanged: (value) {
-                            // 내부 db 작업 해야함 
-                            print("db value = ${snapshot.data}");
-                            // p.insertPushNotice(PushNoticeChk(
-                            //   pushChecked: "true",
-                            // ));
-                            setState(() {
-                              isSwitched = value;
-                              print(isSwitched);
-                            });
+                            print(
+                                "db value 1 = ${snapshot.data.first.pushChecked}");
+                            print("value = $value");
+
+                            value == false
+                                ? p.updatePushNotice(PushNoticeChk(
+                                    pushChecked: 'false',
+                                    firestoreid: FirebaseApi.getId()))
+                                : p.updatePushNotice(PushNoticeChk(
+                                    pushChecked: 'true',
+                                    firestoreid: FirebaseApi.getId()));
+
+                            widget.myinfoProvider.changedSwitchValue(value);
                           },
                           activeTrackColor: Colors.lightGreenAccent,
                           activeColor: Colors.green,
@@ -93,7 +116,18 @@ class _MyinfoSettingsPageState extends State<MyinfoSettingsPage> {
                 InkWell(
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => MyinfoNickNameChangePage()));
+                        builder: (context) => Consumer<MyinfoProvider>(
+                              builder: (context, myinfoProvider, _) =>
+                                  MyinfoNickNameChangePage(
+                                myinfoProvider: myinfoProvider,
+                              ),
+                            )));
+                    // Navigator.of(context).push(
+                    //   MaterialPageRoute(
+                    //       builder: (context) => MyinfoNickNameChangePage(
+                    //             myinfoProvider: widget.myinfoProvider,
+                    //           )),
+                    // );
                   },
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
@@ -109,9 +143,29 @@ class _MyinfoSettingsPageState extends State<MyinfoSettingsPage> {
                         IconButton(
                           icon: Icon(Icons.keyboard_arrow_right),
                           onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) =>
-                                    MyinfoNickNameChangePage()));
+                            print(
+                                "snapshot1 = ${snapshot.data.first.pushChecked}");
+                            // // Navigator.of(context).push(MaterialPageRoute(
+                            // //           builder: (context) =>
+                            // //               Consumer<MyinfoProvider>(
+                            // //                 builder:
+                            // //                     (context, myinfoProvider, _) =>
+                            // //                         MyinfoNickNameChangePage(
+                            // //                   myinfoProvider: myinfoProvider,
+                            // //                 ),
+                            // //               )));
+
+                            // Navigator.of(context).push(
+                            //   MaterialPageRoute(
+                            //       builder: (context) =>
+                            //           MyinfoNickNameChangePage(
+                            //             myinfoProvider: widget.myinfoProvider,
+                            //           )),
+                            // );
+
+                            // // Navigator.of(context).push(MaterialPageRoute(
+                            // //     builder: (context) =>
+                            // //         MyinfoNickNameChangePage()));
                           },
                         )
                       ],

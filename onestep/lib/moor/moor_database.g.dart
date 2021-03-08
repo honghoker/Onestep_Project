@@ -520,14 +520,17 @@ class $NotificationChksTable extends NotificationChks
 }
 
 class PushNoticeChk extends DataClass implements Insertable<PushNoticeChk> {
+  final String firestoreid;
   final String pushChecked;
-  PushNoticeChk({@required this.pushChecked});
+  PushNoticeChk({@required this.firestoreid, @required this.pushChecked});
   factory PushNoticeChk.fromData(
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final stringType = db.typeSystem.forDartType<String>();
     return PushNoticeChk(
+      firestoreid: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}firestoreid']),
       pushChecked: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}push_checked']),
     );
@@ -535,6 +538,9 @@ class PushNoticeChk extends DataClass implements Insertable<PushNoticeChk> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || firestoreid != null) {
+      map['firestoreid'] = Variable<String>(firestoreid);
+    }
     if (!nullToAbsent || pushChecked != null) {
       map['push_checked'] = Variable<String>(pushChecked);
     }
@@ -543,6 +549,9 @@ class PushNoticeChk extends DataClass implements Insertable<PushNoticeChk> {
 
   PushNoticeChksCompanion toCompanion(bool nullToAbsent) {
     return PushNoticeChksCompanion(
+      firestoreid: firestoreid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(firestoreid),
       pushChecked: pushChecked == null && nullToAbsent
           ? const Value.absent()
           : Value(pushChecked),
@@ -553,6 +562,7 @@ class PushNoticeChk extends DataClass implements Insertable<PushNoticeChk> {
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return PushNoticeChk(
+      firestoreid: serializer.fromJson<String>(json['firestoreid']),
       pushChecked: serializer.fromJson<String>(json['pushChecked']),
     );
   }
@@ -560,47 +570,60 @@ class PushNoticeChk extends DataClass implements Insertable<PushNoticeChk> {
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'firestoreid': serializer.toJson<String>(firestoreid),
       'pushChecked': serializer.toJson<String>(pushChecked),
     };
   }
 
-  PushNoticeChk copyWith({String pushChecked}) => PushNoticeChk(
+  PushNoticeChk copyWith({String firestoreid, String pushChecked}) =>
+      PushNoticeChk(
+        firestoreid: firestoreid ?? this.firestoreid,
         pushChecked: pushChecked ?? this.pushChecked,
       );
   @override
   String toString() {
     return (StringBuffer('PushNoticeChk(')
+          ..write('firestoreid: $firestoreid, ')
           ..write('pushChecked: $pushChecked')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf(pushChecked.hashCode);
+  int get hashCode => $mrjf($mrjc(firestoreid.hashCode, pushChecked.hashCode));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
-      (other is PushNoticeChk && other.pushChecked == this.pushChecked);
+      (other is PushNoticeChk &&
+          other.firestoreid == this.firestoreid &&
+          other.pushChecked == this.pushChecked);
 }
 
 class PushNoticeChksCompanion extends UpdateCompanion<PushNoticeChk> {
+  final Value<String> firestoreid;
   final Value<String> pushChecked;
   const PushNoticeChksCompanion({
+    this.firestoreid = const Value.absent(),
     this.pushChecked = const Value.absent(),
   });
   PushNoticeChksCompanion.insert({
-    @required String pushChecked,
-  }) : pushChecked = Value(pushChecked);
+    @required String firestoreid,
+    this.pushChecked = const Value.absent(),
+  }) : firestoreid = Value(firestoreid);
   static Insertable<PushNoticeChk> custom({
+    Expression<String> firestoreid,
     Expression<String> pushChecked,
   }) {
     return RawValuesInsertable({
+      if (firestoreid != null) 'firestoreid': firestoreid,
       if (pushChecked != null) 'push_checked': pushChecked,
     });
   }
 
-  PushNoticeChksCompanion copyWith({Value<String> pushChecked}) {
+  PushNoticeChksCompanion copyWith(
+      {Value<String> firestoreid, Value<String> pushChecked}) {
     return PushNoticeChksCompanion(
+      firestoreid: firestoreid ?? this.firestoreid,
       pushChecked: pushChecked ?? this.pushChecked,
     );
   }
@@ -608,6 +631,9 @@ class PushNoticeChksCompanion extends UpdateCompanion<PushNoticeChk> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (firestoreid.present) {
+      map['firestoreid'] = Variable<String>(firestoreid.value);
+    }
     if (pushChecked.present) {
       map['push_checked'] = Variable<String>(pushChecked.value);
     }
@@ -617,6 +643,7 @@ class PushNoticeChksCompanion extends UpdateCompanion<PushNoticeChk> {
   @override
   String toString() {
     return (StringBuffer('PushNoticeChksCompanion(')
+          ..write('firestoreid: $firestoreid, ')
           ..write('pushChecked: $pushChecked')
           ..write(')'))
         .toString();
@@ -628,6 +655,20 @@ class $PushNoticeChksTable extends PushNoticeChks
   final GeneratedDatabase _db;
   final String _alias;
   $PushNoticeChksTable(this._db, [this._alias]);
+  final VerificationMeta _firestoreidMeta =
+      const VerificationMeta('firestoreid');
+  GeneratedTextColumn _firestoreid;
+  @override
+  GeneratedTextColumn get firestoreid =>
+      _firestoreid ??= _constructFirestoreid();
+  GeneratedTextColumn _constructFirestoreid() {
+    return GeneratedTextColumn(
+      'firestoreid',
+      $tableName,
+      false,
+    );
+  }
+
   final VerificationMeta _pushCheckedMeta =
       const VerificationMeta('pushChecked');
   GeneratedTextColumn _pushChecked;
@@ -635,15 +676,12 @@ class $PushNoticeChksTable extends PushNoticeChks
   GeneratedTextColumn get pushChecked =>
       _pushChecked ??= _constructPushChecked();
   GeneratedTextColumn _constructPushChecked() {
-    return GeneratedTextColumn(
-      'push_checked',
-      $tableName,
-      false,
-    );
+    return GeneratedTextColumn('push_checked', $tableName, false,
+        defaultValue: Constant('false'));
   }
 
   @override
-  List<GeneratedColumn> get $columns => [pushChecked];
+  List<GeneratedColumn> get $columns => [firestoreid, pushChecked];
   @override
   $PushNoticeChksTable get asDslTable => this;
   @override
@@ -655,19 +693,25 @@ class $PushNoticeChksTable extends PushNoticeChks
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('firestoreid')) {
+      context.handle(
+          _firestoreidMeta,
+          firestoreid.isAcceptableOrUnknown(
+              data['firestoreid'], _firestoreidMeta));
+    } else if (isInserting) {
+      context.missing(_firestoreidMeta);
+    }
     if (data.containsKey('push_checked')) {
       context.handle(
           _pushCheckedMeta,
           pushChecked.isAcceptableOrUnknown(
               data['push_checked'], _pushCheckedMeta));
-    } else if (isInserting) {
-      context.missing(_pushCheckedMeta);
     }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {pushChecked};
+  Set<GeneratedColumn> get $primaryKey => {firestoreid};
   @override
   PushNoticeChk map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;

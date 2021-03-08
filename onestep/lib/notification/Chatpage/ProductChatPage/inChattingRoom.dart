@@ -243,9 +243,6 @@ class _LastChatState extends State<ChatScreen> {
         children: <Widget>[
           Column(
             children: <Widget>[
-              //create List of Message
-              //_chattingbuildList(),
-
               createProductInfomation(),
               createListMessages(),
               (isDisplaySticker ? createStickers() : Container()),
@@ -819,7 +816,6 @@ class _LastChatState extends State<ChatScreen> {
                               postId, chattingRoomId);
                       existChattingRoom = true;
                     }
-
                     onSendMessage(textEditingController.text, 0);
                   }),
               color: Colors.white,
@@ -846,14 +842,14 @@ class _LastChatState extends State<ChatScreen> {
     //type = 2 its sticker image
     if (contentMsg != "") {
       textEditingController.clear();
-
+      String messageId = DateTime.now().millisecondsSinceEpoch.toString();
       //기존
 
       var docRef = FirebaseFirestore.instance
           .collection("chattingroom")
           .doc(chattingRoomId) //채팅룸 입력
           .collection("message")
-          .doc(DateTime.now().millisecondsSinceEpoch.toString());
+          .doc(messageId);
 
       var docRef2 = FirebaseFirestore.instance
           .collection("chattingroom")
@@ -863,7 +859,7 @@ class _LastChatState extends State<ChatScreen> {
         transaction.set(docRef, {
           "idFrom": myId,
           "idTo": friendId,
-          "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+          "timestamp": messageId,
           "content": contentMsg,
           "type": type,
           "isRead": false,
@@ -893,20 +889,18 @@ class _LastChatState extends State<ChatScreen> {
           .child("productchat")
           .child(chattingRoomId)
           .child("message")
-          .child(DateTime.now().millisecondsSinceEpoch.toString());
+          .child(messageId);
 
       DatabaseReference productChatReference = FirebaseDatabase.instance
-              .reference()
-              .child("chattingroom")
-              .child("productchat")
-              .child(chattingRoomId)
-          //.child("roominfo")
-          ;
+          .reference()
+          .child("chattingroom")
+          .child("productchat")
+          .child(chattingRoomId);
 
       productChatMessageReference.set({
         "idFrom": myId,
         "idTo": friendId,
-        "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+        "timestamp": messageId,
         "content": contentMsg,
         "type": type,
         "isRead": false,
@@ -921,7 +915,7 @@ class _LastChatState extends State<ChatScreen> {
         }
         productChatReference.update({
           "recent_text": contentMsg,
-          "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+          "timestamp": messageId,
         });
       });
 

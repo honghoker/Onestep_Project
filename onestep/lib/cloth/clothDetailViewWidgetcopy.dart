@@ -367,6 +367,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                     // print('#realpro product user uid : ${widget.product.uid}');
                     // print(
                     //     '#realpro product post uid: ${widget.product.firestoreid}');
+
                     RealTimeChatNavigationManager
                         .navigateToRealTimeChattingRoom(
                       context,

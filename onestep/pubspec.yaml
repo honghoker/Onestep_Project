@@ -40,6 +40,8 @@ dependencies:
   http: ^0.12.2
   auto_size_text: ^2.1.0
   firebase_database: ^4.4.0
+  logger: ^0.9.4
+
   ##### HEP #####
   moor: ^3.4.0
   moor_flutter: ^3.1.0         # moor database

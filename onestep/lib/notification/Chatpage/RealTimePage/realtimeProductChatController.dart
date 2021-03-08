@@ -4,15 +4,21 @@ import 'package:extended_image/extended_image.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:logger/logger.dart';
 import 'package:onestep/api/firebase_api.dart';
+import 'package:onestep/notification/Chatpage/RealTimePage/inRealTimeChattingRoom.dart';
 import 'package:onestep/notification/widget/chatBadge.dart';
 import 'package:provider/provider.dart';
 import 'package:onestep/notification/ChatCountProvider/chatCount.dart';
 
-class ProductChatController {
+class RealtimeProductChatController {
   final databaseReference = FirebaseDatabase.instance.reference();
+  var logger = Logger(
+    //level: Level.debug,
+    printer: PrettyPrinter(),
+  );
 
-  Future<void> createProductChatingRoomToFirebaseStorage(
+  Future<void> createProductChatingRoomToRealtimeFirebaseStorage(
     String productId,
     String chatId,
   ) async {
@@ -22,6 +28,8 @@ class ProductChatController {
     String productImageUrl;
     // userImageFile,
     print("##create pro chat");
+    logger.e("누가먼저돌까요2-1 채팅방 생성 메소드 실행");
+
     try {
       FirebaseFirestore.instance
           .collection("products")
@@ -34,26 +42,8 @@ class ProductChatController {
       }).whenComplete(
         () {
           var nowTime = DateTime.now().millisecondsSinceEpoch.toString();
-          FirebaseFirestore.instance
-              .collection("chattingroom")
-              .doc(chatId)
-              .set({
-            "boardtype": "장터게시판",
-            "title": title,
-            "postId": productId,
-            "users": [myUid, friendUid],
-            "productImage": productImageUrl,
-            "recent_text": "채팅방이 생성되었습니다!",
-            "timestamp": nowTime,
-          }).whenComplete(() {
-            Fluttertoast.showToast(msg: '채팅방을 생성했습니다.');
-            print("##저장완료");
-          }).catchError((onError) {
-            Fluttertoast.showToast(msg: '채팅방 생성에 실패했습니다.');
-
-            print(onError);
-          });
 //Realtime data base
+          logger.e("누가먼저돌까요2-2 스토어 값 read 완료, 채팅방 생성 시작");
           databaseReference
               .child("chattingroom")
               .child("productchat")
@@ -71,20 +61,92 @@ class ProductChatController {
             "recent_text": "채팅방이 생성되었습니다!",
             "timestamp": nowTime,
           }).whenComplete(() {
+            logger.e("누가먼저돌까요2-3 채팅방 생성완료 후 프린트 whencomplete");
+            waitLog();
             databaseReference
                 .child("chattingroom")
                 .child("productchat")
                 .child(chatId)
                 //.child("roominfo")
                 .once()
-                .then((DataSnapshot snapshot) =>
-                    {print('Data : ${snapshot.value}')});
-            print("누가먼저돌까요1-2 방 생성완료");
+                .then((DataSnapshot snapshot) {
+              print('Data : ${snapshot.value}');
+
+//                      notificationLogger("i", "누가먼저돌까요2 else 방생성안함");
+            });
           });
         },
       );
     } catch (e) {
       print(e.message);
+    }
+  }
+
+  void waitLog() {
+    logger.v("누가먼저돌까요2-4 채팅방 생성완료 후 함수실행");
+  }
+
+  void onSendToProductMessage(
+    String contentMsg,
+    int type,
+    String myId,
+    String friendId,
+    String chattingRoomId,
+    TextEditingController textEditingController,
+    ScrollController listScrollController,
+  ) {
+    print("누가먼저돌까요3 메세지넘김 $contentMsg");
+    //type = 0 its text msg
+    //type = 1 its imageFile
+    //type = 2 its sticker image
+    if (contentMsg != "") {
+      print("누가먼저돌까요3 메세지 낫 널 $contentMsg");
+
+      textEditingController.clear();
+      String messageId = DateTime.now().millisecondsSinceEpoch.toString();
+
+//RealTime
+      DatabaseReference productChatMessageReference = FirebaseDatabase.instance
+          .reference()
+          .child("chattingroom")
+          .child("productchat")
+          .child(chattingRoomId)
+          .child("message")
+          .child(messageId);
+
+      DatabaseReference productChatReference = FirebaseDatabase.instance
+          .reference()
+          .child("chattingroom")
+          .child("productchat")
+          .child(chattingRoomId);
+
+      productChatMessageReference.set({
+        "idFrom": myId,
+        "idTo": friendId,
+        "timestamp": messageId,
+        "content": contentMsg,
+        "type": type,
+        "isRead": false,
+      }).whenComplete(() {
+        switch (type) {
+          case 1:
+            contentMsg = "사진을 보냈습니다.";
+            break;
+          case 2:
+            contentMsg = "이모티콘을 보냈습니다.";
+            break;
+        }
+        productChatReference.update({
+          "recent_text": contentMsg,
+          "timestamp": messageId,
+        });
+      });
+
+      listScrollController.animateTo(0.0,
+          duration: Duration(microseconds: 300), curve: Curves.easeOut);
+    } //if
+    else {
+      Fluttertoast.showToast(msg: 'Empty Message. Can not be send.');
     }
   }
 

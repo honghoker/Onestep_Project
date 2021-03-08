@@ -19,6 +19,8 @@ class RealTimePage extends StatefulWidget {
 
 class _RealTimePageState extends State<RealTimePage>
     with AutomaticKeepAliveClientMixin<RealTimePage> {
+  _RealTimePageState();
+
   ProductChat productChat;
 
   List<ProductChat> listProductChat = List();
@@ -52,23 +54,25 @@ class _RealTimePageState extends State<RealTimePage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text('채팅&알림'),
-        actions: [
-          _buildsave(context),
-          _buildload(context),
-          _buildjson(context),
-          _buildupdate(context),
-        ],
-      ),
-      body: Column(
-        children: [
+      // appBar: AppBar(
+      //   title: Text('채팅&알림'),
+      //   actions: [
+      //     _buildsave(context),
+      //     _buildload(context),
+      //     _buildjson(context),
+      //     _buildupdate(context),
+      //   ],
+      // ),
+      body:
+          // Column(
+          //   children: [
           //_buildOnlyStream(),
           //_buildChatListStream(),
           _buildChatListListTileStream(),
-        ],
-      ),
+      //  ],
+      // ),
     );
   }
 

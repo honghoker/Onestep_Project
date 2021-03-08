@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
-import 'package:onestep/notification/chatpage/inBoardChattingRoom.dart';
-import 'package:onestep/notification/chatpage/inChattingRoom.dart';
+import 'package:onestep/notification/Chatpage/BoardChatPage/inBoardChattingRoom.dart';
+import 'package:onestep/notification/Chatpage/ProductChatPage/inChattingRoom.dart';
 
-class NotificationManager {
+class ChatNavigationManager {
   static void navigateToChattingRoom(
       var context, String myUid, String friendUid, String postId) {
     print("## 노티 $myUid $friendUid $postId");

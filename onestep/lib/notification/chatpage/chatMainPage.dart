@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:onestep/notification/chatpage/productChatPage.dart';
+import 'package:onestep/notification/ChatCountProvider/chatCount.dart';
+import 'package:onestep/notification/Chatpage/ProductChatPage/productChatPage.dart';
+import 'package:onestep/notification/Controllers/productChatController.dart';
+import 'package:onestep/notification/Controllers/boardChatController.dart';
+import 'package:provider/provider.dart';
 
-import 'boardChatPage.dart';
+import 'package:badges/badges.dart';
+
+import 'RealTimePage/realtimePage.dart';
 
 class ChatMainPage extends StatefulWidget {
   static const String routeName = '/material/scrollable-tabs';
@@ -41,10 +47,21 @@ class ChatMainPageState extends State<ChatMainPage>
 
   @override
   Widget build(BuildContext context) {
-    final Color iconColor = Theme.of(context).accentColor;
+    final chatCount = Provider.of<ChatCount>(context); //카운트 프로바이더
+    print("chat main");
+    chatCount.initChatCount();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scrollable tabs'),
+        backgroundColor: Color.fromRGBO(150, 150, 150, 1),
+        title: Text(
+          'Scrollable tabs ' +
+              "chat main" +
+              chatCount.getProductChatCount().toString() +
+              chatCount.getBoardChatCount().toString(),
+          style: TextStyle(
+            color: Color.fromRGBO(0, 0, 0, 1),
+          ),
+        ),
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(80),
 
@@ -55,14 +72,36 @@ class ChatMainPageState extends State<ChatMainPage>
               indicator: UnderlineTabIndicator(
                   borderSide: BorderSide(
                     width: 4,
-                    color: Color(0xFF000000),
+                    color: Color.fromRGBO(248, 247, 77, 1),
                   ),
                   insets: EdgeInsets.only(left: 0, right: 8, bottom: 4)),
               controller: _controller,
               isScrollable: true,
               labelPadding: EdgeInsets.only(left: 8, right: 0),
               tabs: _allPages.map<Tab>((_Page page) {
-                return Tab(text: page.text, icon: Icon(page.icon));
+                print("####### ${page.text}");
+                return Tab(
+                  text: page.text,
+                  icon: page.text == "장터게시판"
+                      ? Badge(
+                          toAnimate: true,
+                          borderRadius: BorderRadius.circular(80),
+                          badgeColor: Colors.red,
+                          badgeContent:
+                              ProductChatController().getProductCountText(),
+                          child: Icon(page.icon,
+                              color: Color.fromRGBO(248, 247, 77, 1)),
+                        )
+                      : Badge(
+                          toAnimate: true,
+                          borderRadius: BorderRadius.circular(80),
+                          badgeColor: Colors.red,
+                          badgeContent:
+                              BoardChatController().getBoardCountText(),
+                          child: Icon(page.icon,
+                              color: Color.fromRGBO(169, 215, 254, 1)),
+                        ),
+                );
               }).toList(),
             ),
           ),
@@ -79,7 +118,10 @@ class ChatMainPageState extends State<ChatMainPage>
                 return Container(
                     child: (position == 0 && page.text == '장터게시판')
                         ? ProductChatPage()
-                        : BoardChatPage());
+                        :
+                        //BoardChatPage()
+                        //Text("ㄱㄷ")
+                        RealTimePage());
               },
               itemCount: 1,
               // onPageChanged: (page) {

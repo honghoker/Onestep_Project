@@ -7,11 +7,9 @@ import 'package:intl/intl.dart';
 import 'package:onestep/api/favorite_api.dart';
 import 'package:onestep/cloth/clothModifyWidget.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
-import 'package:onestep/favorite/animations/favoriteanimation.dart';
-import 'package:onestep/notification/Controllers/notificationManager.dart';
-import 'package:onestep/profile/profileWidget.dart';
-import 'package:onestep/profile/provider/userProductProvider.dart';
-import 'package:onestep/profile/userProductWidget.dart';
+import 'package:onestep/moor/moor_database.dart';
+import 'package:onestep/notification/Chatpage/RealTimePage/realtimeNavigationManager.dart';
+import 'package:moor_flutter/moor_flutter.dart' as mf;
 
 import 'package:provider/provider.dart';
 import 'package:onestep/api/firebase_api.dart';
@@ -597,7 +595,41 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
               ),
             ),
             Expanded(child: Container()),
-            if (this._product.uid != FirebaseApi.getId()) bottomChatWidget(),
+            Padding(
+              padding: EdgeInsets.only(right: 10.0),
+              child: SizedBox(
+                width: 150,
+                child: RaisedButton(
+                  onPressed: () {
+                    // print('#realpro product user uid : ${FirebaseApi.getId()}');
+
+                    // print('#realpro product user uid : ${widget.product.uid}');
+                    // print(
+                    //     '#realpro product post uid: ${widget.product.firestoreid}');
+
+                    RealTimeChatNavigationManager
+                        .navigateToRealTimeChattingRoom(
+                      context,
+                      FirebaseApi.getId(),
+                      widget.product.uid,
+                      widget.product.firestoreid,
+                    );
+
+                    // ChatNavigationManager.navigateToChattingRoom(
+                    //   context,
+                    //   FirebaseApi.getId(),
+                    //   widget.product.uid,
+                    //   widget.product.firestoreid,
+                    // );
+
+                    //Navigator.of(context).pop();
+                  },
+                  color: Colors.pink,
+                  textColor: Colors.white,
+                  child: Text('채팅'),
+                ),
+              ),
+            )
           ],
         ),
       ),

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
-import 'package:onestep/notification/Controllers/notificationManager.dart';
+import 'package:onestep/notification/Controllers/chatNavigationManager.dart';
 import 'package:onestep/notification/time/chat_time.dart';
 
 class BoardChatPage extends StatefulWidget {
@@ -11,11 +11,13 @@ class BoardChatPage extends StatefulWidget {
   _BoardChatPageState createState() => _BoardChatPageState();
 }
 
-class _BoardChatPageState extends State<BoardChatPage> {
+class _BoardChatPageState extends State<BoardChatPage>
+    with AutomaticKeepAliveClientMixin<BoardChatPage> {
   _BoardChatPageState();
 
   @override
   build(BuildContext context) {
+    super.build(context);
     return Scaffold(
         body: _buildList(),
         //body: ScrollableTabsDemo(),
@@ -26,7 +28,7 @@ class _BoardChatPageState extends State<BoardChatPage> {
     Stream boardChatListStream = FirebaseFirestore.instance
         .collection('boardChattingroom')
 //        .where("read_count", isEqualTo: 2)
-        .where("cusers", arrayContains: FirebaseApi.getId())
+        .where("users", arrayContains: FirebaseApi.getId())
         .orderBy('timestamp', descending: true)
         //.limit(2)
         .snapshots();
@@ -72,14 +74,14 @@ class _BoardChatPageState extends State<BoardChatPage> {
                             Text(chatroomData.data()["recent_text"]),
                             SizedBox(width: 10, height: 10),
                             Spacer(),
-                            Text("1"),
+                            getBoardChatReadCounts(chatroomData.id),
                           ],
                         ),
                         onTap: () {
-                          NotificationManager.navigateToBoardChattingRoom(
+                          ChatNavigationManager.navigateToBoardChattingRoom(
                             context,
-                            chatroomData["cusers"][0],
-                            chatroomData["cusers"][1],
+                            chatroomData["users"][0],
+                            chatroomData["users"][1],
                             "Board_Free",
                             chatroomData["postId"],
                           );
@@ -96,4 +98,28 @@ class _BoardChatPageState extends State<BoardChatPage> {
           }
         });
   }
+
+  StreamBuilder getBoardChatReadCounts(String chattingRoomId) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('boardChattingroom')
+          .doc(chattingRoomId)
+          .collection('message')
+          .where("idTo", isEqualTo: FirebaseApi.getId())
+          .where("isRead", isEqualTo: false)
+          .snapshots(),
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasData) {
+          snapshot.data.toString();
+          print("####" + snapshot.data.size.toString());
+        } else
+          return Text("사이즈 없음");
+
+        return Text(snapshot.data.size.toString());
+      },
+    );
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 }

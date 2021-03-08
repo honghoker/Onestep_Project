@@ -10,6 +10,8 @@ class LoginController {
       FirebaseFirestore.instance.collection("users").doc(userUid).set({
         "id": userUid,
         "nickname": userName,
+        "boardChatCount": 0,
+        "productChatCount": 0,
         "photoUrl": "",
         "authUniversity": "",
         "userLevel": 1, // 0: BAN / 1: GUEST / 2:AUTHENTIFICATION USER

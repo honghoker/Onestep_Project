@@ -1,11 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
-import 'package:onestep/notification/Controllers/firebaseChatController.dart';
-import 'package:onestep/notification/Controllers/notificationManager.dart';
+import 'package:onestep/notification/Controllers/chatNavigationManager.dart';
+import 'package:onestep/notification/time/chat_time.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'chatpage/productChatPage.dart';
-import 'time/chat_time.dart';
 
 //채팅 1페이지 일 때 원본
 class NotificationMain extends StatefulWidget {
@@ -17,7 +15,7 @@ class NotificationMain extends StatefulWidget {
 
 class _NotificationMainState extends State<NotificationMain> {
   SharedPreferences preferences;
-  _NotificationMainState({Key key});
+  _NotificationMainState();
 
   final _firestore = FirebaseFirestore.instance;
 
@@ -31,8 +29,8 @@ class _NotificationMainState extends State<NotificationMain> {
             _buildChattingRoom(context),
           ],
         ),
-        //body: _buildList(),
-        body: ProductChatPage(),
+        body: _buildList(),
+        //body: ProductChatPage(),
         backgroundColor: Colors.white);
   }
 
@@ -55,8 +53,8 @@ class _NotificationMainState extends State<NotificationMain> {
     Stream userChatListStream1 = FirebaseFirestore.instance
         .collection('chattingroom')
 //        .where("read_count", isEqualTo: 2)
-        //.where("cusers", arrayContains: "V92paJ9JAOfkT5Yn7euAKiZfpoS2")
-        .where("cusers", arrayContains: FirebaseApi.getId())
+        //.where("users", arrayContains: "V92paJ9JAOfkT5Yn7euAKiZfpoS2")
+        .where("users", arrayContains: FirebaseApi.getId())
         .orderBy('timestamp', descending: true)
         //.limit(2)
         .snapshots();
@@ -129,10 +127,10 @@ class _NotificationMainState extends State<NotificationMain> {
                         onTap: () {
                           print("idtest");
                           //얘는 일단 냅둬얒함
-                          NotificationManager.navigateToChattingRoom(
+                          ChatNavigationManager.navigateToChattingRoom(
                             context,
-                            chatroomData["cusers"][0],
-                            chatroomData["cusers"][1],
+                            chatroomData["users"][0],
+                            chatroomData["users"][1],
                             chatroomData["postId"],
                           );
                         },
@@ -170,13 +168,6 @@ class _NotificationMainState extends State<NotificationMain> {
             onPressed: () {
               //_onClickNotification;
               print(Text('우측 상단'));
-              FirebaseChatController().createChatingRoomToFirebaseStorage(
-                false,
-                "Board_Free",
-                "임시타이틀",
-                FirebaseApi.getId(),
-                "friendId",
-              );
               //createRecord();
             }),
         Positioned(
@@ -199,18 +190,18 @@ class _NotificationMainState extends State<NotificationMain> {
     await _firestore
         .collection("books")
         // ignore: deprecated_member_use
-        .document("1")
+        .doc("1")
         // ignore: deprecated_member_use
-        .setData({
+        .set({
       'title': 'Mastering Flutter',
       'description': 'Programming Guide for Dart'
     });
 
-    DocumentReference ref = await _firestore.collection("books").add({
-      'title': 'Flutter in Action',
-      'description': 'Complete Programming Guide to learn Flutter'
-    });
+    // DocumentReference ref = await _firestore.collection("books").add({
+    //   'title': 'Flutter in Action',
+    //   'description': 'Complete Programming Guide to learn Flutter'
+    // });
     // ignore: deprecated_member_use
-    print(ref.documentID);
+    //print(ref.documentID);
   }
 }

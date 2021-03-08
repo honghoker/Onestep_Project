@@ -1,5 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:onestep/appmain/tapNavigationItem.dart';
+import 'package:onestep/cloth/clothWidget.dart';
+import 'package:onestep/cloth/providers/productProvider.dart';
+import 'package:onestep/home/homeWidget.dart';
+import 'package:onestep/myinfo/myinfoWidget.dart';
+import 'package:onestep/notification/chatpage/chatMainPage.dart';
+import 'package:provider/provider.dart';
+import 'package:onestep/BoardLib/boardMain.dart';
+import 'package:onestep/notification/ChatCountProvider/chatCount.dart';
+import 'package:onestep/notification/Controllers/firebaseChatController.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:onestep/api/firebase_api.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
@@ -9,7 +20,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  _MyHomePageState({Key key});
+  _MyHomePageState();
 
   int _currentIndex;
 

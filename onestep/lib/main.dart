@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/providers/myProductProvider.dart';
+import 'package:onestep/cloth/providers/allProductProvider.dart';
 import 'package:onestep/favorite/providers/favoriteProvider.dart';
 import 'package:onestep/moor/moor_database.dart';
 import 'package:onestep/profile/provider/userProductProvider.dart';
@@ -13,7 +14,7 @@ import 'package:provider/provider.dart';
 
 import 'appmain/myhomepage.dart';
 import 'cloth/models/category.dart';
-import 'cloth/providers/productProvider.dart';
+import 'cloth/providers/categoryProductProvider.dart';
 
 import 'login/CheckAuth.dart';
 import 'login/LoginPage.dart';
@@ -28,10 +29,12 @@ void main() async {
     MultiProvider(
       providers: [
         Provider<AppDatabase>.value(value: new AppDatabase()),
-        Provider<Category>.value(value: new Category()),
-        ChangeNotifierProvider<ProuductProvider>.value(
-            value: new ProuductProvider()),
+        ChangeNotifierProvider<Category>.value(value: Category()),
+        ChangeNotifierProvider<CategoryProuductProvider>.value(
+            value: new CategoryProuductProvider()),
         ChangeNotifierProvider<BoardProvider>.value(value: new BoardProvider()),
+        ChangeNotifierProvider<AllProuductProvider>.value(
+            value: new AllProuductProvider()),
         ChangeNotifierProvider<SearchProvider>.value(
             value: new SearchProvider()),
         ChangeNotifierProvider<MyProductProvider>.value(

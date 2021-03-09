@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/cloth/models/product.dart';
 
-class ProuductProvider with ChangeNotifier {
+class CategoryProuductProvider with ChangeNotifier {
   final _productsSnapshot = <DocumentSnapshot>[];
   String _errorMessage = '';
   int documentLimit = 12;

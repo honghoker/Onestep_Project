@@ -114,7 +114,7 @@ class _SearchAllWidgetState extends State<SearchAllWidget> {
 
   Widget renderProductBody() {
     var _size = MediaQuery.of(context).size;
-    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.0;
+    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.2;
     final double _itemWidth = _size.width / 2;
 
     return GridView(
@@ -183,10 +183,11 @@ class _SearchAllWidgetState extends State<SearchAllWidget> {
                             .then((value) => {
                                   if (value != null)
                                     {
-                                      p.updateSearch(Search.fromJson(value.data)
-                                          .copyWith(
-                                              time:
-                                                  DateTime.now())), // 시간 update
+                                      p.updateSearch(
+                                        Search.fromJson(value.data).copyWith(
+                                          time: DateTime.now(),
+                                        ),
+                                      ), // 시간 update
                                     }
                                   else
                                     {

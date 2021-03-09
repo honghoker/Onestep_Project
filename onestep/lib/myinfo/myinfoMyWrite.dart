@@ -24,8 +24,8 @@ class _MyinfoMyWriteState extends State<MyinfoMyWrite> {
   void initState() {
     _headerindex = 0;
     _scrollController.addListener(scrollListener);
-    widget.myProductProvider
-        .fetchNextProducts(_category.getCategoryItems()[_headerindex]);
+    // widget.myProductProvider
+    //     .fetchNextProducts(_category.getCategoryItems()[_headerindex]);
     super.initState();
   }
 
@@ -38,69 +38,69 @@ class _MyinfoMyWriteState extends State<MyinfoMyWrite> {
   void scrollListener() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
-      widget.myProductProvider
-          .fetchNextProducts(_category.getCategoryItems()[_headerindex]);
+      // widget.myProductProvider
+      //     .fetchNextProducts(_category.getCategoryItems()[_headerindex]);
     }
   }
 
-  Widget renderHeader() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        SizedBox(height: 5),
-        SizedBox(
-          height: 50.0,
-          child: ListView.builder(
-            padding: EdgeInsets.all(5.0),
-            physics: ClampingScrollPhysics(),
-            // shrinkWrap: true,
-            scrollDirection: Axis.horizontal,
-            itemCount: _category.getCategoryItems().length,
-            itemBuilder: (BuildContext context, int index) {
-              return Card(
-                color: _headerindex == index ? Colors.black : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                child: InkWell(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      left: 10,
-                      right: 10,
-                      top: 5,
-                      bottom: 5,
-                    ),
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        Provider.of<Category>(context, listen: false)
-                            .getCategoryItems()[index],
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: _headerindex == index
-                              ? Colors.white
-                              : Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      _headerindex = index;
-                      widget.myProductProvider.fetchProducts(
-                          _category.getCategoryItems()[_headerindex]);
-                    });
-                  },
-                ),
-              );
-            },
-          ),
-        ),
-        SizedBox(height: 5),
-      ],
-    );
-  }
+  // Widget renderHeader() {
+  //   return Column(
+  //     mainAxisSize: MainAxisSize.min,
+  //     children: <Widget>[
+  //       SizedBox(height: 5),
+  //       SizedBox(
+  //         height: 50.0,
+  //         child: ListView.builder(
+  //           padding: EdgeInsets.all(5.0),
+  //           physics: ClampingScrollPhysics(),
+  //           // shrinkWrap: true,
+  //           scrollDirection: Axis.horizontal,
+  //           itemCount: _category.getCategoryItems().length,
+  //           itemBuilder: (BuildContext context, int index) {
+  //             return Card(
+  //               color: _headerindex == index ? Colors.black : Colors.white,
+  //               shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(15.0),
+  //               ),
+  //               child: InkWell(
+  //                 child: Padding(
+  //                   padding: EdgeInsets.only(
+  //                     left: 10,
+  //                     right: 10,
+  //                     top: 5,
+  //                     bottom: 5,
+  //                   ),
+  //                   child: Align(
+  //                     alignment: Alignment.center,
+  //                     child: Text(
+  //                       Provider.of<Category>(context, listen: false)
+  //                           .getCategoryItems()[index],
+  //                       textAlign: TextAlign.center,
+  //                       style: TextStyle(
+  //                         fontSize: 12,
+  //                         color: _headerindex == index
+  //                             ? Colors.white
+  //                             : Colors.black,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 onTap: () {
+  //                   setState(() {
+  //                     _headerindex = index;
+  //                     widget.myProductProvider.fetchProducts(
+  //                         _category.getCategoryItems()[_headerindex]);
+  //                   });
+  //                 },
+  //               ),
+  //             );
+  //           },
+  //         ),
+  //       ),
+  //       SizedBox(height: 5),
+  //     ],
+  //   );
+  // }
 
   Widget renderBody() {
     var _size = MediaQuery.of(context).size;
@@ -177,7 +177,7 @@ class _MyinfoMyWriteState extends State<MyinfoMyWrite> {
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  renderHeader(),
+                  // renderHeader(),
                   myProduct(),
                 ],
               ),

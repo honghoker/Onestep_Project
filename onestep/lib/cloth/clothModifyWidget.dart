@@ -36,8 +36,8 @@ class _ClothModifyWidgetState extends State<ClothModifyWidget>
 
   @override
   void initState() {
-    _dropdownCategoryItems =
-        Provider.of<Category>(context, listen: false).getCategoryItems();
+    // _dropdownCategoryItems =
+    //     Provider.of<Category>(context, listen: false).getCategoryItems();
 
     _titleTextEditingController =
         TextEditingController(text: widget.product.title);

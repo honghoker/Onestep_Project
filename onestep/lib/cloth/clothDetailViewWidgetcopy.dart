@@ -30,6 +30,7 @@ class ClothDetailViewWidgetcopy extends StatefulWidget {
 }
 
 class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   List _imageItem = new List();
   TextEditingController _favoriteTextController;
   TextEditingController _priceEditingController;
@@ -185,7 +186,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
 
   Widget getUserProducts() {
     var _size = MediaQuery.of(context).size;
-    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.0;
+    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 3.0;
     final double _itemWidth = _size.width / 2;
 
     return FutureBuilder<QuerySnapshot>(
@@ -504,6 +505,8 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
             },
           );
         } else {
+          _scaffoldKey.currentState.showSnackBar(
+              SnackBar(content: Text("끌올은 글 등록,수정 후 1시간뒤에 가능합니다.")));
           print("끌올 불가 메세지 출력");
         }
 
@@ -801,6 +804,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
 
                 incProductViews(); // 조회수 증가
                 return Scaffold(
+                  key: _scaffoldKey,
                   appBar: AppBar(
                     iconTheme: IconThemeData(
                       color: Colors.black,

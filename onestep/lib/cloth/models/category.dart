@@ -1,53 +1,14 @@
-class Category {
-  List<String> _dropdownCategoryItems = new List();
-  List<String> _cate = [
-    "디지털/가전",
-    "가구/인테리어",
-    "여성의류",
-    "여성잡화",
-    "남성의류",
-    "남성잡화",
-    "스포츠/레저",
-    "게임/취미",
-    "반려동물",
-    "도서",
-    "음반",
-    "티켓/쿠폰",
-    "뷰티/미용",
-    "무료나눔",
-    "삽니다"
-  ];
+import 'package:flutter/material.dart';
 
-  Category() {
-    _dropdownCategoryItems = [
-      // "디지털/가전",
-      // "가구/인테리어",
-      // "여성의류",
-      // "여성잡화",
-      // "남성의류",
-      // "남성잡화",
-      // "스포츠/레저",
-      // "게임/취미",
-      // "반려동물",
-      // "도서/음반",
-      // "티켓/쿠폰",
-      // "뷰티/미용",
-      // "무료나눔",
-      // "삽니다"
-      "전체",
-      "티셔츠",
-      "블라우스",
-      "셔츠/남방",
-      "맨투맨",
-      "미니원피스",
-      "롱원피스",
-      "점프수트",
-      "바지",
-      "미니스커트",
-      "롱스커트",
-    ];
-  }
-  List<String> getCategoryItems() {
-    return _dropdownCategoryItems;
+class Category with ChangeNotifier {
+  String selectItem;
+
+  Category({
+    this.selectItem = "전체",
+  });
+
+  void changeSelectItem(String value) {
+    selectItem = value;
+    notifyListeners();
   }
 }

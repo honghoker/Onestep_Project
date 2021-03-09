@@ -8,10 +8,8 @@ import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/cloth/categoryWidget.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
-import 'package:provider/provider.dart';
 import 'package:random_string/random_string.dart';
 import 'package:onestep/PermissionLib/customPermisson.dart';
-import 'models/category.dart';
 
 class ClothAddWidget extends StatefulWidget {
   ClothAddWidget({Key key}) : super(key: key);
@@ -25,16 +23,13 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _titleTextEditingController = TextEditingController();
   final _priceTextEditingController = TextEditingController();
+  final _categoryTextEditingController = TextEditingController();
   final _explainTextEditingController = TextEditingController();
   int _imageCount = 0;
   List<Asset> _imageList = List<Asset>();
 
-  String _selectedCategoryItem;
-  List<String> _dropdownCategoryItems;
   @override
   void initState() {
-    _dropdownCategoryItems =
-        Provider.of<Category>(context, listen: false).getCategoryItems();
     super.initState();
   }
 
@@ -142,7 +137,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
     } else if (_priceTextEditingController.text.trim() == "") {
       _scaffoldKey.currentState
           .showSnackBar(SnackBar(content: Text("가격을 입력해주세요.")));
-    } else if (_selectedCategoryItem == null) {
+    } else if (_categoryTextEditingController.text.trim() == "") {
       _scaffoldKey.currentState
           .showSnackBar(SnackBar(content: Text("카테고리를 선택해주세요.")));
     } else if (_explainTextEditingController.text.trim() == "") {
@@ -174,7 +169,7 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
         'uid': FirebaseApi.getId(),
         'price': _priceTextEditingController.text,
         'title': _titleTextEditingController.text,
-        'category': _selectedCategoryItem,
+        'category': _categoryTextEditingController.text,
         'explain': _explainTextEditingController.text,
         'images': _imgUriarr,
         'favorites': 0,
@@ -340,7 +335,6 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
                   maxLength: 20,
                 ),
               ),
-
               Container(
                 margin: EdgeInsets.all(10),
                 child: TextField(
@@ -357,29 +351,6 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
                   ),
                 ),
               ),
-
-              Container(
-                margin: EdgeInsets.all(10),
-                width: MediaQuery.of(context).size.width,
-                height: 60,
-                alignment: Alignment.centerLeft,
-                decoration: BoxDecoration(
-                  border: Border.all(width: 1.0, color: Colors.grey),
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(4.0),
-                  ),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(5.0),
-                  child: Text(
-                    "카테고리 선택",
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
-              ),
               Container(
                 margin: EdgeInsets.all(10),
                 child: TextField(
@@ -387,59 +358,36 @@ class _ClothAddWidgetState extends State<ClothAddWidget>
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => CategoryWidget()),
-                    );
+                    ).then(
+                        (value) => _categoryTextEditingController.text = value);
                   },
+                  controller: _categoryTextEditingController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: '카테고리',
+                    hintText: '카테고리 선택',
+                    suffixIconConstraints: BoxConstraints(minWidth: 30),
+                    suffixIcon: Icon(
+                      Icons.keyboard_arrow_right,
+                      size: 20,
+                      color: Color(0xFF999999),
+                    ),
                   ),
                   readOnly: true,
-                ),
-              ),
-
-              Container(
-                margin: EdgeInsets.all(10),
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: '카테고리',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      hint: new Text("카테고리를 선택해주세요"),
-                      value: _selectedCategoryItem,
-                      isDense: true,
-                      onChanged: (String newValue) {
-                        setState(() {
-                          _selectedCategoryItem = newValue;
-                          // state.didChange(newValue);
-                        });
-                      },
-                      items: _dropdownCategoryItems.map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-                  ),
                 ),
               ),
               Container(
                 margin: EdgeInsets.all(10),
                 child: TextField(
+                  minLines: 8,
                   controller: _explainTextEditingController,
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: '설명',
+                    hintText: '설명',
                   ),
                 ),
               ),
-              // TextFormField(controller: ,),
             ],
           ),
         ),

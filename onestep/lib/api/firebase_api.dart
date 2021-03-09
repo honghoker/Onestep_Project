@@ -27,7 +27,7 @@ class FirebaseApi {
     // print("${dsUni.data()['uni_name']}");
     return dsUni.data()['uni_name'];
   }
-  
+
   // static String getUniId() {
   //   String result;
   //   String userUni;
@@ -47,6 +47,27 @@ class FirebaseApi {
   //   // print("${dsUni.data()['uni_name']}");
   //   return result;
   // }
+
+  static Future<QuerySnapshot> getAllProducts(
+    // 장터 메인 모든상품 불러오기
+    int limit, {
+    DocumentSnapshot startAfter,
+  }) async {
+    var refProducts;
+
+    refProducts = FirebaseFirestore.instance
+        .collection('products')
+        .where("deleted", isEqualTo: false)
+        .where("hide", isEqualTo: false)
+        .orderBy("bumptime", descending: true)
+        .limit(limit);
+
+    if (startAfter == null) {
+      return refProducts.get();
+    } else {
+      return refProducts.startAfterDocument(startAfter).get();
+    }
+  }
 
   static Future<QuerySnapshot> getProducts(
     // 장터 상품 불러오기

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:onestep/BoardLib/BoardProvi/boardProvider.dart';
 import 'package:onestep/BoardLib/Boardmain.dart';
-import 'package:onestep/cloth/clothWidget.dart';
-import 'package:onestep/cloth/providers/productProvider.dart';
+import 'package:onestep/cloth/clothAllWidget.dart';
+import 'package:onestep/cloth/providers/allProductProvider.dart';
+
 import 'package:onestep/home/homeWidget.dart';
 import 'package:onestep/myinfo/myinfoWidget.dart';
 import 'package:onestep/notification/chatpage/chatMainPage.dart';
@@ -26,9 +27,9 @@ class TabNavigationItem {
           title: Text("홈"),
         ),
         TabNavigationItem(
-          page: Consumer<ProuductProvider>(
-            builder: (context, productProvider, _) => ClothWidget(
-              productProvider: productProvider,
+          page: Consumer<AllProuductProvider>(
+            builder: (context, allProductProvider, _) => ClothAllWidget(
+              allProductProvider: allProductProvider,
             ),
           ),
           icon: Icon(Icons.shopping_cart),

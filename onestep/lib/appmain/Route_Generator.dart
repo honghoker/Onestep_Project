@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' as foundation;
+import 'package:onestep/cloth/clothAllWidget.dart';
 import 'package:onestep/login/joinPage.dart';
 import '../BoardLib/CreateAlterBoard/parentState.dart';
 import '../BoardLib/boardContent.dart';
-import '../cloth/clothWidget.dart';
 import '../cloth/clothBumpWidget.dart';
 import '../cloth/clothDetailViewWidgetcopy.dart';
 import 'package:path/path.dart' as p;
@@ -44,7 +44,7 @@ class RouteGenerator {
         _pageWidget = MyHomePage();
         break;
       case 'ProductWidget':
-        _pageWidget = ClothWidget();
+        _pageWidget = ClothAllWidget();
         break;
 
       case 'BoardContent':

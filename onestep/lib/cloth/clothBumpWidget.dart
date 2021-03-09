@@ -2,9 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/models/product.dart';
-import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
-import 'package:provider/provider.dart';
 
 class ClothBumpWidget extends StatefulWidget {
   final Product product;
@@ -34,8 +32,8 @@ class _ClothBumpWidgetState extends State<ClothBumpWidget> {
       'price': priceEditingController.text
     }).whenComplete(() {
       try {
-        Provider.of<ProuductProvider>(context, listen: false)
-            .fetchProducts("전체");
+        // Provider.of<CategoryProuductProvider>(context, listen: false)
+        //     .fetchProducts("전체");
         Navigator.of(context).pop("OK");
       } catch (e) {
         print(e);
@@ -156,6 +154,10 @@ class _ClothBumpWidgetState extends State<ClothBumpWidget> {
             child: Column(
               children: <Widget>[
                 TextField(
+                  decoration: InputDecoration(
+                      prefix: Padding(
+                          padding: EdgeInsets.only(right: 10),
+                          child: Text("₩"))),
                   controller: priceEditingController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:onestep/cloth/clothAddWidget.dart';
+import 'package:onestep/cloth/clothWidgetHeader.dart';
+import 'package:onestep/cloth/providers/allProductProvider.dart';
 
-import 'package:onestep/cloth/providers/productProvider.dart';
 import 'package:onestep/favorite/favoriteWidget.dart';
 import 'package:onestep/favorite/providers/favoriteProvider.dart';
 import 'package:onestep/search/provider/searchProvider.dart';
@@ -12,15 +13,15 @@ import 'package:unicorndial/unicorndial.dart';
 import 'clothitem.dart';
 import 'models/category.dart';
 
-class ClothWidget extends StatefulWidget {
-  final ProuductProvider productProvider;
-  ClothWidget({Key key, this.productProvider}) : super(key: key);
+class ClothAllWidget extends StatefulWidget {
+  final AllProuductProvider allProductProvider;
+  ClothAllWidget({Key key, this.allProductProvider}) : super(key: key);
 
   @override
-  _ClothWidgetState createState() => _ClothWidgetState();
+  _ClothAllWidgetState createState() => _ClothAllWidgetState();
 }
 
-class _ClothWidgetState extends State<ClothWidget> {
+class _ClothAllWidgetState extends State<ClothAllWidget> {
   int _headerindex;
   final ScrollController _scrollController = ScrollController();
   final _category = Category();
@@ -29,8 +30,7 @@ class _ClothWidgetState extends State<ClothWidget> {
   void initState() {
     _headerindex = 0;
     _scrollController.addListener(scrollListener);
-    widget.productProvider
-        .fetchProducts(_category.getCategoryItems()[_headerindex]);
+    widget.allProductProvider.fetchProducts();
     super.initState();
   }
 
@@ -43,102 +43,44 @@ class _ClothWidgetState extends State<ClothWidget> {
   void scrollListener() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
-      widget.productProvider
-          .fetchNextProducts(_category.getCategoryItems()[_headerindex]);
+      widget.allProductProvider.fetchNextProducts();
     }
-  }
-
-  Widget renderHeader() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        SizedBox(height: 5),
-        SizedBox(
-          height: 50.0,
-          child: ListView.builder(
-            padding: EdgeInsets.all(5.0),
-            physics: ClampingScrollPhysics(),
-            // shrinkWrap: true,
-            scrollDirection: Axis.horizontal,
-            itemCount: _category.getCategoryItems().length,
-            itemBuilder: (BuildContext context, int index) {
-              return Card(
-                color: _headerindex == index ? Colors.black : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                child: InkWell(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      left: 10,
-                      right: 10,
-                      top: 5,
-                      bottom: 5,
-                    ),
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        Provider.of<Category>(context, listen: false)
-                            .getCategoryItems()[index],
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: _headerindex == index
-                              ? Colors.white
-                              : Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      _headerindex = index;
-                      widget.productProvider.fetchProducts(
-                          _category.getCategoryItems()[_headerindex]);
-                    });
-                  },
-                ),
-              );
-            },
-          ),
-        ),
-        SizedBox(height: 5),
-      ],
-    );
   }
 
   Widget renderBody() {
     var _size = MediaQuery.of(context).size;
-    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.0;
+    final double _itemHeight = (_size.height - kToolbarHeight - 24) / 2.2;
     final double _itemWidth = _size.width / 2;
-    return GridView(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.symmetric(horizontal: 15),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        childAspectRatio: _itemWidth > _itemHeight
-            ? (_itemHeight / _itemWidth)
-            : (_itemWidth / _itemHeight),
-        crossAxisCount: 3,
-        mainAxisSpacing: 15,
-        crossAxisSpacing: 7,
+    return Padding(
+      padding: EdgeInsets.only(top: 10),
+      child: GridView(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 15),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          childAspectRatio: _itemWidth > _itemHeight
+              ? (_itemHeight / _itemWidth)
+              : (_itemWidth / _itemHeight),
+          crossAxisCount: 3,
+          mainAxisSpacing: 15,
+          crossAxisSpacing: 7,
+        ),
+        children: [
+          ...widget.allProductProvider.products
+              .map(
+                (product) => ClothItem(
+                  product: product,
+                ),
+              )
+              .toList(),
+        ],
       ),
-      children: [
-        ...widget.productProvider.products
-            .map(
-              (product) => ClothItem(
-                product: product,
-              ),
-            )
-            .toList(),
-      ],
     );
   }
 
   Future<void> _refreshPage() async {
     setState(() {
-      widget.productProvider
-          .fetchProducts(_category.getCategoryItems()[_headerindex]);
+      widget.allProductProvider.fetchProducts();
     });
   }
 
@@ -178,8 +120,7 @@ class _ClothWidgetState extends State<ClothWidget> {
             ).then((value) {
               setState(() {
                 _headerindex = 0;
-                widget.productProvider
-                    .fetchProducts(_category.getCategoryItems()[_headerindex]);
+                widget.allProductProvider.fetchProducts();
               });
             });
           },
@@ -195,6 +136,7 @@ class _ClothWidgetState extends State<ClothWidget> {
           '장터',
           style: TextStyle(color: Colors.black),
         ),
+        elevation: 0,
         backgroundColor: Colors.white,
         actions: <Widget>[
           new IconButton(
@@ -204,8 +146,7 @@ class _ClothWidgetState extends State<ClothWidget> {
             ),
             onPressed: () => {
               setState(() {
-                widget.productProvider
-                    .fetchProducts(_category.getCategoryItems()[_headerindex]);
+                widget.allProductProvider.fetchProducts();
               })
             },
           ),
@@ -256,7 +197,22 @@ class _ClothWidgetState extends State<ClothWidget> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                this.renderHeader(),
+                Consumer<Category>(
+                  builder: (context, category, _) =>
+                      ClothWidgetHeader(category: category),
+                ),
+                SizedBox(
+                    height: 10,
+                    child: Container(color: Color.fromRGBO(240, 240, 240, 1))),
+                // this.renderHeader(),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                      padding: EdgeInsets.only(top: 10, left: 15),
+                      child: Text("오늘의 상품",
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w600))),
+                ),
                 this.renderBody(),
               ],
             ),

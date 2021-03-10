@@ -6,6 +6,7 @@ import 'package:onestep/notification/Chatpage/RealTimePage/realtimeNavigationMan
 import 'package:onestep/notification/Chatpage/RealTimePage/realtimeProductChatController.dart';
 import 'package:onestep/notification/Controllers/productChatController.dart';
 import 'package:onestep/notification/model/productChat.dart';
+import 'package:onestep/notification/widget/chatBadge.dart';
 
 import 'chat_realtime.dart';
 import 'package:onestep/notification/ChatCountProvider/chatCount.dart';
@@ -35,15 +36,22 @@ class _RealTimePageState extends State<RealTimePage>
       ;
 
   String uId;
-
+  int d;
   @override
   bool get wantKeepAlive => true;
+
+  Future<int> test() async {
+    d = await RealtimeProductChatController().fuckShitChatCount("ddd");
+    print("@@@@@@@@@dd $d");
+    return Future.delayed(Duration(seconds: 1), () => d);
+  }
 
   @override
   void initState() {
     super.initState();
     productChat = ProductChat();
     uId = FirebaseApi.getId();
+
     // databasereference.onChildAdded.listen((_onAddData));
     // databasereference.onChildAdded.listen((_onChanged));
 
@@ -98,6 +106,7 @@ class _RealTimePageState extends State<RealTimePage>
   Widget _buildChatListListTileStream() {
     bool userExist = false;
     final chatCount = Provider.of<ChatCount>(context); //카운트 프로바이더
+
     return StreamBuilder(
       stream:
           //comments
@@ -167,6 +176,7 @@ class _RealTimePageState extends State<RealTimePage>
               listProductChat.sort((b, a) =>
                   a.timeStamp.compareTo(b.timeStamp)); //정렬3. 시간 순 정렬 가능.
               print("stream values else : 솔트완료");
+
               return userExist == true
                   ? ListView.builder(
                       shrinkWrap: true,
@@ -176,6 +186,8 @@ class _RealTimePageState extends State<RealTimePage>
                         listProductChat[index].user1 == FirebaseApi.getId()
                             ? productsUserId = listProductChat[index].user2
                             : productsUserId = listProductChat[index].user1;
+                        print(
+                            "##dd'${listProductChat[index].chatId.toString()}/message'");
                         return ListTile(
                           leading: ProductChatController()
                               .getUserImage(productsUserId),
@@ -211,11 +223,17 @@ class _RealTimePageState extends State<RealTimePage>
                               //Text(listProductChat[index].chatId.toString()),
                               //Text(chatKey),
 
+                              Text(test().toString()),
                               RealtimeProductChatController()
-                                  .getRealtimeProductChatReadCounts(
+                                  .getRealtimeFutureProductChatReadCounts(
                                       listProductChat[index].chatId.toString()),
 
-                              //getChatReadCounts(),
+//원본 3줄
+                              // RealtimeProductChatController()
+                              //     .getRealtimeProductChatReadCounts(
+                              //         listProductChat[index].chatId.toString()),
+
+                              // getChatReadCounts(),
                             ],
                           ),
                           trailing: Padding(
@@ -260,6 +278,12 @@ class _RealTimePageState extends State<RealTimePage>
       },
     );
   }
+
+  DatabaseReference productChatMessageReference2 = FirebaseDatabase.instance
+      .reference()
+      .child("chattingroom")
+      .child("productchat")
+      .child("1615196869418/message");
 
   // RealTimeChatNavigationManager.navigateToChattingRoom(
   //   context,

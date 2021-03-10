@@ -13,12 +13,16 @@ import 'package:onestep/notification/ChatCountProvider/chatCount.dart';
 
 class RealtimeProductChatController {
   final databaseReference = FirebaseDatabase.instance.reference();
+  int chattingRoomCount = 0;
+  int _count = 0;
 
   //Product Chat Count
   DatabaseReference productChatMessageReference = FirebaseDatabase.instance
       .reference()
       .child("chattingroom")
       .child("productchat"); //Chat Message Ref
+
+  DatabaseReference productChatMessageReference2;
   int productChatcount = 0;
 
   var logger = Logger(
@@ -270,64 +274,196 @@ class RealtimeProductChatController {
     });
   }
 
-  StreamBuilder getRealtimeProductChatReadCounts(String chattingRoomId) {
-    print("#read# on $chattingRoomId");
-    return StreamBuilder(
-        stream: productChatMessageReference
-            .child('$chattingRoomId/message')
-            .orderByChild("idTo/${FirebaseApi.getId()}")
-            .equalTo(false)
+  List<int> countlist = List();
 
-            // .orderByChild("isRead")
-            // .equalTo(false)
-            .onValue, //조건1.  타임스탬프 기준
+  Future getFuturechattingRoomId(String chattingRoomId) async {
+    //return FirebaseFirestore.instance.collection('users').doc(proUserId).get();
+    return FirebaseDatabase.instance
+        .reference()
+        .child("chattingroom")
+        .child("productchat")
+        .child("$chattingRoomId/message")
+        .orderByChild("idTo/${FirebaseApi.getId()}")
+        .equalTo(false)
+        .once();
+  }
+
+  Future<int> fuckShitChatCount(String chattingRoomId) {
+    try {
+      int unReadMSGCount = 7;
+
+      // DatabaseReference fuckCount = await FirebaseDatabase.instance
+      //     .reference()
+      //     .child("chattingroom")
+      //     .child("productchat");
+
+      // Future<DataSnapshot> fk2 = fuckCount
+      //     .child("$chattingRoomId/message")
+      //     .orderByChild("idTo/${FirebaseApi.getId()}")
+      //     .equalTo(false)
+      //     .once();
+      // fk2.then((value) {
+      //   logger.i(value.toString() + unReadMSGCount.toString());
+      // });
+      return Future.delayed(
+          Duration(seconds: 4), () => unReadMSGCount); //unReadMSGCount;
+    } catch (e) {
+      print(e.message);
+    }
+
+    // return FutureBuilder(
+    //     future: FirebaseDatabase.instance
+    //         .reference()
+    //         .child("chattingroom")
+    //         .child("productchat")
+    //         .child("$chattingRoomId/message")
+    //         .orderByChild("idTo/${FirebaseApi.getId()}")
+    //         .equalTo(false)
+    //         .once(),
+    //     builder: (BuildContext context, AsyncSnapshot snapshot) {
+    //       final chatCount = Provider.of<ChatCount>(context);
+
+    //       if (snapshot.connectionState == ConnectionState.done) {
+    //         if (snapshot.data.value == null) {
+    //           return Text("X");
+    //         } else {
+    //           logger.e("퓨처 데이터 있음 ");
+    //           chattingRoomCount = snapshot.data.value.length;
+    //           chatCount.setProductChatCount(snapshot.data.value.length);
+    //           setToFirebaseProductChatCount(chatCount.getProductChatCount());
+
+    //           return chatCountBadge(snapshot.data.value.length);
+    //         }
+    //       } else
+    //         return Container();
+    //     });
+  }
+
+//////////////////////////
+  FutureBuilder getRealtimeFutureProductChatReadCounts(String chattingRoomId) {
+    return FutureBuilder(
+        //initialData: null,
+        future:
+            //getFuturechattingRoomId(chattingRoomId),
+            FirebaseDatabase.instance
+                .reference()
+                .child("chattingroom")
+                .child("productchat")
+                .child("$chattingRoomId/message")
+                .orderByChild("idTo/${FirebaseApi.getId()}")
+                .equalTo(false)
+                .once(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          final chatCount =
-              Provider.of<ChatCount>(context); // Counter 타입의 데이터를 가져옴.
-          switch (snapshot.connectionState) {
-            case ConnectionState.waiting:
-              return Container();
-            //CircularProgressIndicator();
-            default:
-              if (snapshot == null ||
-                  !snapshot.hasData ||
-                  snapshot.data.snapshot.value == null) {
-                return Text("없음 " + productChatcount.toString());
-              } else if (snapshot.hasData) {
-                print("#realpro Strmsg top 값 있음");
-                // productChatcount = 0;
+          final chatCount = Provider.of<ChatCount>(context);
+          //logger.e("퓨처 실행 ${snapshot.data.value.length}");
+          // switch (snapshot.data.value.connectionState) {
+          //   case ConnectionState.waiting:
+          //     return Container();
+          //   default:
+          // if (snapshot == null ||
+          //     !snapshot.hasData ||
+          //     snapshot.data.value == null) {
+          // }
+          //     else {
+          // DataSnapshot dataValues = snapshot.data.snapshot;
+          // Map<dynamic, dynamic> values = dataValues.value;
 
-                DataSnapshot dataValues = snapshot.data.snapshot;
-                Map<dynamic, dynamic> values = dataValues.value;
-                print("#realpro Strmsg top value : " + values.toString());
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.data.value == null) {
+              return Text("X");
+              //   // if (snapshot.data != null) {
+              //   //   return Text("O");
+              //   // } else {
+              //   //   logger.e("퓨처 데이터 엘스");
 
-                print("#read# start $productChatcount ${values.length}");
+              //   //   return Text("E");
+              //   // }
+              //   //  logger.e("퓨처 데이터 없음 ${snapshot.data.value.length}");
 
-                // values.forEach((key, values) {
-                //   productChatcount += 1; //해당되는 채팅마다 채팅개수 증가
-                // });
-                // print("#read# $productChatcount");
-                chatCount.setProductChatCount(values.length);
-                setToFirebaseProductChatCount(chatCount.getProductChatCount());
-                return chatCountBadge(values.length);
+            } else {
+              logger.e("퓨처 데이터 있음 ");
+              chattingRoomCount = snapshot.data.value.length;
+              chatCount.setProductChatCount(snapshot.data.value.length);
+              setToFirebaseProductChatCount(chatCount.getProductChatCount());
 
-                // return listProductMessage.length > 0
-                //     ? ListView.builder(
-                //         padding: EdgeInsets.all(10.0),
-                //         shrinkWrap: true,
-                //         reverse: true,
-                //         controller: listScrollController,
-                //         itemCount: listProductMessage.length,
-                //         itemBuilder: (context, index) {
-                //           return createItem(
-                //               index, listProductMessage[index]);
-                //         },
-                //       )
-                //     : Text("생성된 채팅방이 없습니다. . !");
-              } else
-                return Text("채팅방 카운트 Error");
-          }
-        }); //플렉
+              return chatCountBadge(snapshot.data.value.length);
+              //return Text("O");
+            }
+          } else
+            return Container();
+        } //switch
+        //} //builder
+
+        );
+  }
+
+  Widget getRealtimeProductChatReadCounts(String chattingRoomId) {
+    print("#read# on $chattingRoomId");
+    productChatMessageReference2 =
+        productChatMessageReference.child('$chattingRoomId/message');
+    return Flexible(
+      //fit: FlexFit.tight,
+      child: "" != ""
+          ? Center(
+              // child: CircularProgressIndicator(
+              //   valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+              // ),
+              )
+          : StreamBuilder(
+              //initialData: null,
+              stream: productChatMessageReference2
+                  //.child('$chattingRoomId/message')
+                  .orderByChild("idTo/${FirebaseApi.getId()}")
+                  .equalTo(false)
+
+                  // .orderByChild("isRead")
+                  // .equalTo(false)
+                  .onValue, //조건1.  타임스탬프 기준
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.waiting:
+                    return Container();
+                  //CircularProgressIndicator();
+                  default:
+                    final chatCount = Provider.of<ChatCount>(
+                        context); // Counter 타입의 데이터를 가져옴.
+                    if (snapshot == null ||
+                        !snapshot.hasData ||
+                        snapshot.data.snapshot.value == null) {
+                      return Container();
+                    } else
+                    // if (snapshot.hasData)
+
+                    {
+                      countlist.clear();
+                      print("#realpro Strmsg top 값 있음");
+                      // productChatcount = 0;
+
+                      DataSnapshot dataValues = snapshot.data.snapshot;
+                      Map<dynamic, dynamic> values = dataValues.value;
+                      print("#realpro Strmsg top value : " + values.toString());
+                      countlist.add(values.length);
+
+                      print("#read# start $productChatcount ${values.length}");
+
+                      // values.forEach((key, values) {
+                      //   productChatcount += 1; //해당되는 채팅마다 채팅개수 증가
+                      // });
+                      // print("#read# $productChatcount");
+
+                      chatCount.setProductChatCount(countlist[0]);
+                      setToFirebaseProductChatCount(
+                          chatCount.getProductChatCount());
+                      return chatCountBadge(countlist[0]);
+
+                      //}//리스트뷰 빌더
+                      //  );
+                    } //else
+                  //플렉
+                } //switch
+              } //builder
+              ),
+    );
   }
 
   StreamBuilder getProductChatReadCounts(chattingRoomId, int chatListCount) {

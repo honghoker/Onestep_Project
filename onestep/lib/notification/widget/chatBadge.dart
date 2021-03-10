@@ -5,7 +5,7 @@ Badge chatCountBadge(int readCount) {
   return Badge(
     toAnimate: false,
     borderRadius: BorderRadius.circular(8),
-    badgeColor: Colors.pink,
+    badgeColor: Colors.red,
     badgeContent: Text(
       readCount.toString()
       //+ snapshot.data.docs[1]['isRead'].toString()

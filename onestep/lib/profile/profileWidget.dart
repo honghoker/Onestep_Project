@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/profile/provider/userProductProvider.dart';
 import 'package:onestep/profile/userProductWidget.dart';
 import 'package:provider/provider.dart';
@@ -51,6 +52,26 @@ class ProfileWidget extends StatelessWidget {
                     ),
                   )
                 : Icon(Icons.account_circle);
+        }
+      },
+    );
+  }
+
+  Widget getUserGrade() {
+    return FutureBuilder(
+      future: FirebaseFirestore.instance
+          .collection("users")
+          .doc(FirebaseApi.getId())
+          .get(),
+      builder:
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return Text("");
+          default:
+            return Container(
+                height: 10,
+                child: Text("${snapshot.data.data()['userLevel']}"));
         }
       },
     );
@@ -121,10 +142,25 @@ class ProfileWidget extends StatelessWidget {
               ),
             ],
           ),
-          Container(
-            width: double.infinity,
-            height: 180,
-            decoration: BoxDecoration(color: Colors.red),
+          InkWell(
+            onTap: () {
+              print("확인");
+            },
+            child: Container(
+              width: double.infinity,
+              height: 130,
+              // decoration: BoxDecoration(color: Colors.red),
+              child: Column(
+                children: [
+                  Image.network(
+                    'https://img1.daumcdn.net/thumb/S272x320/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FGUVuD%2FbtqB6Zdi5iH%2FDK96QNZL62nsdwro9vjLMk%2Fimg.jpg',
+                    height: 125,
+                  ),
+                  // Text("5티어"),
+                  // getUserGrade(),
+                ],
+              ),
+            ),
           ),
           Expanded(
             // Padding(padding: EdgeInsets.all(5.00)),

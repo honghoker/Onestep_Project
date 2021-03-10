@@ -1,9 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'package:kakao_flutter_sdk/link.dart';
+import 'package:no_context_navigation/no_context_navigation.dart';
 import 'package:onestep/cloth/providers/myProductProvider.dart';
 import 'package:onestep/favorite/providers/favoriteProvider.dart';
+import 'package:onestep/login/provider/loginProvider.dart';
 import 'package:onestep/moor/moor_database.dart';
+import 'package:onestep/myinfo/myinfoWidget.dart';
 import 'package:onestep/myinfo/provider/myinfoProvider.dart';
 import 'package:onestep/profile/provider/userProductProvider.dart';
 import 'package:onestep/search/provider/searchProvider.dart';
@@ -25,6 +30,7 @@ final FirebaseAuth _auth = FirebaseAuth.instance;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
   runApp(
     MultiProvider(
       providers: [
@@ -45,7 +51,12 @@ void main() async {
           value: _auth.currentUser,
         ),
         ChangeNotifierProvider<CheckAuth>(create: (_) => CheckAuth()),
-        ChangeNotifierProvider<MyinfoProvider>.value(value: MyinfoProvider(),),
+        ChangeNotifierProvider<MyinfoProvider>.value(
+          value: MyinfoProvider(),
+        ),
+        ChangeNotifierProvider<LoginProvider>.value(
+          value: LoginProvider(),
+        ),
       ],
       child: MyApp(),
     ),
@@ -61,11 +72,64 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    String kakaoAppKey = "c9095cdfce8884adb0b88729a7e95aba";
+    KakaoContext.clientId = kakaoAppKey;
+    initDynamicLinks();
+  }
+
+  void initDynamicLinks() async {
+    // 앱이 active이거나 background 상태일때 들어온 링크를 알 수 있는 링크 콜백에 대한 리스너 onLink()
+    FirebaseDynamicLinks.instance.onLink(
+        onSuccess: (PendingDynamicLinkData dynamicLink) async {
+      final NavigationService navService = NavigationService();
+      final Uri deepLink = dynamicLink?.link;
+
+      print(deepLink.path);
+
+      if (deepLink != null) {
+        var code = deepLink.queryParameters['code'];
+        navService.pushNamed('/DetailProduct', args: {"PRODUCTID": code}).then(
+            (value) {
+          print("clothitem");
+        });
+        // _handleDynamicLink(deepLink);
+      }
+    }, onError: (OnLinkErrorException e) async {
+      print('onLinkError');
+      print(e.message);
+    });
+
+    // 앱을 새로 런치한 링크를 알 수 있는 getInitialLink()
+    final PendingDynamicLinkData data =
+        await FirebaseDynamicLinks.instance.getInitialLink();
+    final Uri deepLink = data?.link;
+
+    print(deepLink);
+    if (deepLink != null) {
+      var code = deepLink.queryParameters['code'];
+      navService
+          .pushNamed('/DetailProduct', args: {"PRODUCTID": code}).then((value) {
+        print("clothitem");
+      });
+
+      // navService.pushNamed('/helloOnestep', args: deepLink);
+      // _handleDynamicLink(deepLink);
+    }
+  }
+
+  void _handleDynamicLink(Uri deepLink) {
+    final NavigationService navService = NavigationService();
+    var code = deepLink.queryParameters['docId'];
+    switch (deepLink.path) {
+      case "/join_onestep":
+        navService.pushNamed('/helloOnestep', args: deepLink);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: NavigationService.navigationKey,
       theme: ThemeData(
         primaryColor: Colors.grey,
         accentColor: Colors.grey,

@@ -1,4 +1,6 @@
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'package:no_context_navigation/no_context_navigation.dart';
 import 'package:onestep/home/homeNotificationPage.dart';
 import 'package:onestep/home/message/messagePage.dart';
 import 'package:onestep/moor/moor_database.dart';
@@ -15,6 +17,11 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends State<HomeWidget> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     NotificationChksDao p =

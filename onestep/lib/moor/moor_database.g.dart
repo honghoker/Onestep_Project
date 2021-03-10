@@ -522,7 +522,11 @@ class $NotificationChksTable extends NotificationChks
 class PushNoticeChk extends DataClass implements Insertable<PushNoticeChk> {
   final String firestoreid;
   final String pushChecked;
-  PushNoticeChk({@required this.firestoreid, @required this.pushChecked});
+  final String marketingChecked;
+  PushNoticeChk(
+      {@required this.firestoreid,
+      @required this.pushChecked,
+      @required this.marketingChecked});
   factory PushNoticeChk.fromData(
       Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
@@ -533,6 +537,8 @@ class PushNoticeChk extends DataClass implements Insertable<PushNoticeChk> {
           .mapFromDatabaseResponse(data['${effectivePrefix}firestoreid']),
       pushChecked: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}push_checked']),
+      marketingChecked: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}marketing_checked']),
     );
   }
   @override
@@ -543,6 +549,9 @@ class PushNoticeChk extends DataClass implements Insertable<PushNoticeChk> {
     }
     if (!nullToAbsent || pushChecked != null) {
       map['push_checked'] = Variable<String>(pushChecked);
+    }
+    if (!nullToAbsent || marketingChecked != null) {
+      map['marketing_checked'] = Variable<String>(marketingChecked);
     }
     return map;
   }
@@ -555,6 +564,9 @@ class PushNoticeChk extends DataClass implements Insertable<PushNoticeChk> {
       pushChecked: pushChecked == null && nullToAbsent
           ? const Value.absent()
           : Value(pushChecked),
+      marketingChecked: marketingChecked == null && nullToAbsent
+          ? const Value.absent()
+          : Value(marketingChecked),
     );
   }
 
@@ -564,6 +576,7 @@ class PushNoticeChk extends DataClass implements Insertable<PushNoticeChk> {
     return PushNoticeChk(
       firestoreid: serializer.fromJson<String>(json['firestoreid']),
       pushChecked: serializer.fromJson<String>(json['pushChecked']),
+      marketingChecked: serializer.fromJson<String>(json['marketingChecked']),
     );
   }
   @override
@@ -572,59 +585,73 @@ class PushNoticeChk extends DataClass implements Insertable<PushNoticeChk> {
     return <String, dynamic>{
       'firestoreid': serializer.toJson<String>(firestoreid),
       'pushChecked': serializer.toJson<String>(pushChecked),
+      'marketingChecked': serializer.toJson<String>(marketingChecked),
     };
   }
 
-  PushNoticeChk copyWith({String firestoreid, String pushChecked}) =>
+  PushNoticeChk copyWith(
+          {String firestoreid, String pushChecked, String marketingChecked}) =>
       PushNoticeChk(
         firestoreid: firestoreid ?? this.firestoreid,
         pushChecked: pushChecked ?? this.pushChecked,
+        marketingChecked: marketingChecked ?? this.marketingChecked,
       );
   @override
   String toString() {
     return (StringBuffer('PushNoticeChk(')
           ..write('firestoreid: $firestoreid, ')
-          ..write('pushChecked: $pushChecked')
+          ..write('pushChecked: $pushChecked, ')
+          ..write('marketingChecked: $marketingChecked')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(firestoreid.hashCode, pushChecked.hashCode));
+  int get hashCode => $mrjf($mrjc(firestoreid.hashCode,
+      $mrjc(pushChecked.hashCode, marketingChecked.hashCode)));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is PushNoticeChk &&
           other.firestoreid == this.firestoreid &&
-          other.pushChecked == this.pushChecked);
+          other.pushChecked == this.pushChecked &&
+          other.marketingChecked == this.marketingChecked);
 }
 
 class PushNoticeChksCompanion extends UpdateCompanion<PushNoticeChk> {
   final Value<String> firestoreid;
   final Value<String> pushChecked;
+  final Value<String> marketingChecked;
   const PushNoticeChksCompanion({
     this.firestoreid = const Value.absent(),
     this.pushChecked = const Value.absent(),
+    this.marketingChecked = const Value.absent(),
   });
   PushNoticeChksCompanion.insert({
     @required String firestoreid,
     this.pushChecked = const Value.absent(),
+    this.marketingChecked = const Value.absent(),
   }) : firestoreid = Value(firestoreid);
   static Insertable<PushNoticeChk> custom({
     Expression<String> firestoreid,
     Expression<String> pushChecked,
+    Expression<String> marketingChecked,
   }) {
     return RawValuesInsertable({
       if (firestoreid != null) 'firestoreid': firestoreid,
       if (pushChecked != null) 'push_checked': pushChecked,
+      if (marketingChecked != null) 'marketing_checked': marketingChecked,
     });
   }
 
   PushNoticeChksCompanion copyWith(
-      {Value<String> firestoreid, Value<String> pushChecked}) {
+      {Value<String> firestoreid,
+      Value<String> pushChecked,
+      Value<String> marketingChecked}) {
     return PushNoticeChksCompanion(
       firestoreid: firestoreid ?? this.firestoreid,
       pushChecked: pushChecked ?? this.pushChecked,
+      marketingChecked: marketingChecked ?? this.marketingChecked,
     );
   }
 
@@ -637,6 +664,9 @@ class PushNoticeChksCompanion extends UpdateCompanion<PushNoticeChk> {
     if (pushChecked.present) {
       map['push_checked'] = Variable<String>(pushChecked.value);
     }
+    if (marketingChecked.present) {
+      map['marketing_checked'] = Variable<String>(marketingChecked.value);
+    }
     return map;
   }
 
@@ -644,7 +674,8 @@ class PushNoticeChksCompanion extends UpdateCompanion<PushNoticeChk> {
   String toString() {
     return (StringBuffer('PushNoticeChksCompanion(')
           ..write('firestoreid: $firestoreid, ')
-          ..write('pushChecked: $pushChecked')
+          ..write('pushChecked: $pushChecked, ')
+          ..write('marketingChecked: $marketingChecked')
           ..write(')'))
         .toString();
   }
@@ -680,8 +711,20 @@ class $PushNoticeChksTable extends PushNoticeChks
         defaultValue: Constant('false'));
   }
 
+  final VerificationMeta _marketingCheckedMeta =
+      const VerificationMeta('marketingChecked');
+  GeneratedTextColumn _marketingChecked;
   @override
-  List<GeneratedColumn> get $columns => [firestoreid, pushChecked];
+  GeneratedTextColumn get marketingChecked =>
+      _marketingChecked ??= _constructMarketingChecked();
+  GeneratedTextColumn _constructMarketingChecked() {
+    return GeneratedTextColumn('marketing_checked', $tableName, false,
+        defaultValue: Constant('false'));
+  }
+
+  @override
+  List<GeneratedColumn> get $columns =>
+      [firestoreid, pushChecked, marketingChecked];
   @override
   $PushNoticeChksTable get asDslTable => this;
   @override
@@ -706,6 +749,12 @@ class $PushNoticeChksTable extends PushNoticeChks
           _pushCheckedMeta,
           pushChecked.isAcceptableOrUnknown(
               data['push_checked'], _pushCheckedMeta));
+    }
+    if (data.containsKey('marketing_checked')) {
+      context.handle(
+          _marketingCheckedMeta,
+          marketingChecked.isAcceptableOrUnknown(
+              data['marketing_checked'], _marketingCheckedMeta));
     }
     return context;
   }

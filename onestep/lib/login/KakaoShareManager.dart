@@ -4,7 +4,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
-import 'package:kakao_flutter_sdk/all.dart';
+import 'package:kakao_flutter_sdk/link.dart';
 import 'package:share/share.dart';
 
 class KakaoShareManager {
@@ -20,8 +20,8 @@ class KakaoShareManager {
   }
 
   void initializeKakaoSDK() {
-    String kakaoAppKey = "c9095cdfce8884adb0b88729a7e95aba";
-    KakaoContext.clientId = kakaoAppKey;
+    // String kakaoAppKey = "c9095cdfce8884adb0b88729a7e95aba";
+    // KakaoContext.clientId = kakaoAppKey;
   }
 
   Future<bool> isKakaotalkInstalled() async {
@@ -57,6 +57,7 @@ class KakaoShareManager {
       String code, AsyncSnapshot<DocumentSnapshot> snapshot, imageItem) async {
     final DynamicLinkParameters parameters = DynamicLinkParameters(
       uriPrefix: 'https://onestep.page.link',
+      // link: Uri.parse('https://onestep.page.link/join_onestep?code=$docId'),
       link: Uri.parse('https://onestep.page.link/join_family?code=$code'),
       androidParameters: AndroidParameters(
         packageName: 'com.example.onestep',

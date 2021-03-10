@@ -5,7 +5,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/appmain/myhomepage.dart';
+import 'package:onestep/login/provider/loginProvider.dart';
 import 'package:onestep/notification/Controllers/loginController.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'ProgressWidget.dart';
@@ -21,7 +23,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final GoogleSignIn googleSignIn = GoogleSignIn();
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  SharedPreferences preferences;
+  //SharedPreferences preferences;
 
   bool isLoggedIn = false;
   bool isLoading = false;
@@ -50,13 +52,11 @@ class _LoginScreenState extends State<LoginScreen> {
 //         "userEmail": "", //User Email
 //         "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
 
-    preferences = await SharedPreferences.getInstance();
+    //preferences = await SharedPreferences.getInstance();
     isLoggedIn = await googleSignIn.isSignedIn();
     if (isLoggedIn) {
-      // var arg = preferences.getString('id') ?? '아이디없음';
       var arg = FirebaseApi.getId();
 //      var arg = preferences.getString('id') ?? '아이디없음';
-      // 이거 살려야함
       Navigator.of(context).pushReplacementNamed('/MainPage?UID=$arg');
 
 //       var arg = firebaseAuth.currentUser.uid;
@@ -66,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
 //       // Navigator.of(context).pushReplacementNamed('/MainPage?UID=$arg');
 
 //       // 회원가입으로
-      // Navigator.of(context).pushNamed('/JoinPage?UID=$arg');
+//       Navigator.of(context).pushNamed('/JoinPage?UID=$arg');
 
       // Navigator.push(
       //     context,
@@ -90,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
       throw UnimplementedError();
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -152,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<Null> controlSignIn() async {
-    preferences = await SharedPreferences.getInstance();
+    //preferences = await SharedPreferences.getInstance();
     this.setState(() {
       isLoading = true;
     });
@@ -196,42 +196,33 @@ class _LoginScreenState extends State<LoginScreen> {
         // });
       } else {
         //Write data to Local
-        currentUser = firebaseUser;
-        await preferences.setString("id", documentSnapshots[0]["id"]);
-        await preferences.setString(
-            "nickname", documentSnapshots[0]["nickname"]);
-        await preferences.setString(
-            "photoUrl", documentSnapshots[0]["photoUrl"]);
-        await preferences.setString("aboutMe", documentSnapshots[0]["aboutMe"]);
+        // currentUser = firebaseUser;
+        // await preferences.setString("id", documentSnapshots[0]["id"]);
+        // await preferences.setString(
+        //     "nickname", documentSnapshots[0]["nickname"]);
+        // await preferences.setString(
+        //     "photoUrl", documentSnapshots[0]["photoUrl"]);
+        // await preferences.setString("aboutMe", documentSnapshots[0]["aboutMe"]);
       }
-
-      // Fluttertoast.showToast(msg: "로그인 완료");
-      Fluttertoast.showToast(
-          msg: "userlevel = ${documentSnapshots[0]["userLevel"]}");
+      Fluttertoast.showToast(msg: "로그인 완료");
 
       this.setState(() {
         isLoading = false;
       });
-      
-      // // 회원가입으로 넘어가는 navigator
+
+      // 회원가입으로 넘어가는 navigator
       // Navigator.of(context).pushNamed('/JoinPage?UID=${firebaseUser.uid}');
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => Consumer<LoginProvider>(
+                builder: (context, loginProvider, _) => JoinScreen(
+                    currentUserId: firebaseUser.uid,
+                    loginProvider: loginProvider),
+              )));
+              
 
-      // // 찬섭이형 예시 코드 여기 확인
-      // // Navigator.of(context)
-      // //     .pushReplacementNamed('/MainPage?UID=${firebaseUser.uid}');
-
-      // userLevel 이 0 이면 회원가입으로 1 이면 이미 회원가입 완료한 사람
-      if (documentSnapshots[0]["userLevel"] == 0) {
-        // 회원가입으로 넘어가는 navigator
-        Navigator.of(context).pushNamed('/JoinPage?UID=${firebaseUser.uid}');
-      } else {
-        // 메인으로 넘어감
-        Navigator.of(context)
-            .pushReplacementNamed('/MainPage?UID=${firebaseUser.uid}');
-
-        // 회원가입 작업하려고 잠시 회원가입창으로 이거 지워야함
-        // Navigator.of(context).pushNamed('/JoinPage?UID=${firebaseUser.uid}');
-      }
+      // 찬섭이형 예시 코드 여기 확인
+      // Navigator.of(context)
+      //     .pushReplacementNamed('/MainPage?UID=${firebaseUser.uid}');
 
       Fluttertoast.showToast(msg: 'uid 하단' + currentUser.uid);
     }

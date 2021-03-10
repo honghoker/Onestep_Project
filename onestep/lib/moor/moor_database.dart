@@ -87,6 +87,7 @@ class NotificationChksDao extends DatabaseAccessor<AppDatabase>
 class PushNoticeChks extends Table {
   TextColumn get firestoreid => text()();
   TextColumn get pushChecked => text().withDefault(Constant('false'))();
+  TextColumn get marketingChecked => text().withDefault(Constant('false'))();
 
   @override
   Set<Column> get primaryKey => {firestoreid};

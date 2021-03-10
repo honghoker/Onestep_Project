@@ -63,6 +63,7 @@ dependencies:
   rxdart: ^0.25.0
   flutter_countdown_timer: ^3.0.0
   lottie: ^0.7.0+1
+  no_context_navigation: ^1.0.4
   
 dev_dependencies:
   flutter_test:

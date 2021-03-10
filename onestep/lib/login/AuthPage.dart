@@ -3,8 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/home/sendMail.dart';
+import 'package:onestep/login/provider/loginProvider.dart';
 
 class AuthScreen extends StatefulWidget {
+  final LoginProvider loginProvider;
+
+  const AuthScreen({Key key, this.loginProvider}) : super(key: key);
   @override
   _AuthScreenState createState() => _AuthScreenState();
 }
@@ -70,6 +74,14 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    widget.loginProvider.setAuthEmailChecked(false);
+    widget.loginProvider.setAuthEmailErrorUnderLine(true);
+    widget.loginProvider.setAuthEmailDupliCheckUnderLine(true);
+    widget.loginProvider.setAuthSendUnderLine(true);
+    widget.loginProvider.setAuthNumber(true);
+    widget.loginProvider.setAuthTimeOverChecked(true);
+    widget.loginProvider.setAuthTimerChecked(false);
+    widget.loginProvider.setAuthSendClick(false);
 
     emailController = TextEditingController(text: tempEmail);
     emailController.selection = TextSelection.fromPosition(
@@ -113,7 +125,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   }
 
   authEmailNickNameCheck(String text) async {
-    _isEmailChecked = false;
+    widget.loginProvider.changedAuthEmailChecked(false);
+    // _isEmailChecked = false;
     QuerySnapshot ref = await FirebaseFirestore.instance
         .collection('users')
         .where("userUniversityEmail", isEqualTo: text)
@@ -122,27 +135,56 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     List<QueryDocumentSnapshot> docRef = ref.docs;
 
     if (text.contains("@stu.kmu.ac.kr") && docRef.isEmpty) {
-      setState(() {
-        _isEmailChecked = true;
-        _isEmailErrorUnderLine = true;
-        _isEmailDupliCheckUnderLine = true;
-        _isEmailDupliCheckUnderLine = true;
-        _isSendUnderLine = true;
+      widget.loginProvider.changedAuthEmailChecked(true);
+      widget.loginProvider.changedAuthEmailErrorUnderLine(true);
+      widget.loginProvider.changedAuthEmailDupliCheckUnderLine(true);
+      widget.loginProvider.changedAuthSendUnderLine(true);
+      widget.loginProvider.changedAuthTimerChecked(false);
+      print("@@@@@@@@@@@@@ 여기옴111111?");
 
-        _isTimerChecked = false;
-        _controller.reset();
-      });
+      // setState(() {
+      //   _controller.reset();
+      // });
+      _controller.reset();
     } else {
-      setState(() {
-        _isEmailErrorUnderLine = false;
-        _isEmailDupliCheckUnderLine = true;
-        _isSendUnderLine = true;
+      widget.loginProvider.changedAuthEmailErrorUnderLine(false);
+      widget.loginProvider.changedAuthEmailDupliCheckUnderLine(true);
+      widget.loginProvider.changedAuthSendUnderLine(true);
+      widget.loginProvider.changedAuthTimerChecked(false);
+      widget.loginProvider.changedAuthSendClick(false);
 
-        _isTimerChecked = false;
-        _isSendClick = false;
-        _controller.reset();
-      });
+      print("@@@@@@@@@@@@@ 여기옴2222222?");
+      print(
+          "@@@@@@@@@@@@@ 여기옴2222222? ${widget.loginProvider.hasAuthEmailErrorUnderLine}");
+      print(
+          "@@@@@@@@@@@@@ 여기옴2222222? ${widget.loginProvider.hasAuthEmailDupliCheckUnderLine}");
+      // setState(() {
+      //   _controller.reset();
+      // });
+      _controller.reset();
     }
+
+    // if (text.contains("@stu.kmu.ac.kr") && docRef.isEmpty) {
+    //   setState(() {
+    //     _isEmailChecked = true;
+    //     _isEmailErrorUnderLine = true;
+    //     _isEmailDupliCheckUnderLine = true;
+    //     _isEmailDupliCheckUnderLine = true;
+    //     _isSendUnderLine = true;
+
+    //     _isTimerChecked = false;
+    //     _controller.reset();
+    //   });
+    // } else {
+    //   setState(() {
+    //     _isEmailErrorUnderLine = false;
+    //     _isEmailDupliCheckUnderLine = true;
+    //     _isSendUnderLine = true;
+
+    //     _isTimerChecked = false;
+    //     _isSendClick = false;
+    //     _controller.reset();
+    //   });
   }
 
   @override
@@ -214,17 +256,30 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                           hintText: "이메일",
                           enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: (_isEmailErrorUnderLine == false ||
-                                          _isEmailDupliCheckUnderLine == false)
+                                  color: widget.loginProvider
+                                                  .hasAuthEmailErrorUnderLine ==
+                                              false ||
+                                          widget.loginProvider
+                                                  .hasAuthEmailDupliCheckUnderLine ==
+                                              false
+                                      // color: (_isEmailErrorUnderLine == false ||
+                                      //         _isEmailDupliCheckUnderLine == false)
                                       ? Colors.red
                                       : Colors.grey)),
                           focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: (_isEmailErrorUnderLine == false ||
-                                          _isEmailDupliCheckUnderLine == false)
+                                  color: widget.loginProvider
+                                                  .hasAuthEmailErrorUnderLine ==
+                                              false ||
+                                          widget.loginProvider
+                                                  .hasAuthEmailDupliCheckUnderLine ==
+                                              false
+                                      // color: (_isEmailErrorUnderLine == false ||
+                                      //         _isEmailDupliCheckUnderLine == false)
                                       ? Colors.red
                                       : Colors.grey)),
-                          suffix: _isEmailChecked
+                          suffix: widget.loginProvider.hasAuthEmailChecked
+                              // suffix: _isEmailChecked
                               ? GestureDetector(
                                   child: Text("확인완료"),
                                   onTap: () {
@@ -250,7 +305,11 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                           "이메일 형식이 잘못되었거나 중복입니다.",
                           style: TextStyle(color: Colors.red),
                         )),
-                    offstage: _isEmailErrorUnderLine == true ? true : false,
+                    offstage:
+                        widget.loginProvider.hasAuthEmailErrorUnderLine == true
+                            ? true
+                            : false,
+                    // offstage: _isEmailErrorUnderLine == true ? true : false,
                   ),
                   Offstage(
                     child: Padding(
@@ -260,7 +319,12 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                           style: TextStyle(color: Colors.red),
                         )),
                     offstage:
-                        _isEmailDupliCheckUnderLine == true ? true : false,
+                        widget.loginProvider.hasAuthEmailDupliCheckUnderLine ==
+                                true
+                            ? true
+                            : false,
+                    // offstage:
+                    //     _isEmailDupliCheckUnderLine == true ? true : false,
                   ),
                   Offstage(
                     child: Padding(
@@ -269,37 +333,69 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                           "인증번호가 메일로 전송되었습니다.",
                           style: TextStyle(color: Colors.grey),
                         )),
-                    offstage: _isSendUnderLine == true ? true : false,
+                    offstage: widget.loginProvider.hasAuthSendUnderLine == true
+                        ? true
+                        : false,
+                    // offstage: _isSendUnderLine == true ? true : false,
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
                     child: Container(
                       width: 300,
-                      child: _isSendClick == false
+                      child: widget.loginProvider.hasAuthSendClick == false
+                          // child: _isSendClick == false
                           ? RaisedButton(
                               onPressed: () async {
                                 checkPassword = await getRandomNumber();
                                 print("checkPassword = $checkPassword");
-                                if (_isEmailChecked == true) {
-                                  setState(() {
-                                    _isSendUnderLine = false;
-                                    _isEmailErrorUnderLine = true;
-                                    _isEmailDupliCheckUnderLine = true;
-                                    _isTimerChecked = true;
+                                if (widget.loginProvider.hasAuthEmailChecked) {
+                                  widget.loginProvider
+                                      .changedAuthSendUnderLine(false);
+                                  widget.loginProvider
+                                      .changedAuthEmailErrorUnderLine(true);
+                                  widget.loginProvider
+                                      .changedAuthEmailDupliCheckUnderLine(
+                                          true);
+                                  widget.loginProvider
+                                      .changedAuthTimerChecked(true);
+                                  widget.loginProvider.changedAuthNumber(true);
+                                  widget.loginProvider
+                                      .changedAuthTimeOverChecked(true);
+                                  widget.loginProvider
+                                      .changedAuthSendClick(true);
 
-                                    _isAuthNumber = true;
-                                    _isTimeOverChecked = true;
-                                    _isSendClick = true;
-                                  });
                                   // sendMail(1,checkPassword,emailController.text);
+
                                   _controller.forward();
                                 } else {
-                                  setState(() {
-                                    _isEmailDupliCheckUnderLine = false;
-                                    _isSendUnderLine = true;
-                                    _isEmailErrorUnderLine = true;
-                                  });
+                                  widget.loginProvider
+                                      .changedAuthEmailDupliCheckUnderLine(
+                                          false);
+                                  widget.loginProvider
+                                      .changedAuthSendUnderLine(true);
+                                  widget.loginProvider
+                                      .changedAuthEmailErrorUnderLine(true);
                                 }
+                                // if (_isEmailChecked == true) {
+                                //   setState(() {
+                                //     _isSendUnderLine = false;
+                                //     _isEmailErrorUnderLine = true;
+                                //     _isEmailDupliCheckUnderLine = true;
+                                //     _isTimerChecked = true;
+
+                                //     _isAuthNumber = true;
+                                //     _isTimeOverChecked = true;
+                                //     _isSendClick = true;
+                                //   });
+                                //   // sendMail(1,checkPassword,emailController.text);
+                                //   _controller.forward();
+                                // } else {
+                                //   setState(() {
+                                //     _isEmailDupliCheckUnderLine = false;
+                                //     _isSendUnderLine = true;
+                                //     _isEmailErrorUnderLine = true;
+                                //   });
+                                // }
                               },
                               child: Text("전송"),
                             )
@@ -320,20 +416,31 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                           hintText: "인증번호",
                           enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: (_isAuthNumber == false ||
-                                          _isTimeOverChecked == false)
+                                  color: widget.loginProvider.hasAuthNumber ==
+                                              false ||
+                                          widget.loginProvider
+                                                  .hasAuthTimeOverChecked ==
+                                              false
+                                      // color: (_isAuthNumber == false ||
+                                      //         _isTimeOverChecked == false)
                                       ? Colors.red
                                       : Colors.grey)),
                           focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: (_isAuthNumber == false ||
-                                          _isTimeOverChecked == false)
+                                  color: widget.loginProvider.hasAuthNumber ==
+                                              false ||
+                                          widget.loginProvider
+                                                  .hasAuthTimeOverChecked ==
+                                              false
+                                      // color: (_isAuthNumber == false ||
+                                      //         _isTimeOverChecked == false)
                                       ? Colors.red
                                       : Colors.grey)),
                           isDense: true,
                           suffixIconConstraints:
                               BoxConstraints(minWidth: 0, minHeight: 0),
-                          suffixIcon: _isTimerChecked
+                          suffixIcon: widget.loginProvider.hasAuthTimerChecked
+                              // suffixIcon: _isTimerChecked
                               ? Countdown(
                                   animation: StepTween(
                                     begin:
@@ -354,7 +461,10 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         style: TextStyle(color: Colors.red),
                       ),
                     ),
-                    offstage: _isAuthNumber == true ? true : false,
+                    offstage: widget.loginProvider.hasAuthNumber == true
+                        ? true
+                        : false,
+                    // offstage: _isAuthNumber == true ? true : false,
                   ),
                   Offstage(
                     child: Padding(
@@ -364,8 +474,14 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         style: TextStyle(color: Colors.red),
                       ),
                     ),
-                    offstage: _isTimeOverChecked == true ? true : false,
+                    offstage:
+                        widget.loginProvider.hasAuthTimeOverChecked == true
+                            ? true
+                            : false,
+                    // offstage: _isTimeOverChecked == true ? true : false,
                   ),
+
+                  // 이부분
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 25, 0, 0),
                     child: Container(
@@ -373,68 +489,85 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       child: RaisedButton(
                         onPressed: () async {
                           checkPassword = await getRandomNumber();
-                          setState(() {
-                            showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0)),
-                                    title: Column(
-                                      children: <Widget>[
-                                        new Text(""),
-                                      ],
-                                    ),
-                                    content: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Center(
-                                          child: _isEmailChecked == true
-                                              ? Text(
-                                                  "인증번호가 재전송 되었습니다.",
-                                                )
-                                              : Text("이메일 중복확인을 해주세요."),
-                                        ),
-                                      ],
-                                    ),
-                                    actions: <Widget>[
-                                      _isEmailChecked == true
-                                          ? FlatButton(
-                                              child: Text("확인"),
-                                              onPressed: () {
-                                                setState(() {
-                                                  _isSendClick = true;
-                                                  _isTimeOverChecked = true;
-                                                  _isAuthNumber = true;
-                                                  _timeOver = false;
-                                                  levelClock = 10;
-                                                  _controller = AnimationController(
-                                                      duration: Duration(
-                                                          seconds: levelClock),
-                                                      vsync:
-                                                          this // gameData.levelClock is a user entered number elsewhere in the applciation
-                                                      );
-
-                                                  _controller.forward();
-                                                });
-                                                Navigator.pop(context);
-                                              },
-                                            )
-                                          : FlatButton(
-                                              child: Text("확인"),
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                            ),
+                          showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(10.0)),
+                                  title: Column(
+                                    children: <Widget>[
+                                      Text(""),
                                     ],
-                                  );
-                                });
-                            // sendMail(1,checkPassword,emailController.text);
-                          });
+                                  ),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Center(
+                                        child: widget.loginProvider
+                                                    .hasAuthEmailChecked ==
+                                                true
+                                            // child: _isEmailChecked == true
+                                            ? Text(
+                                                "인증번호가 재전송 되었습니다.",
+                                              )
+                                            : Text("이메일 중복확인을 해주세요."),
+                                      ),
+                                    ],
+                                  ),
+                                  actions: <Widget>[
+                                    widget.loginProvider.hasAuthEmailChecked ==
+                                            true
+                                        // _isEmailChecked == true
+                                        ? FlatButton(
+                                            child: Text("확인"),
+                                            onPressed: () {
+                                              widget.loginProvider.changedAuthSendClick(true);
+                                              widget.loginProvider.changedAuthTimeOverChecked(true);
+                                              widget.loginProvider.changedAuthNumber(true);
+                                              
+                                              _timeOver = false;
+                                              levelClock = 10;
+                                              _controller = AnimationController(
+                                                  duration: Duration(
+                                                      seconds: levelClock),
+                                                  vsync:
+                                                      this // gameData.levelClock is a user entered number elsewhere in the applciation
+                                                  );
+
+                                              _controller.forward();
+                                              // setState(() {
+                                              //   _isSendClick = true;
+                                              //   _isTimeOverChecked = true;
+                                              //   _isAuthNumber = true;
+                                              //   _timeOver = false;
+                                              //   levelClock = 10;
+                                              //   _controller = AnimationController(
+                                              //       duration: Duration(
+                                              //           seconds: levelClock),
+                                              //       vsync:
+                                              //           this // gameData.levelClock is a user entered number elsewhere in the applciation
+                                              //       );
+
+                                              //   _controller.forward();
+                                              // });
+                                              Navigator.pop(context);
+                                            },
+                                          )
+                                        : FlatButton(
+                                            child: Text("확인"),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                  ],
+                                );
+                              });
+                          // sendMail(1,checkPassword,emailController.text);
                         },
                         child: Text("재전송"),
                       ),
@@ -453,18 +586,23 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                           // Navigator.of(context).pop();
                         } else if (_timeOver == true) {
                           print("time over 실패");
-                          setState(() {
-                            _isTimeOverChecked = false;
-                            _isAuthNumber = true;
-                          });
+                          widget.loginProvider
+                              .changedAuthTimeOverChecked(false);
+                          widget.loginProvider.changedAuthNumber(true);
+                          // setState(() {
+                          //   _isTimeOverChecked = false;
+                          //   _isAuthNumber = true;
+                          // });
                           // print("${snapshot.data.data()['authTest']}");
                           // Navigator.of(context).pop();
                         } else {
                           print("인증번호 매칭 실패");
-                          setState(() {
-                            _isTimeOverChecked = true;
-                            _isAuthNumber = false;
-                          });
+                          widget.loginProvider.changedAuthTimeOverChecked(true);
+                          widget.loginProvider.changedAuthNumber(false);
+                          // setState(() {
+                          //   _isTimeOverChecked = true;
+                          //   _isAuthNumber = false;
+                          // });
                         }
                       },
                       child: Text("인증"),

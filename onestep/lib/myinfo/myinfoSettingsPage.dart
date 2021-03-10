@@ -8,10 +8,14 @@ import 'package:provider/provider.dart';
 
 class MyinfoSettingsPage extends StatefulWidget {
   final MyinfoProvider myinfoProvider;
-  final String initSwitchedValue;
+  final String initPushSwitchedValue;
+  final String initMarketingSwitchedValue;
 
   const MyinfoSettingsPage(
-      {Key key, this.myinfoProvider, this.initSwitchedValue})
+      {Key key,
+      this.myinfoProvider,
+      this.initPushSwitchedValue,
+      this.initMarketingSwitchedValue})
       : super(key: key);
 
   @override
@@ -25,9 +29,12 @@ class _MyinfoSettingsPageState extends State<MyinfoSettingsPage> {
   @override
   void initState() {
     super.initState();
-    widget.initSwitchedValue == "true"
-        ? widget.myinfoProvider.setSwitchedValue(true)
-        : widget.myinfoProvider.setSwitchedValue(false);
+    widget.initPushSwitchedValue == "true"
+        ? widget.myinfoProvider.setPushSwitchedValue(true)
+        : widget.myinfoProvider.setPushSwitchedValue(false);
+    widget.initMarketingSwitchedValue == "true"
+        ? widget.myinfoProvider.setMarketingSwitchedValue(true)
+        : widget.myinfoProvider.setMarketingSwitchedValue(false);
   }
 
   @override
@@ -59,9 +66,7 @@ class _MyinfoSettingsPageState extends State<MyinfoSettingsPage> {
                   ),
                 ),
                 InkWell(
-                  onTap: () {
-                    print("widget.myinfoProvider.hasSwitched = ${widget.myinfoProvider.hasSwitched}");
-                  },
+                  onTap: () {},
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
                     child: Row(
@@ -69,12 +74,12 @@ class _MyinfoSettingsPageState extends State<MyinfoSettingsPage> {
                       children: [
                         Container(
                           child: Text(
-                            "푸쉬 알림 설정",
+                            "푸시 알림 설정",
                             style: TextStyle(fontSize: 15),
                           ),
                         ),
                         Switch(
-                          value: widget.myinfoProvider.hasSwitched,
+                          value: widget.myinfoProvider.hasPushSwitched,
                           onChanged: (value) {
                             print(
                                 "db value 1 = ${snapshot.data.first.pushChecked}");
@@ -83,12 +88,62 @@ class _MyinfoSettingsPageState extends State<MyinfoSettingsPage> {
                             value == false
                                 ? p.updatePushNotice(PushNoticeChk(
                                     pushChecked: 'false',
-                                    firestoreid: FirebaseApi.getId()))
+                                    firestoreid: FirebaseApi.getId(),
+                                    marketingChecked:
+                                        snapshot.data.first.marketingChecked))
                                 : p.updatePushNotice(PushNoticeChk(
                                     pushChecked: 'true',
-                                    firestoreid: FirebaseApi.getId()));
+                                    firestoreid: FirebaseApi.getId(),
+                                    marketingChecked:
+                                        snapshot.data.first.marketingChecked));
 
-                            widget.myinfoProvider.changedSwitchValue(value);
+                            widget.myinfoProvider.changedPushSwitchValue(value);
+                          },
+                          activeTrackColor: Colors.lightGreenAccent,
+                          activeColor: Colors.green,
+                        ),
+                        // IconButton(
+                        //   icon: Icon(Icons.keyboard_arrow_right),
+                        //   onPressed: () {},
+                        // )
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {},
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          child: Text(
+                            "마케팅 알림 설정",
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                        Switch(
+                          value: widget.myinfoProvider.hasMarketingSwitched,
+                          onChanged: (value) {
+                            print(
+                                "db value 1 = ${snapshot.data.first.marketingChecked}");
+                            print("value = $value");
+
+                            value == false
+                                ? p.updatePushNotice(PushNoticeChk(
+                                    pushChecked:
+                                        snapshot.data.first.pushChecked,
+                                    firestoreid: FirebaseApi.getId(),
+                                    marketingChecked: 'false'))
+                                : p.updatePushNotice(PushNoticeChk(
+                                    pushChecked:
+                                        snapshot.data.first.pushChecked,
+                                    firestoreid: FirebaseApi.getId(),
+                                    marketingChecked: 'true'));
+
+                            widget.myinfoProvider
+                                .changedMarketingSwitchValue(value);
                           },
                           activeTrackColor: Colors.lightGreenAccent,
                           activeColor: Colors.green,

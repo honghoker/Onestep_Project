@@ -2,20 +2,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/login/AuthPage.dart';
+import 'package:onestep/login/provider/loginProvider.dart';
+import 'package:provider/provider.dart';
 
 class JoinScreen extends StatefulWidget {
   final String currentUserId;
-  const JoinScreen({Key key, this.currentUserId}) : super(key: key);
+  final LoginProvider loginProvider;
+
+  const JoinScreen({Key key, this.currentUserId, this.loginProvider})
+      : super(key: key);
 
   @override
-  _JoinScreenState createState() =>
-      _JoinScreenState(currentUserId: currentUserId);
+  _JoinScreenState createState() => _JoinScreenState();
 }
 
 class _JoinScreenState extends State<JoinScreen> {
-  final String currentUserId;
-  _JoinScreenState({Key key, @required this.currentUserId});
-
   bool _isNickNameChecked = false;
   bool _isEmailChecked = false;
   bool _isEmailUnderLine = true;
@@ -46,24 +47,27 @@ class _JoinScreenState extends State<JoinScreen> {
   authEmailNickNameCheck(String text, int flag) async {
     // email
     if (flag == 1) {
-      _isEmailChecked = false;
+      widget.loginProvider.setEmailChecked(false);
+      // _isEmailChecked = false;
       QuerySnapshot ref = await FirebaseFirestore.instance
           .collection('users')
           .where("userEmail", isEqualTo: text)
           .get();
 
       List<QueryDocumentSnapshot> docRef = ref.docs;
-
-      print("docRef.isEmpty 1 = ${docRef.isNotEmpty}");
-      setState(() {
-        _isEmailChecked = docRef.isEmpty;
-        _isEmailUnderLine = docRef.isEmpty;
-        print("docRef.isEmpty 2 = ${docRef.isNotEmpty}");
-      });
+      widget.loginProvider.changedEmailChecked(docRef.isEmpty);
+      widget.loginProvider.changedEmailUnderLine(docRef.isEmpty);
+      // print("docRef.isEmpty 1 = ${docRef.isNotEmpty}");
+      // setState(() {
+      //   _isEmailChecked = docRef.isEmpty;
+      //   _isEmailUnderLine = docRef.isEmpty;
+      //   print("docRef.isEmpty 2 = ${docRef.isNotEmpty}");
+      // });
     }
     // nickname
     else {
-      _isNickNameChecked = false;
+      widget.loginProvider.setNickNameChecked(false);
+      // _isNickNameChecked = false;
       QuerySnapshot ref = await FirebaseFirestore.instance
           .collection('users')
           .where("nickname", isEqualTo: text)
@@ -71,12 +75,14 @@ class _JoinScreenState extends State<JoinScreen> {
 
       List<QueryDocumentSnapshot> docRef = ref.docs;
 
-      print("docRef.isEmpty 1 = ${docRef.isNotEmpty}");
-      setState(() {
-        _isNickNameChecked = docRef.isEmpty;
-        _isNickNameUnderLine = docRef.isEmpty;
-        print("docRef.isEmpty 2 = ${docRef.isNotEmpty}");
-      });
+      widget.loginProvider.changedNickNameChecked(docRef.isEmpty);
+      widget.loginProvider.changedNickNameUnderLine(docRef.isEmpty);
+      // print("docRef.isEmpty 1 = ${docRef.isNotEmpty}");
+      // setState(() {
+      //   _isNickNameChecked = docRef.isEmpty;
+      //   _isNickNameUnderLine = docRef.isEmpty;
+      //   print("docRef.isEmpty 2 = ${docRef.isNotEmpty}");
+      // });
     }
   }
 
@@ -141,15 +147,18 @@ class _JoinScreenState extends State<JoinScreen> {
                           hintText: "이메일",
                           enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: _isEmailUnderLine == true
+                                  color: widget.loginProvider.hasEmailUnderLine
+                                      // color: _isEmailUnderLine == true
                                       ? Colors.grey
                                       : Colors.red)),
                           focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: _isEmailUnderLine == true
+                                  color: widget.loginProvider.hasEmailUnderLine
+                                      // color: _isEmailUnderLine == true
                                       ? Colors.grey
                                       : Colors.red)),
-                          suffix: _isEmailChecked
+                          suffix: widget.loginProvider.hasEmailChecked
+                              // suffix: _isEmailChecked
                               ? GestureDetector(
                                   child: Text("확인완료"),
                                   onTap: () {
@@ -178,7 +187,9 @@ class _JoinScreenState extends State<JoinScreen> {
                       style: TextStyle(color: Colors.red),
                     ),
                   ),
-                  offstage: _isEmailUnderLine == true ? true : false,
+                  offstage:
+                      widget.loginProvider.hasEmailUnderLine ? true : false,
+                  // offstage: _isEmailUnderLine == true ? true : false,
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
@@ -195,15 +206,18 @@ class _JoinScreenState extends State<JoinScreen> {
                         hintText: "닉네임",
                         enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                                color: _isNickNameUnderLine == true
+                                color: widget.loginProvider.hasNickNameUnderLine
+                                    // color: _isNickNameUnderLine == true
                                     ? Colors.grey
                                     : Colors.red)),
                         focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                                color: _isNickNameUnderLine == true
+                                color: widget.loginProvider.hasNickNameUnderLine
+                                    // color: _isNickNameUnderLine == true
                                     ? Colors.grey
                                     : Colors.red)),
-                        suffix: _isNickNameChecked
+                        suffix: widget.loginProvider.hasNickNameChecked
+                            // suffix: _isNickNameChecked
                             ? GestureDetector(
                                 child: Text("확인완료"),
                                 onTap: () {
@@ -231,7 +245,9 @@ class _JoinScreenState extends State<JoinScreen> {
                       style: TextStyle(color: Colors.red),
                     ),
                   ),
-                  offstage: _isNickNameUnderLine == true ? true : false,
+                  offstage:
+                      widget.loginProvider.hasNickNameUnderLine ? true : false,
+                  // offstage: _isNickNameUnderLine == true ? true : false,
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
@@ -245,11 +261,14 @@ class _JoinScreenState extends State<JoinScreen> {
                           width: 100,
                           child: RaisedButton(
                               onPressed: () async {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            AuthScreen()));
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) =>
+                                        Consumer<LoginProvider>(
+                                          builder: (context, loginProvider,
+                                                  _) =>
+                                              AuthScreen(
+                                                  loginProvider: loginProvider),
+                                        )));
                               },
                               child: Text("하러가기"))),
                     ],
@@ -269,12 +288,12 @@ class _JoinScreenState extends State<JoinScreen> {
                           updateUser(
                               emailController.text, nicknameController.text);
                           Navigator.of(context).pushReplacementNamed(
-                              '/MainPage?UID=$currentUserId');
+                              '/MainPage?UID=${widget.currentUserId}');
                         } else {
                           // 일단 넘어가게해놈
                           print("실패");
-                          // Navigator.of(context).pushReplacementNamed(
-                          //     '/MainPage?UID=$currentUserId');
+                          Navigator.of(context).pushReplacementNamed(
+                              '/MainPage?UID=${widget.currentUserId}');
                         }
                       },
                       child: Text("가입완료"),

@@ -4,6 +4,7 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
+import 'package:no_context_navigation/no_context_navigation.dart';
 import 'package:onestep/api/favorite_api.dart';
 import 'package:onestep/cloth/clothModifyWidget.dart';
 import 'package:onestep/cloth/imageFullViewerWIdget.dart';
@@ -30,58 +31,14 @@ class ClothDetailViewWidgetcopy extends StatefulWidget {
 }
 
 class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   List _imageItem = new List();
   TextEditingController _favoriteTextController;
   TextEditingController _priceEditingController;
   Product _product;
   @override
   void initState() {
-    // dynamic link
-    initDynamicLinks();
     super.initState();
-  }
-
-  void initDynamicLinks() async {
-    FirebaseDynamicLinks.instance.onLink(
-        onSuccess: (PendingDynamicLinkData dynamicLink) async {
-      final Uri deepLink = dynamicLink?.link;
-
-      print(deepLink);
-      print(deepLink.path);
-
-      if (deepLink != null) {
-        _handleDynamicLink(deepLink);
-      }
-    }, onError: (OnLinkErrorException e) async {
-      print('onLinkError');
-      print(e.message);
-    });
-
-    final PendingDynamicLinkData data =
-        await FirebaseDynamicLinks.instance.getInitialLink();
-    final Uri deepLink = data?.link;
-
-    print(deepLink);
-
-    if (deepLink != null) {
-      _handleDynamicLink(deepLink);
-    }
-  }
-
-  // 아 요놈이 ㅈㄹ이네
-  void _handleDynamicLink(Uri deepLink) {
-    print("deepLink.path = ${deepLink.path}");
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => MyinfoWidget(),
-    ));
-    // switch (deepLink.path) {
-    //   case "/join_family":
-    //     // 여기 부분이 자세히 보기 클릭하면 그 상품으로 가는 Navigator 가 들어가야 하는데 test 한번 해보고
-    //     // 안되면 어케 그 상품 상세보기로 넘어가는지 생각해보기
-    //     Navigator.of(context).push(MaterialPageRoute(
-    //       builder: (context) => MyinfoWidget(),
-    //     ));
-    // }
   }
 
   String getDiffTime(Timestamp uploadtime) {
@@ -689,7 +646,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                                 if (installed) {
                                   print("kakao success");
                                   KakaoShareManager().shareMyCode(
-                                      "abcd", snapshot, _imageItem[0]);
+                                      "${widget.docId}", snapshot, _imageItem[0]);
                                 } else {
                                   print("kakao error");
                                   // show alert
@@ -710,7 +667,7 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                                   if (installed) {
                                     print("kakao success");
                                     KakaoShareManager().shareMyCode(
-                                        "abcd", snapshot, _imageItem[0]);
+                                        "${widget.docId}", snapshot, _imageItem[0]);
                                   } else {
                                     print("kakao error");
                                     // show alert
@@ -800,13 +757,14 @@ class _ClothDetailViewWidgetcopyState extends State<ClothDetailViewWidgetcopy> {
                     TextEditingController(text: this._product.price + "원");
 
                 List<dynamic> favorite =
-                    snapshot.data.data()['favoriteUserList'];
+                    snapshot.data.data()['favoriteuserlist'];
                 int favoritecount = favorite == null ? 0 : favorite.length;
                 _favoriteTextController =
                     TextEditingController(text: favoritecount.toString());
 
                 incProductViews(); // 조회수 증가
                 return Scaffold(
+                  key: _scaffoldKey,
                   appBar: AppBar(
                     iconTheme: IconThemeData(
                       color: Colors.black,

@@ -175,7 +175,10 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
                                         onPressed: () {
                                           // test 초기화 나중에 회원가입 폼에서 푸시알림이나 이벤트알림 등 푸시알림 받을건지 물어보는 창 만들어서 거기서
                                           // 수락하거나 거절하는 결과에 따라서 insert 하고 메인으로 넘어오게 만들어야함
-                                          // p.insertPushNotice(PushNoticeChk(firestoreid: FirebaseApi.getId(), pushChecked: 'true'));
+                                          // p.insertPushNotice(PushNoticeChk(
+                                          //     firestoreid: FirebaseApi.getId(),
+                                          //     pushChecked: 'true',
+                                          //     marketingChecked: 'true'));
 
                                           // provider 쓰려면 이렇게 consumer로 넘겨줘야함
                                           Navigator.of(context).push(
@@ -188,11 +191,16 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
                                                             MyinfoSettingsPage(
                                                           myinfoProvider:
                                                               myinfoProvider,
-                                                          initSwitchedValue:
+                                                          initPushSwitchedValue:
                                                               snapshot1
                                                                   .data
                                                                   .first
                                                                   .pushChecked,
+                                                          initMarketingSwitchedValue:
+                                                              snapshot1
+                                                                  .data
+                                                                  .first
+                                                                  .marketingChecked,
                                                         ),
                                                       )));
                                         },
@@ -310,7 +318,9 @@ class _MyinfoWidgetState extends State<MyinfoWidget> {
                                         IconButton(
                                           icon:
                                               Icon(Icons.keyboard_arrow_right),
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            // p.deleteAllPushNotice();
+                                          },
                                         )
                                       ],
                                     ),

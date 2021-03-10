@@ -3,13 +3,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MyinfoProvider with ChangeNotifier {
-  bool _isSwitched = false;
+  bool _isPushSwitched = false;
+  bool _isMarketingSwitched = false;
 
-  setSwitchedValue(bool value) => _isSwitched = value;
-  bool get hasSwitched => _isSwitched;
+  setPushSwitchedValue(bool value) => _isPushSwitched = value;
+  bool get hasPushSwitched => _isPushSwitched;
 
-  Future changedSwitchValue(bool currentSwitched) async {
-    _isSwitched = currentSwitched;
+  setMarketingSwitchedValue(bool value) => _isMarketingSwitched = value;
+  bool get hasMarketingSwitched => _isMarketingSwitched;
+
+  Future changedPushSwitchValue(bool currentSwitched) async {
+    _isPushSwitched = currentSwitched;
+    notifyListeners();
+  }
+  Future changedMarketingSwitchValue(bool currentSwitched) async {
+    _isMarketingSwitched = currentSwitched;
     notifyListeners();
   }
 

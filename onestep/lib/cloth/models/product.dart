@@ -8,7 +8,7 @@ class Product {
   final String price;
   final String explain;
   final int views;
-  final List<String> favoriteuserlist;
+  final List<dynamic> favoriteuserlist;
   final DateTime uploadtime;
   final DateTime updatetime;
   final DateTime bumptime;

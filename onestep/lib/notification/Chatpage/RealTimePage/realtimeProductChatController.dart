@@ -271,7 +271,6 @@ class RealtimeProductChatController {
   }
 
   StreamBuilder getRealtimeProductChatReadCounts(String chattingRoomId) {
-    bool onlyOneStream = false;
     print("#read# on $chattingRoomId");
     return StreamBuilder(
         stream: productChatMessageReference
@@ -283,6 +282,8 @@ class RealtimeProductChatController {
             // .equalTo(false)
             .onValue, //조건1.  타임스탬프 기준
         builder: (BuildContext context, AsyncSnapshot snapshot) {
+          final chatCount =
+              Provider.of<ChatCount>(context); // Counter 타입의 데이터를 가져옴.
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
               return Container();
@@ -293,9 +294,7 @@ class RealtimeProductChatController {
                   snapshot.data.snapshot.value == null) {
                 return Text("없음 " + productChatcount.toString());
               } else if (snapshot.hasData) {
-                onlyOneStream = false;
                 print("#realpro Strmsg top 값 있음");
-
                 // productChatcount = 0;
 
                 DataSnapshot dataValues = snapshot.data.snapshot;
@@ -308,11 +307,10 @@ class RealtimeProductChatController {
                 //   productChatcount += 1; //해당되는 채팅마다 채팅개수 증가
                 // });
                 // print("#read# $productChatcount");
-                if (onlyOneStream == false) {
-                  onlyOneStream = true;
-                  print("##only $onlyOneStream");
-                  return chatCountBadge(values.length);
-                }
+                chatCount.setProductChatCount(values.length);
+                setToFirebaseProductChatCount(chatCount.getProductChatCount());
+                return chatCountBadge(values.length);
+
                 // return listProductMessage.length > 0
                 //     ? ListView.builder(
                 //         padding: EdgeInsets.all(10.0),

@@ -1,9 +1,5 @@
-import 'dart:async';
-
-import 'package:async/async.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:onestep/api/firebase_api.dart';
 import 'package:onestep/notification/Chatpage/RealTimePage/realtimeNavigationManager.dart';
@@ -12,6 +8,8 @@ import 'package:onestep/notification/Controllers/productChatController.dart';
 import 'package:onestep/notification/model/productChat.dart';
 
 import 'chat_realtime.dart';
+import 'package:onestep/notification/ChatCountProvider/chatCount.dart';
+import 'package:provider/provider.dart';
 
 class RealTimePage extends StatefulWidget {
   @override
@@ -99,7 +97,7 @@ class _RealTimePageState extends State<RealTimePage>
 
   Widget _buildChatListListTileStream() {
     bool userExist = false;
-    String chatKey = "";
+    final chatCount = Provider.of<ChatCount>(context); //카운트 프로바이더
     return StreamBuilder(
       stream:
           //comments
@@ -120,12 +118,13 @@ class _RealTimePageState extends State<RealTimePage>
               print("stream values if0 null : ${snapshot.data.snapshot.value}");
               return Container(child: Center(child: Text("No data")));
             } else {
+              chatCount.initChatCount();
+
               print("stream values else1 : ${snapshot.data.snapshot.value}");
               listProductChat.clear(); //리스트 클리어
               DataSnapshot dataValues = snapshot.data.snapshot;
               Map<dynamic, dynamic> values = dataValues.value;
               print("##걍StrTest" + values.toString());
-              chatKey = null;
               values.forEach((key, values) {
                 // print("걍프린트" + values['users'].toString());
                 print("stream values else2 bo :" +
